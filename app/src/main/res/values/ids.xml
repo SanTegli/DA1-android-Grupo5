@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="subtitleText" type="id" />
+    <item name="otpEditText" type="id" />
+    <item name="verifyButton" type="id" />
+    <item name="resendText" type="id" />
+</resources>

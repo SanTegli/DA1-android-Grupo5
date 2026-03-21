@@ -43,4 +43,39 @@
         libero vel nunc consequat, quis tincidunt nisl eleifend. Cras bibendum enim a justo luctus
         vestibulum. Fusce dictum libero quis erat maximus, vitae volutpat diam dignissim.
     </string>
+    <string name="iniciar_sesi_n">Iniciar sesión</string>
+    <string name="email">Email</string>
+    <string name="contrase_a">Contraseña</string>
+    <string name="ingresar">Ingresar</string>
+    <string name="no_ten_s_cuenta_registrate">¿No tenés cuenta? Registrate</string>
+
+    <!-- App Strings -->
+    <string name="register_soon">La funcionalidad de registro estará disponible pronto</string>
+    <string name="error_email_required">El email es requerido</string>
+    <string name="error_invalid_email">Por favor, ingresá un email válido</string>
+    <string name="error_password_required">La contraseña es requerida</string>
+    <string name="error_password_short">La contraseña debe tener al menos 6 caracteres</string>
+    <string name="error_invalid_credentials">Credenciales inválidas</string>
+    <string name="error_user_not_found">Usuario no encontrado</string>
+    <string name="error_wrong_credentials">Email o contraseña incorrectos</string>
+    <string name="error_connection">Error de conexión: compruebe su Internet</string>
+    <string name="loading">Cargando…</string>
+
+    <string name="verify_identity">Verificá tu identidad</string>
+    <string name="otp_sent_message">Te enviamos un código a tu email</string>
+    <string name="otp_hint">Código OTP</string>
+    <string name="error_otp_required">El código es requerido</string>
+    <string name="error_otp_length">El código debe tener 6 dígitos</string>
+    <string name="welcome">¡Bienvenido!</string>
+    <string name="error_otp_invalid">Código incorrecto o expirado</string>
+    <string name="error_connection_detail">Error de conexión: %1$s</string>
+    <string name="otp_resent">Código reenviado</string>
+    <string name="error_resend_otp">Error al reenviar código</string>
+    <string name="error_network">Error de red</string>
+    <string name="verifying">Verificando…</string>
+    <string name="verify">Verificar</string>
+    <string name="resend_question">¿No recibiste el código? Reenviar</string>
+
+    <string name="custom_action">Acción personalizada aquí</string>
+    <string name="close">Cerrar</string>
 </resources>
