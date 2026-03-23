@@ -1,23 +1,22 @@
 package com.example.androidnativegrupo5;
 
 import android.os.Bundle;
-
-import com.google.android.material.snackbar.Snackbar;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import androidx.appcompat.app.AppCompatActivity;
-
-import android.view.View;
-
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.example.androidnativegrupo5.databinding.ActivityMainBinding;
+import com.google.android.material.snackbar.Snackbar;
 
-import android.view.Menu;
-import android.view.MenuItem;
-
+/**
+ * MainActivity serves as the primary entry point for the logged-in user.
+ * it manages the main navigation flow using a NavHostFragment and a Toolbar.
+ */
 public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration appBarConfiguration;
@@ -27,23 +26,24 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // Inflate the layout using View Binding
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        // Setup the toolbar
         setSupportActionBar(binding.toolbar);
 
+        // Setup Navigation Component
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
         appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
 
-        binding.fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAnchorView(R.id.fab)
-                        .setAction("Action", null).show();
-            }
-        });
+        // Action for the Floating Action Button
+        binding.fab.setOnClickListener(view -> 
+            Snackbar.make(view, R.string.custom_action, Snackbar.LENGTH_LONG)
+                    .setAnchorView(R.id.fab)
+                    .setAction(R.string.close, null).show()
+        );
     }
 
     @Override
@@ -55,13 +55,11 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
+        // Handle action bar item clicks here.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            // Future implementation for settings
             return true;
         }
 
@@ -70,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onSupportNavigateUp() {
+        // Handles the Up button navigation in the action bar
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
         return NavigationUI.navigateUp(navController, appBarConfiguration)
                 || super.onSupportNavigateUp();
