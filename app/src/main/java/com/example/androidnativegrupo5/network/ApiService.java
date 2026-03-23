@@ -24,4 +24,7 @@ public interface ApiService {
     @POST("auth/otp/resend")
     Call<MessageResponse> resendOtp(@Body OtpRequest request);
 
+    @POST("auth/register")
+    Call<AuthResponse> register(@Body RegisterRequest request);
+
 }
