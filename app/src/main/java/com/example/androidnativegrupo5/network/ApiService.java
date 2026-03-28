@@ -5,6 +5,7 @@ import com.example.androidnativegrupo5.model.LoginRequest;
 import com.example.androidnativegrupo5.model.MessageResponse;
 import com.example.androidnativegrupo5.model.OtpRequest;
 import com.example.androidnativegrupo5.model.OtpVerifyRequest;
+import com.example.androidnativegrupo5.model.RegisterRequest;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -23,5 +24,8 @@ public interface ApiService {
 
     @POST("auth/otp/resend")
     Call<MessageResponse> resendOtp(@Body OtpRequest request);
+
+    @POST("auth/register")
+    Call<AuthResponse> register(@Body RegisterRequest request);
 
 }

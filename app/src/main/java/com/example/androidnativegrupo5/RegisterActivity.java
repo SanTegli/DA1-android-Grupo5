@@ -9,9 +9,9 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.androidnativegrupo5.model.AuthResponse;
-import com.example.androidnativegrupo5.model.LoginRequest;
 import com.example.androidnativegrupo5.model.MessageResponse;
 import com.example.androidnativegrupo5.model.OtpRequest;
+import com.example.androidnativegrupo5.model.RegisterRequest;
 import com.example.androidnativegrupo5.network.ApiService;
 import com.example.androidnativegrupo5.network.RetrofitClient;
 import com.example.androidnativegrupo5.utils.Constants;
@@ -23,54 +23,62 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-/**
- * LoginActivity handles the user authentication process.
- * It validates user credentials and requests an OTP code upon successful login.
- */
-public class LoginActivity extends AppCompatActivity {
+public class RegisterActivity extends AppCompatActivity {
 
-    private TextInputLayout emailLayout, passwordLayout;
-    private TextInputEditText emailEditText, passwordEditText;
-    private Button loginButton;
+    private TextInputLayout usernameLayout, emailLayout, passwordLayout, confirmPasswordLayout;
+    private TextInputEditText usernameEditText, emailEditText, passwordEditText, confirmPasswordEditText;
+    private Button registerButton;
     private ApiService apiService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+        setContentView(R.layout.activity_register);
 
         apiService = RetrofitClient.getClient().create(ApiService.class);
 
-        // Initialize UI components
+        usernameLayout = findViewById(R.id.usernameLayout);
         emailLayout = findViewById(R.id.emailLayout);
         passwordLayout = findViewById(R.id.passwordLayout);
+        confirmPasswordLayout = findViewById(R.id.confirmPasswordLayout);
+
+        usernameEditText = findViewById(R.id.usernameEditText);
         emailEditText = findViewById(R.id.emailEditText);
         passwordEditText = findViewById(R.id.passwordEditText);
-        loginButton = findViewById(R.id.loginButton);
-        TextView registerText = findViewById(R.id.registerText);
+        confirmPasswordEditText = findViewById(R.id.confirmPasswordEditText);
 
-        // Set listener for the login button
-        loginButton.setOnClickListener(v -> {
-            String email = emailEditText.getText().toString().trim();
-            String password = passwordEditText.getText().toString().trim();
+        registerButton = findViewById(R.id.registerButton);
+        TextView loginText = findViewById(R.id.loginText);
 
-            if (validarCampos(email, password)) {
-                llamarLogin(email, password);
+        registerButton.setOnClickListener(v -> {
+            String username = usernameEditText.getText() != null ? usernameEditText.getText().toString().trim() : "";
+            String email = emailEditText.getText() != null ? emailEditText.getText().toString().trim() : "";
+            String password = passwordEditText.getText() != null ? passwordEditText.getText().toString().trim() : "";
+            String confirmPassword = confirmPasswordEditText.getText() != null ? confirmPasswordEditText.getText().toString().trim() : "";
+
+            if (validarCampos(username, email, password, confirmPassword)) {
+                llamarRegister(username, email, password);
             }
         });
 
-        // Set listener for the register redirection
-        registerText.setOnClickListener(v -> {
-            Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
-            startActivity(intent);
+        loginText.setOnClickListener(v -> {
+            startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
+            finish();
         });
     }
 
-    /**
-     * Validates that the input fields are not empty and follow the correct format.
-     */
-    private boolean validarCampos(String email, String password) {
+    private boolean validarCampos(String username, String email, String password, String confirmPassword) {
         boolean isValid = true;
+
+        if (username.isEmpty()) {
+            usernameLayout.setError("El username es obligatorio");
+            isValid = false;
+        } else if (username.length() < 3 || username.length() > 50) {
+            usernameLayout.setError("El username debe tener entre 3 y 50 caracteres");
+            isValid = false;
+        } else {
+            usernameLayout.setError(null);
+        }
 
         if (email.isEmpty()) {
             emailLayout.setError(getString(R.string.error_email_required));
@@ -88,36 +96,50 @@ public class LoginActivity extends AppCompatActivity {
         } else if (password.length() < Constants.MIN_PASSWORD_LENGTH) {
             passwordLayout.setError(getString(R.string.error_password_short));
             isValid = false;
+        } else if (!passwordValida(password)) {
+            passwordLayout.setError("Debe tener mayúscula, minúscula y número");
+            isValid = false;
         } else {
             passwordLayout.setError(null);
+        }
+
+        if (confirmPassword.isEmpty()) {
+            confirmPasswordLayout.setError("Confirmá la contraseña");
+            isValid = false;
+        } else if (!confirmPassword.equals(password)) {
+            confirmPasswordLayout.setError("Las contraseñas no coinciden");
+            isValid = false;
+        } else {
+            confirmPasswordLayout.setError(null);
         }
 
         return isValid;
     }
 
-    /**
-     * Performs the login request to the server using Retrofit.
-     */
-    private void llamarLogin(String email, String password) {
-        LoginRequest request = new LoginRequest(email, password);
+    private boolean passwordValida(String password) {
+        return password.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$");
+    }
+
+    private void llamarRegister(String username, String email, String password) {
+        RegisterRequest request = new RegisterRequest(username, email, password, "USER");
 
         setLoading(true);
 
-        apiService.login(request).enqueue(new Callback<AuthResponse>() {
+        apiService.register(request).enqueue(new Callback<AuthResponse>() {
             @Override
             public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
                 if (response.isSuccessful()) {
-                    // If login is successful, request an OTP
                     solicitarOtpYProceder(email);
                 } else {
                     setLoading(false);
-                    int errorResId = R.string.error_invalid_credentials;
-                    if (response.code() == 404) {
-                        errorResId = R.string.error_user_not_found;
-                    } else if (response.code() == 401) {
-                        errorResId = R.string.error_wrong_credentials;
+
+                    if (response.code() == 409) {
+                        showError("El username o email ya está registrado");
+                    } else if (response.code() == 400) {
+                        showError("Datos inválidos de registro");
+                    } else {
+                        showError(getString(R.string.error_connection));
                     }
-                    showError(getString(errorResId));
                 }
             }
 
@@ -129,9 +151,6 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    /**
-     * Requests an OTP code for the given email and navigates to the OTP verification screen.
-     */
     private void solicitarOtpYProceder(String email) {
         OtpRequest otpRequest = new OtpRequest(email);
 
@@ -145,34 +164,28 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<MessageResponse> call, Throwable t) {
                 setLoading(false);
-                // Even on failure, we proceed to OTP screen as the service might have sent it anyway
                 navigateToOtp(email);
             }
         });
     }
 
-    /**
-     * Helper method to navigate to OtpActivity.
-     */
     private void navigateToOtp(String email) {
-        Intent intent = new Intent(LoginActivity.this, OtpActivity.class);
+        Intent intent = new Intent(RegisterActivity.this, OtpActivity.class);
         intent.putExtra(Constants.EXTRA_EMAIL, email);
         startActivity(intent);
+        finish();
     }
 
-    /**
-     * Updates the UI state to reflect a loading process.
-     */
     private void setLoading(boolean isLoading) {
-        loginButton.setEnabled(!isLoading);
-        loginButton.setText(isLoading ? R.string.loading : R.string.ingresar);
+        registerButton.setEnabled(!isLoading);
+        registerButton.setText(isLoading ? R.string.loading : R.string.registrarse);
+
+        usernameLayout.setEnabled(!isLoading);
         emailLayout.setEnabled(!isLoading);
         passwordLayout.setEnabled(!isLoading);
+        confirmPasswordLayout.setEnabled(!isLoading);
     }
 
-    /**
-     * Displays an error message using a Snackbar.
-     */
     private void showError(String message) {
         Snackbar.make(findViewById(android.R.id.content), message, Snackbar.LENGTH_LONG).show();
     }
