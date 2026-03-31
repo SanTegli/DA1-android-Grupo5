@@ -4,11 +4,7 @@ plugins {
 
 android {
     namespace = "com.example.androidnativegrupo5"
-    compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
-    }
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.androidnativegrupo5"
@@ -38,8 +34,6 @@ android {
     }
 }
 
-// Aca se van agregando dependencias
-
 dependencies {
     implementation(libs.appcompat)
     implementation(libs.material)
@@ -51,4 +45,5 @@ dependencies {
     androidTestImplementation(libs.espresso.core)
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.github.bumptech.glide:glide:4.16.0")
 }

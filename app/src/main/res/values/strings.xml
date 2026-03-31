@@ -1,11 +1,11 @@
 <resources>
-    <string name="app_name">Android Native Grupo 5</string>
+    <string name="app_name">XploreNow</string>
     <string name="action_settings">Settings</string>
     <!-- Strings used for fragments for navigation -->
-    <string name="first_fragment_label">First Fragment</string>
-    <string name="second_fragment_label">Second Fragment</string>
-    <string name="next">Next</string>
-    <string name="previous">Previous</string>
+    <string name="first_fragment_label">Explorar Actividades</string>
+    <string name="second_fragment_label">Detalles de Actividad</string>
+    <string name="next">Siguiente</string>
+    <string name="previous">Anterior</string>
 
     <string name="lorem_ipsum">
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam in scelerisque sem. Mauris
@@ -79,4 +79,9 @@
     <string name="custom_action">Acción personalizada aquí</string>
     <string name="close">Cerrar</string>
     <string name="registrarse">Registrarse</string>
+
+    <string name="activities_title">XploreNow - Actividades</string>
+    <string name="duration_label">Duración: %1$s</string>
+    <string name="slots_label">Cupos: %1$d</string>
+    <string name="price_free">Gratis</string>
 </resources>
