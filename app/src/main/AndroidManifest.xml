@@ -25,18 +25,6 @@
             </intent-filter>
         </activity>
 
-<!--        <activity-->
-<!--            android:name=".OtpActivity"-->
-<!--            android:exported="false" />-->
-
-<!--        <activity-->
-<!--            android:name=".MainActivity"-->
-<!--            android:exported="true" />-->
-
-        <activity
-            android:name=".RegisterActivity"
-            android:exported="false" />
-
     </application>
 
 </manifest>

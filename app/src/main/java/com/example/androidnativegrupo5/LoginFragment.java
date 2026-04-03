@@ -68,9 +68,9 @@ public class LoginFragment extends Fragment {
             }
         });
 
-        // Set listener for the register redirection
-        registerText.setOnClickListener(v -> 
-            Snackbar.make(v, R.string.register_soon, Snackbar.LENGTH_SHORT).show()
+        registerText.setOnClickListener(v ->
+                NavHostFragment.findNavController(this)
+                        .navigate(R.id.action_LoginFragment_to_RegisterFragment)
         );
     }
 

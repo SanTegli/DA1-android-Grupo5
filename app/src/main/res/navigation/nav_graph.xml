@@ -13,6 +13,11 @@
         <action
             android:id="@+id/action_LoginFragment_to_OtpFragment"
             app:destination="@id/OtpFragment" />
+
+        <action
+            android:id="@+id/action_LoginFragment_to_RegisterFragment"
+            app:destination="@id/RegisterFragment" />
+
     </fragment>
 
     <fragment
@@ -49,4 +54,14 @@
             android:id="@+id/action_SecondFragment_to_FirstFragment"
             app:destination="@id/FirstFragment" />
     </fragment>
+
+    <fragment
+        android:id="@+id/RegisterFragment"
+        android:name="com.example.androidnativegrupo5.RegisterFragment"
+        android:label="Register">
+        <action
+            android:id="@+id/action_registerFragment_to_otpFragment"
+            app:destination="@id/OtpFragment" />
+    </fragment>
+
 </navigation>
