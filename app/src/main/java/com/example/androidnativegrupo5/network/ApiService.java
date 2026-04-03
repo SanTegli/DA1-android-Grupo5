@@ -1,15 +1,19 @@
 package com.example.androidnativegrupo5.network;
 
+import com.example.androidnativegrupo5.model.Activity;
 import com.example.androidnativegrupo5.model.AuthResponse;
 import com.example.androidnativegrupo5.model.LoginRequest;
 import com.example.androidnativegrupo5.model.MessageResponse;
 import com.example.androidnativegrupo5.model.OtpRequest;
 import com.example.androidnativegrupo5.model.OtpVerifyRequest;
+import com.example.androidnativegrupo5.model.PaginatedResponse;
 import com.example.androidnativegrupo5.model.RegisterRequest;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.GET;
 import retrofit2.http.POST;
+import retrofit2.http.Query;
 
 public interface ApiService {
 
@@ -27,5 +31,8 @@ public interface ApiService {
 
     @POST("auth/register")
     Call<AuthResponse> register(@Body RegisterRequest request);
+
+    @GET("activities")
+    Call<PaginatedResponse<Activity>> getActivities(@Query("page") int page, @Query("size") int size);
 
 }
