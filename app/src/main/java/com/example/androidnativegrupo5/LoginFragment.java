@@ -1,12 +1,17 @@
 package com.example.androidnativegrupo5;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Patterns;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.androidnativegrupo5.model.AuthResponse;
 import com.example.androidnativegrupo5.model.LoginRequest;
@@ -24,30 +29,34 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 /**
- * LoginActivity handles the user authentication process.
- * It validates user credentials and requests an OTP code upon successful login.
+ * LoginFragment handles the user authentication process.
  */
-public class LoginActivity extends AppCompatActivity {
+public class LoginFragment extends Fragment {
 
     private TextInputLayout emailLayout, passwordLayout;
     private TextInputEditText emailEditText, passwordEditText;
     private Button loginButton;
     private ApiService apiService;
 
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_login, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
         apiService = RetrofitClient.getClient().create(ApiService.class);
 
         // Initialize UI components
-        emailLayout = findViewById(R.id.emailLayout);
-        passwordLayout = findViewById(R.id.passwordLayout);
-        emailEditText = findViewById(R.id.emailEditText);
-        passwordEditText = findViewById(R.id.passwordEditText);
-        loginButton = findViewById(R.id.loginButton);
-        TextView registerText = findViewById(R.id.registerText);
+        emailLayout = view.findViewById(R.id.emailLayout);
+        passwordLayout = view.findViewById(R.id.passwordLayout);
+        emailEditText = view.findViewById(R.id.emailEditText);
+        passwordEditText = view.findViewById(R.id.passwordEditText);
+        loginButton = view.findViewById(R.id.loginButton);
+        TextView registerText = view.findViewById(R.id.registerText);
 
         // Set listener for the login button
         loginButton.setOnClickListener(v -> {
@@ -60,15 +69,11 @@ public class LoginActivity extends AppCompatActivity {
         });
 
         // Set listener for the register redirection
-        registerText.setOnClickListener(v -> {
-            Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
-            startActivity(intent);
-        });
+        registerText.setOnClickListener(v -> 
+            Snackbar.make(v, R.string.register_soon, Snackbar.LENGTH_SHORT).show()
+        );
     }
 
-    /**
-     * Validates that the input fields are not empty and follow the correct format.
-     */
     private boolean validarCampos(String email, String password) {
         boolean isValid = true;
 
@@ -95,9 +100,6 @@ public class LoginActivity extends AppCompatActivity {
         return isValid;
     }
 
-    /**
-     * Performs the login request to the server using Retrofit.
-     */
     private void llamarLogin(String email, String password) {
         LoginRequest request = new LoginRequest(email, password);
 
@@ -107,7 +109,6 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
                 if (response.isSuccessful()) {
-                    // If login is successful, request an OTP
                     solicitarOtpYProceder(email);
                 } else {
                     setLoading(false);
@@ -129,9 +130,6 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    /**
-     * Requests an OTP code for the given email and navigates to the OTP verification screen.
-     */
     private void solicitarOtpYProceder(String email) {
         OtpRequest otpRequest = new OtpRequest(email);
 
@@ -145,35 +143,28 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<MessageResponse> call, Throwable t) {
                 setLoading(false);
-                // Even on failure, we proceed to OTP screen as the service might have sent it anyway
                 navigateToOtp(email);
             }
         });
     }
 
-    /**
-     * Helper method to navigate to OtpActivity.
-     */
     private void navigateToOtp(String email) {
-        Intent intent = new Intent(LoginActivity.this, OtpActivity.class);
-        intent.putExtra(Constants.EXTRA_EMAIL, email);
-        startActivity(intent);
+        Bundle bundle = new Bundle();
+        bundle.putString(Constants.EXTRA_EMAIL, email);
+        NavHostFragment.findNavController(this).navigate(R.id.action_LoginFragment_to_OtpFragment, bundle);
     }
 
-    /**
-     * Updates the UI state to reflect a loading process.
-     */
     private void setLoading(boolean isLoading) {
+        if (getView() == null) return;
         loginButton.setEnabled(!isLoading);
         loginButton.setText(isLoading ? R.string.loading : R.string.ingresar);
         emailLayout.setEnabled(!isLoading);
         passwordLayout.setEnabled(!isLoading);
     }
 
-    /**
-     * Displays an error message using a Snackbar.
-     */
     private void showError(String message) {
-        Snackbar.make(findViewById(android.R.id.content), message, Snackbar.LENGTH_LONG).show();
+        if (getView() != null) {
+            Snackbar.make(getView(), message, Snackbar.LENGTH_LONG).show();
+        }
     }
 }
