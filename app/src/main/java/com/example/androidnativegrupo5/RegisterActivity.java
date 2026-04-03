@@ -62,7 +62,9 @@ public class RegisterActivity extends AppCompatActivity {
         });
 
         loginText.setOnClickListener(v -> {
-            startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
+            Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
             finish();
         });
     }
@@ -170,7 +172,7 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void navigateToOtp(String email) {
-        Intent intent = new Intent(RegisterActivity.this, OtpActivity.class);
+        Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
         intent.putExtra(Constants.EXTRA_EMAIL, email);
         startActivity(intent);
         finish();
