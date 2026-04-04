@@ -36,16 +36,6 @@
     </fragment>
 
     <fragment
-        android:id="@+id/FirstFragment"
-        android:name="com.example.androidnativegrupo5.FirstFragment"
-        android:label="@string/first_fragment_label"
-        tools:layout="@layout/fragment_first">
-        <action
-            android:id="@+id/action_FirstFragment_to_SecondFragment"
-            app:destination="@id/SecondFragment" />
-    </fragment>
-
-    <fragment
         android:id="@+id/SecondFragment"
         android:name="com.example.androidnativegrupo5.SecondFragment"
         android:label="@string/second_fragment_label"
@@ -62,6 +52,24 @@
         <action
             android:id="@+id/action_registerFragment_to_otpFragment"
             app:destination="@id/OtpFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/FirstFragment"
+        android:name="com.example.androidnativegrupo5.FirstFragment"
+        android:label="FirstFragment">
+        <action
+            android:id="@+id/action_FirstFragment_to_DetailFragment"
+            app:destination="@id/DetailFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/DetailFragment"
+        android:name="com.example.androidnativegrupo5.DetailFragment"
+        android:label="DetailFragment">
+        <argument
+            android:name="activityId"
+            app:argType="long" />
     </fragment>
 
 </navigation>

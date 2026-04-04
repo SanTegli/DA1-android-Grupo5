@@ -9,6 +9,10 @@ import com.example.androidnativegrupo5.model.OtpVerifyRequest;
 import com.example.androidnativegrupo5.model.PaginatedResponse;
 import com.example.androidnativegrupo5.model.RegisterRequest;
 
+import java.util.List;
+
+import retrofit2.http.Path;
+
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
@@ -32,7 +36,12 @@ public interface ApiService {
     @POST("auth/register")
     Call<AuthResponse> register(@Body RegisterRequest request);
 
-    @GET("activities")
-    Call<PaginatedResponse<Activity>> getActivities(@Query("page") int page, @Query("size") int size);
+    @GET("/api/v1/activities")
+    Call<PaginatedResponse<Activity>> getActivities(
+            @Query("page") int page,
+            @Query("size") int size
+    );
 
+    @GET("/api/v1/activities/{id}")
+    Call<Activity> getActivityById(@Path("id") Long id);
 }

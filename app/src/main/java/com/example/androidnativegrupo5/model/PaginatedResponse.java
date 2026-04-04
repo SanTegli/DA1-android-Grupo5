@@ -3,24 +3,50 @@ package com.example.androidnativegrupo5.model;
 import java.util.List;
 
 public class PaginatedResponse<T> {
+
     private List<T> content;
     private int totalPages;
     private long totalElements;
-    private int number;
     private int size;
+    private int number;
+    private boolean first;
+    private boolean last;
+    private int numberOfElements;
+    private boolean empty;
 
-    public List<T> getContent() { return content; }
-    public void setContent(List<T> content) { this.content = content; }
+    public List<T> getContent() {
+        return content;
+    }
 
-    public int getTotalPages() { return totalPages; }
-    public void setTotalPages(int totalPages) { this.totalPages = totalPages; }
+    public int getTotalPages() {
+        return totalPages;
+    }
 
-    public long getTotalElements() { return totalElements; }
-    public void setTotalElements(long totalElements) { this.totalElements = totalElements; }
+    public long getTotalElements() {
+        return totalElements;
+    }
 
-    public int getNumber() { return number; }
-    public void setNumber(int number) { this.number = number; }
+    public int getSize() {
+        return size;
+    }
 
-    public int getSize() { return size; }
-    public void setSize(int size) { this.size = size; }
+    public int getNumber() {
+        return number;
+    }
+
+    public boolean isFirst() {
+        return first;
+    }
+
+    public boolean isLast() {
+        return last;
+    }
+
+    public int getNumberOfElements() {
+        return numberOfElements;
+    }
+
+    public boolean isEmpty() {
+        return empty;
+    }
 }

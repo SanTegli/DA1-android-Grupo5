@@ -1,0 +1,97 @@
+package com.example.androidnativegrupo5;
+
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+
+import com.bumptech.glide.Glide;
+import com.example.androidnativegrupo5.databinding.FragmentDetailBinding;
+import com.example.androidnativegrupo5.model.Activity;
+import com.example.androidnativegrupo5.network.ApiService;
+import com.example.androidnativegrupo5.network.RetrofitClient;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+public class DetailFragment extends Fragment {
+
+    private FragmentDetailBinding binding;
+
+    @Override
+    public View onCreateView(
+            @NonNull LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState
+    ) {
+        binding = FragmentDetailBinding.inflate(inflater, container, false);
+        return binding.getRoot();
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        long activityId = getArguments().getLong("activityId", -1);
+
+        if (activityId == -1) {
+            Toast.makeText(getContext(), "Error al cargar actividad", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        loadActivityDetail(activityId);
+    }
+
+    private void loadActivityDetail(Long id) {
+        ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
+
+        apiService.getActivityById(id).enqueue(new Callback<Activity>() {
+            @Override
+            public void onResponse(@NonNull Call<Activity> call, @NonNull Response<Activity> response) {
+
+                if (!isAdded() || binding == null) return;
+
+                if (response.isSuccessful() && response.body() != null) {
+
+                    Activity activity = response.body();
+
+                    binding.textTitle.setText(activity.getName());
+                    binding.textDestination.setText(activity.getDestination());
+                    binding.textCategory.setText(activity.getCategory());
+                    binding.textDuration.setText(activity.getDuration());
+                    binding.textDescription.setText(activity.getDescription());
+
+                    if (activity.getPrice() <= 0) {
+                        binding.textPrice.setText("Gratis");
+                    } else {
+                        binding.textPrice.setText("$" + activity.getPrice());
+                    }
+
+                    Glide.with(requireContext())
+                            .load(activity.getImageUrl())
+                            .placeholder(android.R.drawable.ic_menu_gallery)
+                            .into(binding.imageDetail);
+
+                } else {
+                    Toast.makeText(getContext(), "Error al cargar detalle", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<Activity> call, @NonNull Throwable t) {
+                if (!isAdded() || binding == null) return;
+                Toast.makeText(getContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
+    }
+}
