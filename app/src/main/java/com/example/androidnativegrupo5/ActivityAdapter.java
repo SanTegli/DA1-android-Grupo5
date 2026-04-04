@@ -21,12 +21,26 @@ import java.util.Locale;
 
 public class ActivityAdapter extends RecyclerView.Adapter<ActivityAdapter.ActivityViewHolder> {
 
+    public interface OnActivityClickListener {
+        void onActivityClick(Activity activity);
+    }
+
     private final List<Activity> activities = new ArrayList<>();
+    private final OnActivityClickListener listener;
+
+    public ActivityAdapter(OnActivityClickListener listener) {
+        this.listener = listener;
+    }
 
     public void addActivities(List<Activity> newActivities) {
         int startPos = activities.size();
         activities.addAll(newActivities);
         notifyItemRangeInserted(startPos, newActivities.size());
+    }
+
+    public void clearActivities() {
+        activities.clear();
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -38,8 +52,7 @@ public class ActivityAdapter extends RecyclerView.Adapter<ActivityAdapter.Activi
 
     @Override
     public void onBindViewHolder(@NonNull ActivityViewHolder holder, int position) {
-        Activity activity = activities.get(position);
-        holder.bind(activity);
+        holder.bind(activities.get(position), listener);
     }
 
     @Override
@@ -67,21 +80,20 @@ public class ActivityAdapter extends RecyclerView.Adapter<ActivityAdapter.Activi
             textSlots = itemView.findViewById(R.id.text_slots);
         }
 
-        public void bind(Activity activity) {
+        public void bind(Activity activity, OnActivityClickListener listener) {
             Context context = itemView.getContext();
+
             textName.setText(activity.getName());
             textDestination.setText(activity.getDestination());
-            textCategory.setText(activity.getCategory().toUpperCase());
-            
+            textCategory.setText(activity.getCategory() != null ? activity.getCategory().toUpperCase() : "");
             textDuration.setText(context.getString(R.string.duration_label, activity.getDuration()));
             textSlots.setText(context.getString(R.string.slots_label, activity.getAvailableSlots()));
-            
+
             if (activity.getPrice() <= 0) {
                 textPrice.setText(R.string.price_free);
                 textPrice.setTextColor(ContextCompat.getColor(context, android.R.color.holo_green_dark));
             } else {
                 textPrice.setText(String.format(Locale.getDefault(), "$%.2f", activity.getPrice()));
-                // Usamos el color definido en nuestro colors.xml para evitar errores
                 textPrice.setTextColor(ContextCompat.getColor(context, R.color.colorPrimary));
             }
 
@@ -91,6 +103,8 @@ public class ActivityAdapter extends RecyclerView.Adapter<ActivityAdapter.Activi
                     .placeholder(android.R.drawable.ic_menu_gallery)
                     .error(android.R.drawable.ic_menu_report_image)
                     .into(imageActivity);
+
+            itemView.setOnClickListener(v -> listener.onActivityClick(activity));
         }
     }
 }
