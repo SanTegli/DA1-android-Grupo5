@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -63,34 +64,33 @@ public class ActivityAdapter extends RecyclerView.Adapter<ActivityAdapter.Activi
     static class ActivityViewHolder extends RecyclerView.ViewHolder {
         private final ImageView imageActivity;
         private final TextView textName;
+        private final TextView textDescription;
         private final TextView textDestination;
-        private final TextView textCategory;
         private final TextView textDuration;
         private final TextView textPrice;
-        private final TextView textSlots;
+        private final Button btnDetail;
 
         public ActivityViewHolder(@NonNull View itemView) {
             super(itemView);
             imageActivity = itemView.findViewById(R.id.image_activity);
             textName = itemView.findViewById(R.id.text_name);
+            textDescription = itemView.findViewById(R.id.text_description);
             textDestination = itemView.findViewById(R.id.text_destination);
-            textCategory = itemView.findViewById(R.id.text_category);
             textDuration = itemView.findViewById(R.id.text_duration);
             textPrice = itemView.findViewById(R.id.text_price);
-            textSlots = itemView.findViewById(R.id.text_slots);
+            btnDetail = itemView.findViewById(R.id.btn_detail);
         }
 
         public void bind(Activity activity, OnActivityClickListener listener) {
             Context context = itemView.getContext();
 
             textName.setText(activity.getName());
-            textDestination.setText(activity.getDestination());
-            textCategory.setText(activity.getCategory() != null ? activity.getCategory().toUpperCase() : "");
-            textDuration.setText(context.getString(R.string.duration_label, activity.getDuration()));
-            textSlots.setText(context.getString(R.string.slots_label, activity.getAvailableSlots()));
+            textDescription.setText(activity.getDescription() != null ? activity.getDescription() : "");
+            textDestination.setText(activity.getDestination() != null ? activity.getDestination() : "");
+            textDuration.setText(activity.getDuration() != null ? activity.getDuration() : "");
 
             if (activity.getPrice() <= 0) {
-                textPrice.setText(R.string.price_free);
+                textPrice.setText("Gratis");
                 textPrice.setTextColor(ContextCompat.getColor(context, android.R.color.holo_green_dark));
             } else {
                 textPrice.setText(String.format(Locale.getDefault(), "$%.2f", activity.getPrice()));
@@ -105,6 +105,7 @@ public class ActivityAdapter extends RecyclerView.Adapter<ActivityAdapter.Activi
                     .into(imageActivity);
 
             itemView.setOnClickListener(v -> listener.onActivityClick(activity));
+            btnDetail.setOnClickListener(v -> listener.onActivityClick(activity));
         }
     }
 }

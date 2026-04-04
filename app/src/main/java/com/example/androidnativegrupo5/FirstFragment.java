@@ -9,6 +9,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -19,6 +20,8 @@ import com.example.androidnativegrupo5.model.PaginatedResponse;
 import com.example.androidnativegrupo5.network.ApiService;
 import com.example.androidnativegrupo5.network.RetrofitClient;
 
+import java.util.List;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -27,8 +30,10 @@ public class FirstFragment extends Fragment {
 
     private FragmentFirstBinding binding;
     private ActivityAdapter adapter;
+
     private int currentPage = 0;
-    private final int pageSize = 10;
+    private static final int PAGE_SIZE = 10;
+
     private boolean isLoading = false;
     private boolean isLastPage = false;
 
@@ -45,30 +50,36 @@ public class FirstFragment extends Fragment {
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        NavController navController = Navigation.findNavController(view);
+
         adapter = new ActivityAdapter(activity -> {
             Bundle bundle = new Bundle();
             bundle.putLong("activityId", activity.getId());
-            Navigation.findNavController(view)
-                    .navigate(R.id.action_FirstFragment_to_DetailFragment, bundle);
+            navController.navigate(R.id.action_FirstFragment_to_DetailFragment, bundle);
         });
 
+        binding.recyclerActivities.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.recyclerActivities.setAdapter(adapter);
-        binding.recyclerActivities.setLayoutManager(new LinearLayoutManager(getContext()));
 
+        // Scroll infinito
         binding.recyclerActivities.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-                LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
-                if (layoutManager != null && !isLoading && !isLastPage) {
-                    int visibleItemCount = layoutManager.getChildCount();
-                    int totalItemCount = layoutManager.getItemCount();
-                    int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
 
-                    if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount
-                            && firstVisibleItemPosition >= 0) {
-                        loadActivities();
-                    }
+                if (dy <= 0) return;
+
+                LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                if (layoutManager == null || isLoading || isLastPage) return;
+
+                int visibleItemCount = layoutManager.getChildCount();
+                int totalItemCount = layoutManager.getItemCount();
+                int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
+
+                if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount
+                        && firstVisibleItemPosition >= 0
+                        && totalItemCount >= PAGE_SIZE) {
+                    loadActivities();
                 }
             }
         });
@@ -81,35 +92,68 @@ public class FirstFragment extends Fragment {
         binding.progressBar.setVisibility(View.VISIBLE);
 
         ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
-        apiService.getActivities(currentPage, pageSize).enqueue(new Callback<PaginatedResponse<Activity>>() {
-            @Override
-            public void onResponse(@NonNull Call<PaginatedResponse<Activity>> call,
-                                   @NonNull Response<PaginatedResponse<Activity>> response) {
-                isLoading = false;
-                binding.progressBar.setVisibility(View.GONE);
 
-                if (response.isSuccessful() && response.body() != null && !response.body().getContent().isEmpty()) {
-                    PaginatedResponse<Activity> paginatedResponse = response.body();
-                    adapter.addActivities(paginatedResponse.getContent());
+        apiService.getActivities(currentPage, PAGE_SIZE)
+                .enqueue(new Callback<PaginatedResponse<Activity>>() {
 
-                    if (currentPage >= paginatedResponse.getTotalPages() - 1) {
-                        isLastPage = true;
-                    } else {
-                        currentPage++;
+                    @Override
+                    public void onResponse(@NonNull Call<PaginatedResponse<Activity>> call,
+                                           @NonNull Response<PaginatedResponse<Activity>> response) {
+
+                        isLoading = false;
+                        binding.progressBar.setVisibility(View.GONE);
+
+                        if (!isAdded() || binding == null) return;
+
+                        if (response.isSuccessful() && response.body() != null) {
+
+                            PaginatedResponse<Activity> paginatedResponse = response.body();
+                            List<Activity> activities = paginatedResponse.getContent();
+
+                            if (activities != null && !activities.isEmpty()) {
+
+                                adapter.addActivities(activities);
+
+                                if (currentPage >= paginatedResponse.getTotalPages() - 1) {
+                                    isLastPage = true;
+                                } else {
+                                    currentPage++;
+                                }
+
+                            } else {
+                                if (currentPage == 0) {
+                                    Toast.makeText(requireContext(),
+                                            "No se encontraron actividades",
+                                            Toast.LENGTH_SHORT).show();
+                                }
+                                isLastPage = true;
+                            }
+
+                        } else {
+                            Log.e("FirstFragment", "Error code: " + response.code());
+                            Toast.makeText(requireContext(),
+                                    "Error al obtener actividades",
+                                    Toast.LENGTH_SHORT).show();
+                        }
                     }
-                } else {
-                    Toast.makeText(getContext(), "No se encontraron actividades", Toast.LENGTH_SHORT).show();
-                }
-            }
 
-            @Override
-            public void onFailure(@NonNull Call<PaginatedResponse<Activity>> call, @NonNull Throwable t) {
-                isLoading = false;
-                binding.progressBar.setVisibility(View.GONE);
-                Log.e("FirstFragment", "Error: " + t.getMessage());
-                Toast.makeText(getContext(), "Error de conexión con el servidor", Toast.LENGTH_SHORT).show();
-            }
-        });
+                    @Override
+                    public void onFailure(@NonNull Call<PaginatedResponse<Activity>> call,
+                                          @NonNull Throwable t) {
+
+                        isLoading = false;
+
+                        if (!isAdded() || binding == null) return;
+
+                        binding.progressBar.setVisibility(View.GONE);
+
+                        Log.e("FirstFragment", "Error: " + t.getMessage(), t);
+
+                        Toast.makeText(requireContext(),
+                                "Error de conexión con el servidor",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     @Override
