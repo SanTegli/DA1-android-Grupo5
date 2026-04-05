@@ -61,6 +61,9 @@
         <action
             android:id="@+id/action_FirstFragment_to_DetailFragment"
             app:destination="@id/DetailFragment" />
+        <action
+            android:id="@+id/action_FirstFragment_to_MyReservationsFragment"
+            app:destination="@id/MyReservationsFragment" />
     </fragment>
 
     <fragment
@@ -70,6 +73,31 @@
         <argument
             android:name="activityId"
             app:argType="long" />
+        <action
+            android:id="@+id/action_DetailFragment_to_ReservationFragment"
+            app:destination="@id/ReservationFragment" />
     </fragment>
+
+    <fragment
+        android:id="@+id/ReservationFragment"
+        android:name="com.example.androidnativegrupo5.ReservationFragment"
+        android:label="ReservationFragment"
+        tools:layout="@layout/fragment_reservation">
+        <argument
+            android:name="activityId"
+            app:argType="long" />
+        <argument
+            android:name="activityName"
+            app:argType="string" />
+        <argument
+            android:name="activityPrice"
+            app:argType="float" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/MyReservationsFragment"
+        android:name="com.example.androidnativegrupo5.MyReservationsFragment"
+        android:label="Mis Reservas"
+        tools:layout="@layout/fragment_my_reservations"/>
 
 </navigation>
