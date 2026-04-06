@@ -12,10 +12,14 @@ import com.example.androidnativegrupo5.model.RegisterRequest;
 import com.example.androidnativegrupo5.model.CreateReservationRequest;
 import com.example.androidnativegrupo5.model.ReservationResponse;
 
+import com.example.androidnativegrupo5.model.UserResponse;
+
 import java.util.List;
 
 import retrofit2.http.DELETE;
 import retrofit2.http.PATCH;
+import retrofit2.http.Header;
+import retrofit2.http.PUT;
 import retrofit2.http.Path;
 
 import retrofit2.Call;
@@ -61,4 +65,9 @@ public interface ApiService {
 
     @PATCH("/api/v1/reservations/{id}/cancel")
     Call<Void> cancelReservation(@Path("id") Long id);
+    @GET("/api/v1/users/me")
+    Call<UserResponse> getMyProfile(@Header("Authorization") String token);
+
+    @PUT("/api/v1/users/me")
+    Call<UserResponse> updateProfile(@Header("Authorization") String token, @Body UserResponse user);
 }

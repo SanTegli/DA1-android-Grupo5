@@ -61,6 +61,10 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.action_settings) {
             // Future implementation for settings
             return true;
+        } else if (id == R.id.action_profile) {
+            NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
+            navController.navigate(R.id.ProfileFragment);
+            return true;
         }
 
         return super.onOptionsItemSelected(item);

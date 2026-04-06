@@ -99,5 +99,9 @@
         android:name="com.example.androidnativegrupo5.MyReservationsFragment"
         android:label="Mis Reservas"
         tools:layout="@layout/fragment_my_reservations"/>
+        android:id="@+id/ProfileFragment"
+        android:name="com.example.androidnativegrupo5.ProfileFragment"
+        android:label="Perfil del Viajero"
+        tools:layout="@layout/fragment_profile" />
 
 </navigation>
