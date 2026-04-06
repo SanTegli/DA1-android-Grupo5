@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -23,12 +24,17 @@ import com.example.androidnativegrupo5.network.ApiService;
 import com.example.androidnativegrupo5.network.RetrofitClient;
 
 import java.util.Calendar;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+
+import com.google.android.material.chip.Chip;
+import java.util.LinkedHashSet;
 
 public class ReservationFragment extends Fragment {
 
@@ -55,6 +61,8 @@ public class ReservationFragment extends Fragment {
 
         apiService = RetrofitClient.getClient().create(ApiService.class);
 
+        loadAvailabilities();
+
         if (getArguments() != null) {
             activityName = getArguments().getString("activityName");
             activityPrice = getArguments().getFloat("activityPrice");
@@ -69,12 +77,6 @@ public class ReservationFragment extends Fragment {
         }
 
         updateTotalPrice(1);
-
-        // Date picker
-        binding.editDate.setOnClickListener(v -> showDatePicker());
-
-        // Time picker
-        binding.editTime.setOnClickListener(v -> showTimePicker());
 
         // Slots listener
         binding.editSlots.addTextChangedListener(new TextWatcher() {
@@ -142,106 +144,21 @@ public class ReservationFragment extends Fragment {
         });
     }
 
-    private void showDatePicker() {
-        DatePickerDialog dialog = new DatePickerDialog(requireContext(),
-                (view, year, month, day) -> {
-
-                    calendar.set(year, month, day);
-
-                    String displayDate = String.format(Locale.getDefault(), "%02d/%02d/%d", day, month + 1, year);
-                    binding.editDate.setText(displayDate);
-
-                    selectedDateFormatted = year + "-" + String.format("%02d", (month + 1)) + "-" + String.format("%02d", day);
-
-                    binding.layoutDate.setError(null);
-
-                    tryLoadAvailability();
-
-                },
-                calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH),
-                calendar.get(Calendar.DAY_OF_MONTH)
-        );
-
-        dialog.getDatePicker().setMinDate(System.currentTimeMillis());
-        dialog.show();
-    }
-
-    private void showTimePicker() {
-        TimePickerDialog dialog = new TimePickerDialog(requireContext(),
-                (view, hour, minute) -> {
-
-                    selectedTime = String.format(Locale.getDefault(), "%02d:%02d", hour, minute);
-                    binding.editTime.setText(selectedTime);
-
-                    binding.layoutTime.setError(null);
-
-                    tryLoadAvailability();
-
-                },
-                calendar.get(Calendar.HOUR_OF_DAY),
-                calendar.get(Calendar.MINUTE),
-                true
-        );
-
-        dialog.show();
-    }
-
-    private void tryLoadAvailability() {
-        if (selectedDateFormatted.isEmpty() || selectedTime.isEmpty()) return;
-
-        long activityId = getArguments().getLong("activityId");
-
-        apiService.getAvailability(activityId).enqueue(new Callback<List<AvailabilitySlotResponse>>() {
-            @Override
-            public void onResponse(Call<List<AvailabilitySlotResponse>> call,
-                                   Response<List<AvailabilitySlotResponse>> response) {
-
-                if (!response.isSuccessful() || response.body() == null) {
-                    binding.textAvailableSlots.setText("Error al cargar cupos");
-                    return;
-                }
-
-                AvailabilitySlotResponse selected = null;
-
-                for (AvailabilitySlotResponse slot : response.body()) {
-                    if (slot.getDate().equals(selectedDateFormatted)
-                            && slot.getTime().substring(0, 5).equals(selectedTime)) {
-                        selected = slot;
-                        break;
-                    }
-                }
-
-                if (selected != null) {
-                    availableSlots = selected.getAvailableSlots();
-                    binding.textAvailableSlots.setText("Cupos disponibles: " + availableSlots);
-                } else {
-                    availableSlots = 0;
-                    binding.textAvailableSlots.setText("Sin disponibilidad");
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<AvailabilitySlotResponse>> call, Throwable t) {
-                binding.textAvailableSlots.setText("Error al cargar cupos");
-            }
-        });
-    }
-
     private boolean validateFields() {
         boolean valid = true;
 
-        if (binding.editDate.getText().toString().isEmpty()) {
-            binding.layoutDate.setError("Seleccione una fecha");
+        if (selectedDateFormatted == null || selectedDateFormatted.isEmpty()) {
+            Toast.makeText(getContext(), "Seleccione una fecha", Toast.LENGTH_SHORT).show();
             valid = false;
         }
 
-        if (binding.editTime.getText().toString().isEmpty()) {
-            binding.layoutTime.setError("Seleccione una hora");
+        if (selectedTime == null || selectedTime.isEmpty()) {
+            Toast.makeText(getContext(), "Seleccione una hora", Toast.LENGTH_SHORT).show();
             valid = false;
         }
 
         String slotsStr = binding.editSlots.getText().toString();
+
         if (slotsStr.isEmpty() || Integer.parseInt(slotsStr) <= 0) {
             binding.layoutSlotsInput.setError("Ingrese cantidad válida");
             valid = false;
@@ -266,5 +183,93 @@ public class ReservationFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+    }
+
+    private List<AvailabilitySlotResponse> allSlots;
+
+    private void loadAvailabilities() {
+        long activityId = getArguments().getLong("activityId");
+
+        apiService.getAvailability(activityId).enqueue(new Callback<List<AvailabilitySlotResponse>>() {
+            @Override
+            public void onResponse(Call<List<AvailabilitySlotResponse>> call,
+                                   Response<List<AvailabilitySlotResponse>> response) {
+
+                if (response.isSuccessful() && response.body() != null) {
+                    allSlots = response.body();
+                    showDates();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<AvailabilitySlotResponse>> call, Throwable t) {
+                Toast.makeText(getContext(), "Error al cargar disponibilidad", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void showDates() {
+        binding.chipGroupDates.removeAllViews();
+
+        Set<String> uniqueDates = new LinkedHashSet<>();
+
+        for (AvailabilitySlotResponse slot : allSlots) {
+            uniqueDates.add(slot.getDate());
+        }
+
+        for (String date : uniqueDates) {
+
+            Chip chip = new Chip(getContext());
+            chip.setText(date);
+            chip.setCheckable(true);
+
+            chip.setChipBackgroundColorResource(R.color.chip_selector_bg);
+            chip.setTextColor(getResources().getColorStateList(R.color.chip_selector));
+
+            chip.setOnClickListener(v -> {
+                selectedDateFormatted = date;
+
+                // RESET
+                selectedTime = "";
+                availableSlots = 0;
+                binding.textAvailableSlots.setText("Cupos disponibles: -");
+
+                showTimes(date);
+            });
+
+            binding.chipGroupDates.addView(chip);
+        }
+    }
+
+    private void showTimes(String date) {
+        binding.chipGroupTimes.removeAllViews();
+
+        for (AvailabilitySlotResponse slot : allSlots) {
+
+            if (slot.getDate().equals(date)) {
+
+                Chip chip = new Chip(getContext());
+                String time = slot.getTime().substring(0, 5);
+
+                chip.setText(time);
+                chip.setCheckable(true);
+
+                chip.setChipBackgroundColorResource(R.color.chip_selector_bg);
+                chip.setTextColor(getResources().getColorStateList(R.color.chip_selector));
+
+                if (slot.getAvailableSlots() == 0) {
+                    chip.setEnabled(false);
+                }
+
+                chip.setOnClickListener(v -> {
+                    selectedTime = time;
+                    availableSlots = slot.getAvailableSlots();
+
+                    binding.textAvailableSlots.setText("Cupos: " + availableSlots);
+                });
+
+                binding.chipGroupTimes.addView(chip);
+            }
+        }
     }
 }

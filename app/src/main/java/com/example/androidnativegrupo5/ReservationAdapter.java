@@ -89,7 +89,7 @@ public class ReservationAdapter extends RecyclerView.Adapter<ReservationAdapter.
             if (list.get(i).getId().equals(id)) {
                 list.remove(i);
                 notifyItemRemoved(i);
-                notifyItemRangeChanged(i, list.size()); 
+                notifyItemRangeChanged(i, list.size());
                 break;
             }
         }
