@@ -8,6 +8,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
 
 import com.bumptech.glide.Glide;
 import com.example.androidnativegrupo5.databinding.FragmentDetailBinding;
@@ -22,6 +23,7 @@ import retrofit2.Response;
 public class DetailFragment extends Fragment {
 
     private FragmentDetailBinding binding;
+    private Activity activity;
 
     @Override
     public View onCreateView(
@@ -57,7 +59,7 @@ public class DetailFragment extends Fragment {
 
                 if (response.isSuccessful() && response.body() != null) {
 
-                    Activity activity = response.body();
+                    activity = response.body();
 
                     binding.textTitle.setText(activity.getName());
                     binding.textDestination.setText(activity.getDestination());
@@ -75,6 +77,16 @@ public class DetailFragment extends Fragment {
                             .load(activity.getImageUrl())
                             .placeholder(android.R.drawable.ic_menu_gallery)
                             .into(binding.imageDetail);
+
+                    binding.btnReserve.setOnClickListener(v -> {
+                        Bundle bundle = new Bundle();
+                        bundle.putLong("activityId", activity.getId());
+                        bundle.putString("activityName", activity.getName());
+                        bundle.putFloat("activityPrice", (float) activity.getPrice());
+
+                        Navigation.findNavController(v)
+                                .navigate(R.id.action_DetailFragment_to_ReservationFragment, bundle);
+                    });
 
                 } else {
                     Toast.makeText(getContext(), "Error al cargar detalle", Toast.LENGTH_SHORT).show();
