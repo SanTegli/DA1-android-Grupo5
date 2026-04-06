@@ -72,4 +72,10 @@
             app:argType="long" />
     </fragment>
 
+    <fragment
+        android:id="@+id/ProfileFragment"
+        android:name="com.example.androidnativegrupo5.ProfileFragment"
+        android:label="Perfil del Viajero"
+        tools:layout="@layout/fragment_profile" />
+
 </navigation>

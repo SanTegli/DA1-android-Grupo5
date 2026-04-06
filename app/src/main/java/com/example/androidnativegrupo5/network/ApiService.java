@@ -9,8 +9,12 @@ import com.example.androidnativegrupo5.model.OtpVerifyRequest;
 import com.example.androidnativegrupo5.model.PaginatedResponse;
 import com.example.androidnativegrupo5.model.RegisterRequest;
 
+import com.example.androidnativegrupo5.model.UserResponse;
+
 import java.util.List;
 
+import retrofit2.http.Header;
+import retrofit2.http.PUT;
 import retrofit2.http.Path;
 
 import retrofit2.Call;
@@ -44,4 +48,10 @@ public interface ApiService {
 
     @GET("/api/v1/activities/{id}")
     Call<Activity> getActivityById(@Path("id") Long id);
+
+    @GET("/api/v1/users/me")
+    Call<UserResponse> getMyProfile(@Header("Authorization") String token);
+
+    @PUT("/api/v1/users/me")
+    Call<UserResponse> updateProfile(@Header("Authorization") String token, @Body UserResponse user);
 }

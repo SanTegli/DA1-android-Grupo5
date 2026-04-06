@@ -1,5 +1,7 @@
 package com.example.androidnativegrupo5;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -90,7 +92,8 @@ public class OtpFragment extends Fragment {
             @Override
             public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
                 setLoading(false);
-                if (response.isSuccessful()) {
+                if (response.isSuccessful() && response.body() != null) {
+                    saveToken(response.body().getToken());
                     Toast.makeText(getContext(), R.string.welcome, Toast.LENGTH_SHORT).show();
                     NavHostFragment.findNavController(OtpFragment.this)
                             .navigate(R.id.action_OtpFragment_to_FirstFragment);
@@ -106,6 +109,12 @@ public class OtpFragment extends Fragment {
                 Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void saveToken(String token) {
+        if (getContext() == null) return;
+        SharedPreferences prefs = getContext().getSharedPreferences("prefs", Context.MODE_PRIVATE);
+        prefs.edit().putString("auth_token", token).apply();
     }
 
     private void reenviarOtp() {
