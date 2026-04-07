@@ -207,7 +207,9 @@ public class FirstFragment extends Fragment {
 
                             } else {
                                 if (currentPage == 0) {
-                                    addMockActivities();
+                                    Toast.makeText(requireContext(),
+                                            "No se encontraron actividades",
+                                            Toast.LENGTH_SHORT).show();
                                 }
                                 isLastPage = true;
                             }
@@ -232,57 +234,11 @@ public class FirstFragment extends Fragment {
 
                         Log.e("FirstFragment", "Error: " + t.getMessage(), t);
 
-                        if (currentPage == 0) {
-                            addMockActivities();
-                        }
-
                         Toast.makeText(requireContext(),
-                                "Error de conexión. Mostrando datos locales.",
+                                "Error de conexión con el servidor",
                                 Toast.LENGTH_SHORT).show();
                     }
                 });
-    }
-
-    private void addMockActivities() {
-        List<Activity> mocks = new java.util.ArrayList<>();
-        mocks.add(createMock(101L, "Senderismo Montaña", "Aventura", "Mendoza", "Media jornada", 4500.0));
-        mocks.add(createMock(102L, "Degustación Bodega", "Gastronomía", "Mendoza", "1-2 horas", 8000.0));
-        mocks.add(createMock(103L, "Cerro Catedral", "Aventura", "Bariloche", "Día completo", 15000.0));
-        mocks.add(createMock(104L, "Navegación Lago", "Naturaleza", "Bariloche", "Media jornada", 7000.0));
-        mocks.add(createMock(105L, "Museo Bellas Artes", "Cultura", "Buenos Aires", "1-2 horas", 2000.0));
-        mocks.add(createMock(106L, "Cena Show Tango", "Gastronomía", "Buenos Aires", "Media jornada", 12000.0));
-        mocks.add(createMock(107L, "Garganta del Diablo", "Naturaleza", "Iguazú", "Día completo", 9000.0));
-        mocks.add(createMock(108L, "Vuelo en Helicóptero", "Aventura", "Iguazú", "1-2 horas", 18000.0));
-
-        List<Activity> filteredMocks = new java.util.ArrayList<>();
-        for (Activity m : mocks) {
-            boolean match = true;
-            if (filterCategory != null && !m.getCategory().equalsIgnoreCase(filterCategory)) match = false;
-            if (filterDestination != null && !m.getDestination().equalsIgnoreCase(filterDestination)) match = false;
-            if (filterDuration != null && !m.getDuration().equalsIgnoreCase(filterDuration)) match = false;
-            if (filterMaxPrice != null && m.getPrice() > filterMaxPrice) match = false;
-
-            if (match) filteredMocks.add(m);
-        }
-
-        if (!filteredMocks.isEmpty()) {
-            adapter.addActivities(filteredMocks);
-        } else if (currentPage == 0) {
-            Toast.makeText(requireContext(), "No hay actividades que coincidan con los filtros", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private Activity createMock(Long id, String name, String category, String destination, String duration, double price) {
-        Activity mock = new Activity();
-        mock.setId(id);
-        mock.setName(name + " (Mock)");
-        mock.setDescription("Descripción de prueba para " + name);
-        mock.setCategory(category);
-        mock.setDestination(destination);
-        mock.setDuration(duration);
-        mock.setPrice(price);
-        mock.setImageUrl("https://picsum.photos/seed/" + id + "/400/250");
-        return mock;
     }
 
     @Override
