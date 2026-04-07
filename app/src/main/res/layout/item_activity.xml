@@ -96,6 +96,24 @@
                     android:textColor="#777777"
                     android:maxLines="1"
                     android:ellipsize="end" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:text="|"
+                    android:textColor="#AAAAAA" />
+
+                <TextView
+                    android:id="@+id/text_slots"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:text="10 cupos"
+                    android:textSize="13sp"
+                    android:textColor="#777777"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
             </LinearLayout>
 
             <LinearLayout

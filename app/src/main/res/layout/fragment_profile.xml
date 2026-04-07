@@ -8,14 +8,39 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingBottom="32dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/profile_title"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="24dp"
+            android:textColor="@color/black" />
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/profileImage"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="24dp"
+            android:scaleType="centerCrop"
+            android:src="@android:drawable/ic_menu_report_image"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.MaterialComponents.SmallComponent"
+            app:strokeColor="@color/black"
+            app:strokeWidth="1dp" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/usernameLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:hint="Nombre de usuario">
+            android:layout_marginBottom="12dp"
+            android:hint="@string/username_hint"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/usernameEditText"
                 android:layout_width="match_parent"
@@ -26,9 +51,10 @@
             android:id="@+id/emailLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:hint="Email"
-            android:enabled="false">
+            android:layout_marginBottom="12dp"
+            android:hint="@string/email"
+            android:enabled="false"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/emailEditText"
                 android:layout_width="match_parent"
@@ -40,8 +66,9 @@
             android:id="@+id/phoneLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:hint="Teléfono">
+            android:layout_marginBottom="12dp"
+            android:hint="@string/phone_hint"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/phoneEditText"
                 android:layout_width="match_parent"
@@ -53,8 +80,9 @@
             android:id="@+id/imageUrlLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:hint="URL Imagen de Perfil">
+            android:layout_marginBottom="24dp"
+            android:hint="@string/profile_image_url_hint"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/imageUrlEditText"
                 android:layout_width="match_parent"
@@ -64,29 +92,81 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Preferencias de Viaje:"
+            android:text="@string/my_preferences"
             android:textStyle="bold"
-            android:layout_marginBottom="8dp" />
+            android:textColor="@color/black"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="12dp" />
 
-        <CheckBox android:id="@+id/cbAventura" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="aventura" />
-        <CheckBox android:id="@+id/cbCultura" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="cultura" />
-        <CheckBox android:id="@+id/cbGastronomia" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="gastronomia" />
-        <CheckBox android:id="@+id/cbNaturaleza" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="naturaleza" />
-        <CheckBox android:id="@+id/cbRelax" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="relax" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/category_label"
+            android:layout_marginBottom="4dp"
+            android:textSize="12sp" />
+        <Spinner
+            android:id="@+id/categorySpinner"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginBottom="16dp"
+            android:background="@android:drawable/btn_dropdown" />
 
-        <Button
-            android:id="@+id/saveButton"
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/destination_label"
+            android:layout_marginBottom="4dp"
+            android:textSize="12sp" />
+        <Spinner
+            android:id="@+id/destinationSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginBottom="16dp"
+            android:background="@android:drawable/btn_dropdown" />
+
+        <TextView
+            android:id="@+id/budgetText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/budget_label"
+            android:layout_marginBottom="4dp"
+            android:textSize="12sp" />
+        <com.google.android.material.slider.Slider
+            android:id="@+id/budgetSlider"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="Guardar Cambios" />
+            android:valueFrom="0"
+            android:valueTo="10000"
+            android:stepSize="100"
+            android:layout_marginBottom="16dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/duration_pref_label"
+            android:layout_marginBottom="4dp"
+            android:textSize="12sp" />
+        <Spinner
+            android:id="@+id/durationSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginBottom="32dp"
+            android:background="@android:drawable/btn_dropdown" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/saveButton"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="@string/save_changes"
+            app:cornerRadius="8dp" />
 
         <ProgressBar
             android:id="@+id/progressBar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:visibility="gone" />
+            android:visibility="gone"
+            android:layout_marginTop="16dp" />
 
     </LinearLayout>
 </ScrollView>

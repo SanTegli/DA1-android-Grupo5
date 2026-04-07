@@ -3,24 +3,27 @@ package com.example.androidnativegrupo5;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.example.androidnativegrupo5.model.UserPreferences;
 import com.example.androidnativegrupo5.model.UserResponse;
 import com.example.androidnativegrupo5.network.ApiService;
 import com.example.androidnativegrupo5.network.RetrofitClient;
+import com.google.android.material.slider.Slider;
 import com.google.android.material.textfield.TextInputEditText;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -31,11 +34,16 @@ import retrofit2.Response;
 public class ProfileFragment extends Fragment {
 
     private TextInputEditText usernameEditText, emailEditText, phoneEditText, imageUrlEditText;
-    private CheckBox cbAventura, cbCultura, cbGastronomia, cbNaturaleza, cbRelax;
+    private Spinner categorySpinner, destinationSpinner, durationSpinner;
+    private Slider budgetSlider;
     private Button saveButton;
     private ProgressBar progressBar;
     private ApiService apiService;
     private String token;
+
+    private final List<String> categories = Arrays.asList("Aventura", "Cultura", "Gastronomía", "Bienestar", "Naturaleza");
+    private final List<String> destinations = Arrays.asList("Bariloche", "Buenos Aires", "Mendoza", "Salta", "Iguazú");
+    private final List<String> durations = Arrays.asList("1-2 horas", "Media jornada", "Día completo");
 
     @Nullable
     @Override
@@ -55,14 +63,15 @@ public class ProfileFragment extends Fragment {
         phoneEditText = view.findViewById(R.id.phoneEditText);
         imageUrlEditText = view.findViewById(R.id.imageUrlEditText);
 
-        cbAventura = view.findViewById(R.id.cbAventura);
-        cbCultura = view.findViewById(R.id.cbCultura);
-        cbGastronomia = view.findViewById(R.id.cbGastronomia);
-        cbNaturaleza = view.findViewById(R.id.cbNaturaleza);
-        cbRelax = view.findViewById(R.id.cbRelax);
+        categorySpinner = view.findViewById(R.id.categorySpinner);
+        destinationSpinner = view.findViewById(R.id.destinationSpinner);
+        durationSpinner = view.findViewById(R.id.durationSpinner);
+        budgetSlider = view.findViewById(R.id.budgetSlider);
 
         saveButton = view.findViewById(R.id.saveButton);
         progressBar = view.findViewById(R.id.progressBar);
+
+        setupSpinners();
 
         if (token == null) {
             Toast.makeText(getContext(), "Error: Token no encontrado. Inicie sesión.", Toast.LENGTH_LONG).show();
@@ -72,6 +81,20 @@ public class ProfileFragment extends Fragment {
         loadProfile();
 
         saveButton.setOnClickListener(v -> saveProfile());
+    }
+
+    private void setupSpinners() {
+        ArrayAdapter<String> catAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, categories);
+        catAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        categorySpinner.setAdapter(catAdapter);
+
+        ArrayAdapter<String> destAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, destinations);
+        destAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        destinationSpinner.setAdapter(destAdapter);
+
+        ArrayAdapter<String> durAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, durations);
+        durAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        durationSpinner.setAdapter(durAdapter);
     }
 
     private String getAuthToken() {
@@ -93,7 +116,16 @@ public class ProfileFragment extends Fragment {
                 if (response.isSuccessful() && response.body() != null) {
                     populateFields(response.body());
                 } else {
-                    Toast.makeText(getContext(), "Error al cargar perfil", Toast.LENGTH_SHORT).show();
+                    String errorMsg = "Error al cargar perfil";
+                    try {
+                        if (response.errorBody() != null) {
+                            errorMsg += ": " + response.errorBody().string();
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    Log.e("ProfileFragment", "Error loading profile: " + response.code() + " " + errorMsg);
+                    Toast.makeText(getContext(), errorMsg, Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -111,14 +143,20 @@ public class ProfileFragment extends Fragment {
         phoneEditText.setText(user.getPhone());
         imageUrlEditText.setText(user.getProfileImageUrl());
 
-        String prefs = user.getTravelPreferences();
+        UserPreferences prefs = user.getPreferences();
         if (prefs != null) {
-            List<String> prefList = Arrays.asList(prefs.split(","));
-            cbAventura.setChecked(prefList.contains("aventura"));
-            cbCultura.setChecked(prefList.contains("cultura"));
-            cbGastronomia.setChecked(prefList.contains("gastronomia"));
-            cbNaturaleza.setChecked(prefList.contains("naturaleza"));
-            cbRelax.setChecked(prefList.contains("relax"));
+            if (prefs.getPreferredCategory() != null) {
+                categorySpinner.setSelection(categories.indexOf(prefs.getPreferredCategory()));
+            }
+            if (prefs.getPreferredDestination() != null) {
+                destinationSpinner.setSelection(destinations.indexOf(prefs.getPreferredDestination()));
+            }
+            if (prefs.getActivityDuration() != null) {
+                durationSpinner.setSelection(durations.indexOf(prefs.getActivityDuration()));
+            }
+            if (prefs.getMaxPrice() != null) {
+                budgetSlider.setValue(prefs.getMaxPrice().floatValue());
+            }
         }
     }
 
@@ -126,7 +164,13 @@ public class ProfileFragment extends Fragment {
         String username = usernameEditText.getText().toString().trim();
         String phone = phoneEditText.getText().toString().trim();
         String imageUrl = imageUrlEditText.getText().toString().trim();
-        String prefs = getSelectedPreferences();
+
+        UserPreferences prefs = new UserPreferences(
+                categorySpinner.getSelectedItem().toString(),
+                (int) budgetSlider.getValue(),
+                destinationSpinner.getSelectedItem().toString(),
+                durationSpinner.getSelectedItem().toString()
+        );
 
         UserResponse updateRequest = new UserResponse(username, phone, imageUrl, prefs);
 
@@ -136,7 +180,7 @@ public class ProfileFragment extends Fragment {
             public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
                 setLoading(false);
                 if (response.isSuccessful()) {
-                    Toast.makeText(getContext(), "Perfil actualizado correctamente", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "✓ Perfil actualizado correctamente", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(getContext(), "Error al actualizar perfil", Toast.LENGTH_SHORT).show();
                 }
@@ -150,26 +194,8 @@ public class ProfileFragment extends Fragment {
         });
     }
 
-    private String getSelectedPreferences() {
-        List<String> selected = new ArrayList<>();
-        if (cbAventura.isChecked()) selected.add("aventura");
-        if (cbCultura.isChecked()) selected.add("cultura");
-        if (cbGastronomia.isChecked()) selected.add("gastronomia");
-        if (cbNaturaleza.isChecked()) selected.add("naturaleza");
-        if (cbRelax.isChecked()) selected.add("relax");
-
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < selected.size(); i++) {
-            sb.append(selected.get(i));
-            if (i < selected.size() - 1) {
-                sb.append(",");
-            }
-        }
-        return sb.toString();
-    }
-
     private void setLoading(boolean isLoading) {
-        progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
-        saveButton.setEnabled(!isLoading);
+        if (progressBar != null) progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+        if (saveButton != null) saveButton.setEnabled(!isLoading);
     }
 }
