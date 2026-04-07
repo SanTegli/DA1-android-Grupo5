@@ -34,6 +34,7 @@ public class FirstFragment extends Fragment {
 
     private FragmentFirstBinding binding;
     private ActivityAdapter adapter;
+    private FeaturedActivityAdapter featuredAdapter;
 
     private int currentPage = 0;
     private static final int PAGE_SIZE = 10;
@@ -70,6 +71,8 @@ public class FirstFragment extends Fragment {
 
         binding.recyclerActivities.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.recyclerActivities.setAdapter(adapter);
+
+        setupFeaturedCarousel(navController);
 
         setupFilters();
 
@@ -117,10 +120,60 @@ public class FirstFragment extends Fragment {
         String selectedPrice = binding.spinnerPrice.getSelectedItem().toString();
         filterMaxPrice = mapPriceRange(selectedPrice);
 
+        // Hide featured if filters are applied
+        if (filterCategory != null || filterDestination != null || filterDuration != null || filterMaxPrice != null) {
+            binding.layoutFeatured.setVisibility(View.GONE);
+        } else {
+            binding.layoutFeatured.setVisibility(View.VISIBLE);
+        }
+
         currentPage = 0;
         isLastPage = false;
         adapter.clearActivities();
         loadActivities();
+    }
+
+    private void setupFeaturedCarousel(NavController navController) {
+        featuredAdapter = new FeaturedActivityAdapter(activity -> {
+            Bundle bundle = new Bundle();
+            bundle.putLong("activityId", activity.getId());
+            navController.navigate(R.id.action_FirstFragment_to_DetailFragment, bundle);
+        });
+
+        binding.recyclerFeatured.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
+        binding.recyclerFeatured.setAdapter(featuredAdapter);
+
+        loadFeaturedActivities();
+    }
+
+    private void loadFeaturedActivities() {
+        ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
+        // Fetch first 5 activities as "featured"
+        apiService.getActivities(0, 5, null, null, null, null, null)
+                .enqueue(new Callback<PaginatedResponse<Activity>>() {
+                    @Override
+                    public void onResponse(@NonNull Call<PaginatedResponse<Activity>> call, @NonNull Response<PaginatedResponse<Activity>> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            List<Activity> activities = response.body().getContent();
+                            if (activities != null && !activities.isEmpty()) {
+                                featuredAdapter.setActivities(activities);
+                                binding.layoutFeatured.setVisibility(View.VISIBLE);
+                            } else {
+                                binding.layoutFeatured.setVisibility(View.GONE);
+                            }
+                        } else {
+                            binding.layoutFeatured.setVisibility(View.GONE);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Call<PaginatedResponse<Activity>> call, @NonNull Throwable t) {
+                        Log.e("FirstFragment", "Error loading featured: " + t.getMessage());
+                        if (binding != null) {
+                            binding.layoutFeatured.setVisibility(View.GONE);
+                        }
+                    }
+                });
     }
 
     private void setupFilters() {
