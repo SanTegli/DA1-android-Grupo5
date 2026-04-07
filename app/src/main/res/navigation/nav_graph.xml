@@ -57,7 +57,7 @@
     <fragment
         android:id="@+id/FirstFragment"
         android:name="com.example.androidnativegrupo5.FirstFragment"
-        android:label="FirstFragment">
+        android:label="Actividades">
         <action
             android:id="@+id/action_FirstFragment_to_DetailFragment"
             app:destination="@id/DetailFragment" />

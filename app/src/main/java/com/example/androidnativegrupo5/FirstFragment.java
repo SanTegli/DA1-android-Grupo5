@@ -5,6 +5,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -38,6 +41,12 @@ public class FirstFragment extends Fragment {
     private boolean isLoading = false;
     private boolean isLastPage = false;
 
+    private String filterCategory = null;
+    private String filterDestination = null;
+    private String filterDuration = null;
+    private Double filterMaxPrice = null;
+    private boolean isInitialSelect = true;
+
     @Override
     public View onCreateView(
             @NonNull LayoutInflater inflater, ViewGroup container,
@@ -62,6 +71,8 @@ public class FirstFragment extends Fragment {
         binding.recyclerActivities.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.recyclerActivities.setAdapter(adapter);
 
+        setupFilters();
+
         // Scroll infinito
         binding.recyclerActivities.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -85,13 +96,81 @@ public class FirstFragment extends Fragment {
             }
         });
 
-        loadActivities();
-
         binding.btnMyReservations.setOnClickListener(v -> {
             Navigation.findNavController(v)
                     .navigate(R.id.action_FirstFragment_to_MyReservationsFragment);
         });
     }
+
+    private void applyFilters() {
+        if (binding == null) return;
+
+        filterCategory = binding.spinnerCategory.getSelectedItem().toString();
+        if (filterCategory.equals("Categorías")) filterCategory = null;
+
+        filterDestination = binding.spinnerDestination.getSelectedItem().toString();
+        if (filterDestination.equals("Destinos")) filterDestination = null;
+
+        filterDuration = binding.spinnerDuration.getSelectedItem().toString();
+        if (filterDuration.equals("Duración")) filterDuration = null;
+
+        String selectedPrice = binding.spinnerPrice.getSelectedItem().toString();
+        filterMaxPrice = mapPriceRange(selectedPrice);
+
+        currentPage = 0;
+        isLastPage = false;
+        adapter.clearActivities();
+        loadActivities();
+    }
+
+    private void setupFilters() {
+            String[] categories = {"Categorías", "Aventura", "Cultura", "Gastronomía", "Naturaleza"};
+            String[] destinations = {"Destinos", "Mendoza", "Bariloche", "Buenos Aires", "Iguazú"};
+            String[] durations = {"Duración", "1-2 horas", "Media jornada", "Día completo"};
+            String[] prices = {"Precio", "Hasta $5000", "Hasta $10000", "Hasta $20000"};
+
+            setupSpinner(binding.spinnerCategory, categories);
+            setupSpinner(binding.spinnerDestination, destinations);
+            setupSpinner(binding.spinnerDuration, durations);
+            setupSpinner(binding.spinnerPrice, prices);
+
+            AdapterView.OnItemSelectedListener itemSelectedListener = new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    if (isInitialSelect) {
+                        return;
+                    }
+                    applyFilters();
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {}
+            };
+
+            binding.spinnerCategory.setOnItemSelectedListener(itemSelectedListener);
+            binding.spinnerDestination.setOnItemSelectedListener(itemSelectedListener);
+            binding.spinnerDuration.setOnItemSelectedListener(itemSelectedListener);
+            binding.spinnerPrice.setOnItemSelectedListener(itemSelectedListener);
+
+            isInitialSelect = false;
+            loadActivities();
+        }
+
+        private void setupSpinner(Spinner spinner, String[] items) {
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
+                    android.R.layout.simple_spinner_item, items);
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            spinner.setAdapter(adapter);
+        }
+
+        private Double mapPriceRange(String selectedPrice) {
+            switch (selectedPrice) {
+                case "Hasta $5000": return 5000.0;
+                case "Hasta $10000": return 10000.0;
+                case "Hasta $20000": return 20000.0;
+                default: return null;
+            }
+        }
 
     private void loadActivities() {
         isLoading = true;
@@ -99,7 +178,7 @@ public class FirstFragment extends Fragment {
 
         ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
 
-        apiService.getActivities(currentPage, PAGE_SIZE)
+        apiService.getActivities(currentPage, PAGE_SIZE, filterCategory, filterDestination, filterDuration, null, filterMaxPrice)
                 .enqueue(new Callback<PaginatedResponse<Activity>>() {
 
                     @Override
@@ -128,9 +207,7 @@ public class FirstFragment extends Fragment {
 
                             } else {
                                 if (currentPage == 0) {
-                                    Toast.makeText(requireContext(),
-                                            "No se encontraron actividades",
-                                            Toast.LENGTH_SHORT).show();
+                                    addMockActivities();
                                 }
                                 isLastPage = true;
                             }
@@ -155,11 +232,57 @@ public class FirstFragment extends Fragment {
 
                         Log.e("FirstFragment", "Error: " + t.getMessage(), t);
 
+                        if (currentPage == 0) {
+                            addMockActivities();
+                        }
+
                         Toast.makeText(requireContext(),
-                                "Error de conexión con el servidor",
+                                "Error de conexión. Mostrando datos locales.",
                                 Toast.LENGTH_SHORT).show();
                     }
                 });
+    }
+
+    private void addMockActivities() {
+        List<Activity> mocks = new java.util.ArrayList<>();
+        mocks.add(createMock(101L, "Senderismo Montaña", "Aventura", "Mendoza", "Media jornada", 4500.0));
+        mocks.add(createMock(102L, "Degustación Bodega", "Gastronomía", "Mendoza", "1-2 horas", 8000.0));
+        mocks.add(createMock(103L, "Cerro Catedral", "Aventura", "Bariloche", "Día completo", 15000.0));
+        mocks.add(createMock(104L, "Navegación Lago", "Naturaleza", "Bariloche", "Media jornada", 7000.0));
+        mocks.add(createMock(105L, "Museo Bellas Artes", "Cultura", "Buenos Aires", "1-2 horas", 2000.0));
+        mocks.add(createMock(106L, "Cena Show Tango", "Gastronomía", "Buenos Aires", "Media jornada", 12000.0));
+        mocks.add(createMock(107L, "Garganta del Diablo", "Naturaleza", "Iguazú", "Día completo", 9000.0));
+        mocks.add(createMock(108L, "Vuelo en Helicóptero", "Aventura", "Iguazú", "1-2 horas", 18000.0));
+
+        List<Activity> filteredMocks = new java.util.ArrayList<>();
+        for (Activity m : mocks) {
+            boolean match = true;
+            if (filterCategory != null && !m.getCategory().equalsIgnoreCase(filterCategory)) match = false;
+            if (filterDestination != null && !m.getDestination().equalsIgnoreCase(filterDestination)) match = false;
+            if (filterDuration != null && !m.getDuration().equalsIgnoreCase(filterDuration)) match = false;
+            if (filterMaxPrice != null && m.getPrice() > filterMaxPrice) match = false;
+
+            if (match) filteredMocks.add(m);
+        }
+
+        if (!filteredMocks.isEmpty()) {
+            adapter.addActivities(filteredMocks);
+        } else if (currentPage == 0) {
+            Toast.makeText(requireContext(), "No hay actividades que coincidan con los filtros", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private Activity createMock(Long id, String name, String category, String destination, String duration, double price) {
+        Activity mock = new Activity();
+        mock.setId(id);
+        mock.setName(name + " (Mock)");
+        mock.setDescription("Descripción de prueba para " + name);
+        mock.setCategory(category);
+        mock.setDestination(destination);
+        mock.setDuration(duration);
+        mock.setPrice(price);
+        mock.setImageUrl("https://picsum.photos/seed/" + id + "/400/250");
+        return mock;
     }
 
     @Override
