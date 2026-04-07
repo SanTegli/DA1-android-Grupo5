@@ -48,7 +48,12 @@ public interface ApiService {
     @GET("/api/v1/activities")
     Call<PaginatedResponse<Activity>> getActivities(
             @Query("page") int page,
-            @Query("size") int size
+            @Query("size") int size,
+            @Query("category") String category,
+            @Query("destination") String destination,
+            @Query("duration") String duration,
+            @Query("minPrice") Double minPrice,
+            @Query("maxPrice") Double maxPrice
     );
 
     @GET("/api/v1/activities/{id}")

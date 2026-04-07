@@ -5,6 +5,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -38,6 +41,12 @@ public class FirstFragment extends Fragment {
     private boolean isLoading = false;
     private boolean isLastPage = false;
 
+    private String filterCategory = null;
+    private String filterDestination = null;
+    private String filterDuration = null;
+    private Double filterMaxPrice = null;
+    private boolean isInitialSelect = true;
+
     @Override
     public View onCreateView(
             @NonNull LayoutInflater inflater, ViewGroup container,
@@ -62,6 +71,8 @@ public class FirstFragment extends Fragment {
         binding.recyclerActivities.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.recyclerActivities.setAdapter(adapter);
 
+        setupFilters();
+
         // Scroll infinito
         binding.recyclerActivities.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -85,13 +96,81 @@ public class FirstFragment extends Fragment {
             }
         });
 
-        loadActivities();
-
         binding.btnMyReservations.setOnClickListener(v -> {
             Navigation.findNavController(v)
                     .navigate(R.id.action_FirstFragment_to_MyReservationsFragment);
         });
     }
+
+    private void applyFilters() {
+        if (binding == null) return;
+
+        filterCategory = binding.spinnerCategory.getSelectedItem().toString();
+        if (filterCategory.equals("Categorías")) filterCategory = null;
+
+        filterDestination = binding.spinnerDestination.getSelectedItem().toString();
+        if (filterDestination.equals("Destinos")) filterDestination = null;
+
+        filterDuration = binding.spinnerDuration.getSelectedItem().toString();
+        if (filterDuration.equals("Duración")) filterDuration = null;
+
+        String selectedPrice = binding.spinnerPrice.getSelectedItem().toString();
+        filterMaxPrice = mapPriceRange(selectedPrice);
+
+        currentPage = 0;
+        isLastPage = false;
+        adapter.clearActivities();
+        loadActivities();
+    }
+
+    private void setupFilters() {
+            String[] categories = {"Categorías", "Aventura", "Cultura", "Gastronomía", "Naturaleza"};
+            String[] destinations = {"Destinos", "Mendoza", "Bariloche", "Buenos Aires", "Iguazú"};
+            String[] durations = {"Duración", "1-2 horas", "Media jornada", "Día completo"};
+            String[] prices = {"Precio", "Hasta $5000", "Hasta $10000", "Hasta $20000"};
+
+            setupSpinner(binding.spinnerCategory, categories);
+            setupSpinner(binding.spinnerDestination, destinations);
+            setupSpinner(binding.spinnerDuration, durations);
+            setupSpinner(binding.spinnerPrice, prices);
+
+            AdapterView.OnItemSelectedListener itemSelectedListener = new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    if (isInitialSelect) {
+                        return;
+                    }
+                    applyFilters();
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {}
+            };
+
+            binding.spinnerCategory.setOnItemSelectedListener(itemSelectedListener);
+            binding.spinnerDestination.setOnItemSelectedListener(itemSelectedListener);
+            binding.spinnerDuration.setOnItemSelectedListener(itemSelectedListener);
+            binding.spinnerPrice.setOnItemSelectedListener(itemSelectedListener);
+
+            isInitialSelect = false;
+            loadActivities();
+        }
+
+        private void setupSpinner(Spinner spinner, String[] items) {
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
+                    android.R.layout.simple_spinner_item, items);
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            spinner.setAdapter(adapter);
+        }
+
+        private Double mapPriceRange(String selectedPrice) {
+            switch (selectedPrice) {
+                case "Hasta $5000": return 5000.0;
+                case "Hasta $10000": return 10000.0;
+                case "Hasta $20000": return 20000.0;
+                default: return null;
+            }
+        }
 
     private void loadActivities() {
         isLoading = true;
@@ -99,7 +178,7 @@ public class FirstFragment extends Fragment {
 
         ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
 
-        apiService.getActivities(currentPage, PAGE_SIZE)
+        apiService.getActivities(currentPage, PAGE_SIZE, filterCategory, filterDestination, filterDuration, null, filterMaxPrice)
                 .enqueue(new Callback<PaginatedResponse<Activity>>() {
 
                     @Override
