@@ -17,7 +17,6 @@ import androidx.fragment.app.Fragment;
 
 import com.example.androidnativegrupo5.model.UserResponse;
 import com.example.androidnativegrupo5.network.ApiService;
-import com.example.androidnativegrupo5.network.RetrofitClient;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.ArrayList;

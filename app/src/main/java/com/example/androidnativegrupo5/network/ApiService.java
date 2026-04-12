@@ -1,6 +1,7 @@
 package com.example.androidnativegrupo5.network;
 
 import com.example.androidnativegrupo5.model.Activity;
+import com.example.androidnativegrupo5.model.ActivityHistoryItem;
 import com.example.androidnativegrupo5.model.AuthResponse;
 import com.example.androidnativegrupo5.model.AvailabilitySlotResponse;
 import com.example.androidnativegrupo5.model.LoginRequest;
@@ -75,4 +76,12 @@ public interface ApiService {
 
     @PUT("/api/v1/users/me")
     Call<UserResponse> updateProfile(@Header("Authorization") String token, @Body UserResponse user);
+
+    @GET("api/v1/history")
+    Call<List<ActivityHistoryItem>> getHistory(
+            @Query("fromDate") String fromDate,
+            @Query("toDate") String toDate,
+            @Query("destination") String destination
+    );
+
 }

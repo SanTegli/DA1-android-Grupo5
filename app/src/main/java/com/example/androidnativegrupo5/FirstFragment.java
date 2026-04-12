@@ -22,7 +22,6 @@ import com.example.androidnativegrupo5.model.Activity;
 import com.example.androidnativegrupo5.model.PaginatedResponse;
 import com.example.androidnativegrupo5.model.ReservationResponse;
 import com.example.androidnativegrupo5.network.ApiService;
-import com.example.androidnativegrupo5.network.RetrofitClient;
 
 import java.util.List;
 

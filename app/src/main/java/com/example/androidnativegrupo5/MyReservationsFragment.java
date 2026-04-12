@@ -9,12 +9,12 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.androidnativegrupo5.databinding.FragmentMyReservationsBinding;
 import com.example.androidnativegrupo5.model.ReservationResponse;
 import com.example.androidnativegrupo5.network.ApiService;
-import com.example.androidnativegrupo5.network.RetrofitClient;
 
 import java.util.List;
 
@@ -48,6 +48,11 @@ public class MyReservationsFragment extends Fragment implements ReservationAdapt
         super.onViewCreated(view, savedInstanceState);
 
         binding.recyclerReservations.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        binding.btnGoHistory.setOnClickListener(v ->
+                NavHostFragment.findNavController(this)
+                        .navigate(R.id.HistoryFragment)
+        );
 
         loadReservations();
     }

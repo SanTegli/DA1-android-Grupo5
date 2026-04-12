@@ -14,8 +14,6 @@ import com.bumptech.glide.Glide;
 import com.example.androidnativegrupo5.databinding.FragmentDetailBinding;
 import com.example.androidnativegrupo5.model.Activity;
 import com.example.androidnativegrupo5.network.ApiService;
-import com.example.androidnativegrupo5.network.RetrofitClient;
-
 import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;

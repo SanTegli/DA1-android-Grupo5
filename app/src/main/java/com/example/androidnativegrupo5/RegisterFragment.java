@@ -19,7 +19,6 @@ import com.example.androidnativegrupo5.model.MessageResponse;
 import com.example.androidnativegrupo5.model.OtpRequest;
 import com.example.androidnativegrupo5.model.RegisterRequest;
 import com.example.androidnativegrupo5.network.ApiService;
-import com.example.androidnativegrupo5.network.RetrofitClient;
 import com.example.androidnativegrupo5.utils.Constants;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;

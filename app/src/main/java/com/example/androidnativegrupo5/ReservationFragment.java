@@ -21,7 +21,6 @@ import com.example.androidnativegrupo5.model.AvailabilitySlotResponse;
 import com.example.androidnativegrupo5.model.CreateReservationRequest;
 import com.example.androidnativegrupo5.model.ReservationResponse;
 import com.example.androidnativegrupo5.network.ApiService;
-import com.example.androidnativegrupo5.network.RetrofitClient;
 
 import java.util.Calendar;
 import java.util.HashSet;
