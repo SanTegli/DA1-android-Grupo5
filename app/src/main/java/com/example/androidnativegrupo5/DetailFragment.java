@@ -16,11 +16,18 @@ import com.example.androidnativegrupo5.model.Activity;
 import com.example.androidnativegrupo5.network.ApiService;
 import com.example.androidnativegrupo5.network.RetrofitClient;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.AndroidEntryPoint;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+@AndroidEntryPoint
 public class DetailFragment extends Fragment {
+
+    @Inject
+    ApiService apiService;
 
     private FragmentDetailBinding binding;
     private Activity activity;
@@ -49,8 +56,6 @@ public class DetailFragment extends Fragment {
     }
 
     private void loadActivityDetail(Long id) {
-        ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
-
         apiService.getActivityById(id).enqueue(new Callback<Activity>() {
             @Override
             public void onResponse(@NonNull Call<Activity> call, @NonNull Response<Activity> response) {

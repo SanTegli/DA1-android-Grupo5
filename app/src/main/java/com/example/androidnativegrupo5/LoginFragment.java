@@ -19,11 +19,15 @@ import com.example.androidnativegrupo5.model.MessageResponse;
 import com.example.androidnativegrupo5.model.OtpRequest;
 import com.example.androidnativegrupo5.network.ApiService;
 import com.example.androidnativegrupo5.network.RetrofitClient;
+import com.example.androidnativegrupo5.network.TokenManager;
 import com.example.androidnativegrupo5.utils.Constants;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.AndroidEntryPoint;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -31,12 +35,19 @@ import retrofit2.Response;
 /**
  * LoginFragment handles the user authentication process.
  */
+
+@AndroidEntryPoint
 public class LoginFragment extends Fragment {
+
+    @Inject
+    private ApiService apiService;
+
+    @Inject
+    private TokenManager tokenManager;
 
     private TextInputLayout emailLayout, passwordLayout;
     private TextInputEditText emailEditText, passwordEditText;
     private Button loginButton;
-    private ApiService apiService;
 
     @Nullable
     @Override
@@ -47,8 +58,6 @@ public class LoginFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        apiService = RetrofitClient.getClient().create(ApiService.class);
 
         // Initialize UI components
         emailLayout = view.findViewById(R.id.emailLayout);

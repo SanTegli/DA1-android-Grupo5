@@ -18,14 +18,20 @@ import com.example.androidnativegrupo5.network.RetrofitClient;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.AndroidEntryPoint;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+@AndroidEntryPoint
 public class MyReservationsFragment extends Fragment implements ReservationAdapter.OnCancelClickListener {
 
-    private FragmentMyReservationsBinding binding;
+    @Inject
     private ApiService apiService;
+
+    private FragmentMyReservationsBinding binding;
     private ReservationAdapter adapter;
 
     @Override
@@ -40,8 +46,6 @@ public class MyReservationsFragment extends Fragment implements ReservationAdapt
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        apiService = RetrofitClient.getClient().create(ApiService.class);
 
         binding.recyclerReservations.setLayoutManager(new LinearLayoutManager(getContext()));
 

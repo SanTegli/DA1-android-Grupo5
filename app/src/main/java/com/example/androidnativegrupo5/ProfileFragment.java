@@ -24,17 +24,23 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.AndroidEntryPoint;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+@AndroidEntryPoint
 public class ProfileFragment extends Fragment {
+
+    @Inject
+    private ApiService apiService;
 
     private TextInputEditText usernameEditText, emailEditText, phoneEditText, imageUrlEditText;
     private CheckBox cbAventura, cbCultura, cbGastronomia, cbNaturaleza, cbRelax;
     private Button saveButton;
     private ProgressBar progressBar;
-    private ApiService apiService;
     private String token;
 
     @Nullable
@@ -47,7 +53,6 @@ public class ProfileFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        apiService = RetrofitClient.getClient().create(ApiService.class);
         token = getAuthToken();
 
         usernameEditText = view.findViewById(R.id.usernameEditText);

@@ -26,11 +26,18 @@ import com.example.androidnativegrupo5.network.RetrofitClient;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.AndroidEntryPoint;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+@AndroidEntryPoint
 public class FirstFragment extends Fragment {
+
+    @Inject
+    ApiService apiService;
 
     private FragmentFirstBinding binding;
     private ActivityAdapter adapter;
@@ -147,7 +154,6 @@ public class FirstFragment extends Fragment {
     }
 
     private void loadFeaturedActivities() {
-        ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
         // Fetch first 5 activities as "featured"
         apiService.getActivities(0, 5, null, null, null, null, null)
                 .enqueue(new Callback<PaginatedResponse<Activity>>() {
@@ -228,8 +234,6 @@ public class FirstFragment extends Fragment {
     private void loadActivities() {
         isLoading = true;
         binding.progressBar.setVisibility(View.VISIBLE);
-
-        ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
 
         apiService.getActivities(currentPage, PAGE_SIZE, filterCategory, filterDestination, filterDuration, null, filterMaxPrice)
                 .enqueue(new Callback<PaginatedResponse<Activity>>() {
