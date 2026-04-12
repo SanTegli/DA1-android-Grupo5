@@ -1,5 +1,7 @@
 package com.example.androidnativegrupo5.network;
 
+import com.example.androidnativegrupo5.utils.Constants;
+
 import javax.inject.Singleton;
 
 import dagger.Module;
@@ -19,8 +21,8 @@ public class NetworkModule {
     @Singleton
     public Retrofit provideRetrofit(OkHttpClient okHttpClient) {
         return new Retrofit.Builder()
-                .baseUrl("https://pokeapi.co/api/v2/")
-                .client(okHttpClient) // 👈 CLAVE
+                .baseUrl(Constants.BASE_URL)
+                .client(okHttpClient)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
     }
