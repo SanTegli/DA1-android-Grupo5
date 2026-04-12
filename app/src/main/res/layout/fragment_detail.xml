@@ -4,7 +4,6 @@
     android:layout_height="match_parent"
     android:background="@android:color/white">
 
-    <!-- SCROLL -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -15,7 +14,6 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Imagen -->
             <ImageView
                 android:id="@+id/image_detail"
                 android:layout_width="match_parent"
@@ -23,30 +21,38 @@
                 android:scaleType="centerCrop"
                 android:src="@android:drawable/ic_menu_gallery" />
 
-            <!-- Contenido -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="16dp"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:padding="16dp">
 
                 <TextView
                     android:id="@+id/text_title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Nombre actividad"
-                    android:textSize="22sp"
-                    android:textStyle="bold"
-                    android:textColor="@android:color/black" />
+                    android:textColor="@android:color/black"
+                    android:textSize="24sp"
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/text_destination"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
+                    android:layout_marginTop="10dp"
                     android:text="Destino"
-                    android:textSize="14sp"
-                    android:textColor="#777777" />
+                    android:textColor="#444444"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/text_guide"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Guía"
+                    android:textColor="#444444"
+                    android:textSize="14sp" />
 
                 <TextView
                     android:id="@+id/text_category"
@@ -54,8 +60,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:text="Categoría"
-                    android:textSize="13sp"
-                    android:textColor="#999999" />
+                    android:textColor="#666666"
+                    android:textSize="13sp" />
 
                 <TextView
                     android:id="@+id/text_duration"
@@ -63,32 +69,158 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:text="Duración"
-                    android:textSize="13sp"
-                    android:textColor="#999999" />
+                    android:textColor="#666666"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/text_slots"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Cupos"
+                    android:textColor="#666666"
+                    android:textSize="13sp" />
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
+                    android:layout_marginTop="18dp"
+                    android:text="Días disponibles"
+                    android:textColor="@android:color/black"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/day_mon"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:layout_marginEnd="6dp"
+                        android:background="@drawable/bg_day_unavailable"
+                        android:gravity="center"
+                        android:text="L"
+                        android:textColor="@android:color/darker_gray"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/day_tue"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:layout_marginEnd="6dp"
+                        android:background="@drawable/bg_day_unavailable"
+                        android:gravity="center"
+                        android:text="M"
+                        android:textColor="@android:color/darker_gray"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/day_wed"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:layout_marginEnd="6dp"
+                        android:background="@drawable/bg_day_unavailable"
+                        android:gravity="center"
+                        android:text="X"
+                        android:textColor="@android:color/darker_gray"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/day_thu"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:layout_marginEnd="6dp"
+                        android:background="@drawable/bg_day_unavailable"
+                        android:gravity="center"
+                        android:text="J"
+                        android:textColor="@android:color/darker_gray"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/day_fri"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:layout_marginEnd="6dp"
+                        android:background="@drawable/bg_day_unavailable"
+                        android:gravity="center"
+                        android:text="V"
+                        android:textColor="@android:color/darker_gray"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/day_sat"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:layout_marginEnd="6dp"
+                        android:background="@drawable/bg_day_unavailable"
+                        android:gravity="center"
+                        android:text="S"
+                        android:textColor="@android:color/darker_gray"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/day_sun"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:background="@drawable/bg_day_unavailable"
+                        android:gravity="center"
+                        android:text="D"
+                        android:textColor="@android:color/darker_gray"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="18dp"
+                    android:text="Próximos horarios"
+                    android:textColor="@android:color/black"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/text_schedules"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:lineSpacingExtra="2dp"
+                    android:text="Horarios"
+                    android:textColor="#444444"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="18dp"
                     android:text="Descripción"
-                    android:textStyle="bold"
-                    android:textSize="16sp" />
+                    android:textColor="@android:color/black"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/text_description"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"
+                    android:lineSpacingExtra="2dp"
                     android:text="Descripción larga..."
-                    android:textSize="14sp"
-                    android:lineSpacingExtra="2dp" />
-
+                    android:textSize="14sp" />
             </LinearLayout>
-
         </LinearLayout>
     </ScrollView>
 
-    <!-- BARRA INFERIOR -->
     <LinearLayout
         android:id="@+id/bottom_bar"
         android:layout_width="match_parent"
@@ -96,9 +228,9 @@
         android:layout_alignParentBottom="true"
         android:background="@android:color/white"
         android:elevation="8dp"
-        android:padding="12dp"
+        android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:gravity="center_vertical">
+        android:padding="12dp">
 
         <TextView
             android:id="@+id/text_price"
@@ -106,20 +238,19 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="$120.000"
+            android:textColor="@color/colorPrimary"
             android:textSize="20sp"
-            android:textStyle="bold"
-            android:textColor="@color/colorPrimary" />
+            android:textStyle="bold" />
 
         <Button
             android:id="@+id/btn_reserve"
             android:layout_width="wrap_content"
             android:layout_height="45dp"
+            android:background="@drawable/bg_detail_button"
+            android:paddingHorizontal="20dp"
             android:text="Reservar"
             android:textAllCaps="false"
-            android:textColor="@android:color/white"
-            android:background="@drawable/bg_detail_button"
-            android:paddingHorizontal="20dp" />
-
+            android:textColor="@android:color/white" />
     </LinearLayout>
 
 </RelativeLayout>
