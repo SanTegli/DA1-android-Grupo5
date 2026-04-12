@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.kapt)   // ← usar alias del catálogo
+    alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.hilt)
 }
 
@@ -57,5 +57,5 @@ dependencies {
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
     implementation(libs.hilt.android)
-    kapt(libs.hilt.compiler)          // ← ESTO FALTABA, es lo crítico
+    kapt(libs.hilt.compiler)
 }
