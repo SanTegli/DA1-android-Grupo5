@@ -39,10 +39,10 @@ import retrofit2.Response;
 public class OtpFragment extends Fragment {
 
     @Inject
-    private ApiService apiService;
+    ApiService apiService;
 
     @Inject
-    private TokenManager tokenManager;
+    TokenManager tokenManager;
 
     private String email;
     private TextInputEditText otpEditText;

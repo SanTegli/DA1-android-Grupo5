@@ -43,7 +43,7 @@ import javax.inject.Inject;
 public class ReservationFragment extends Fragment {
 
     @Inject
-    private ApiService apiService;
+    ApiService apiService;
 
     private FragmentReservationBinding binding;
     private String activityName;

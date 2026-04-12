@@ -40,10 +40,10 @@ import retrofit2.Response;
 public class LoginFragment extends Fragment {
 
     @Inject
-    private ApiService apiService;
+    ApiService apiService;
 
     @Inject
-    private TokenManager tokenManager;
+    TokenManager tokenManager;
 
     private TextInputLayout emailLayout, passwordLayout;
     private TextInputEditText emailEditText, passwordEditText;

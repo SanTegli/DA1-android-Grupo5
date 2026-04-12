@@ -36,7 +36,7 @@ import retrofit2.Response;
 public class RegisterFragment extends Fragment {
 
     @Inject
-    private ApiService apiService;
+    ApiService apiService;
 
     private TextInputLayout usernameLayout, emailLayout, passwordLayout, confirmPasswordLayout;
     private TextInputEditText usernameEditText, emailEditText, passwordEditText, confirmPasswordEditText;

@@ -29,7 +29,7 @@ import retrofit2.Response;
 public class MyReservationsFragment extends Fragment implements ReservationAdapter.OnCancelClickListener {
 
     @Inject
-    private ApiService apiService;
+    ApiService apiService;
 
     private FragmentMyReservationsBinding binding;
     private ReservationAdapter adapter;

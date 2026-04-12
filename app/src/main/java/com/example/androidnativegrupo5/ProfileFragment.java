@@ -35,7 +35,7 @@ import retrofit2.Response;
 public class ProfileFragment extends Fragment {
 
     @Inject
-    private ApiService apiService;
+    ApiService apiService;
 
     private TextInputEditText usernameEditText, emailEditText, phoneEditText, imageUrlEditText;
     private CheckBox cbAventura, cbCultura, cbGastronomia, cbNaturaleza, cbRelax;
