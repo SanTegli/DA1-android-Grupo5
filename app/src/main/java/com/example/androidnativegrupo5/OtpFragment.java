@@ -21,9 +21,13 @@ import com.example.androidnativegrupo5.model.OtpRequest;
 import com.example.androidnativegrupo5.model.OtpVerifyRequest;
 import com.example.androidnativegrupo5.network.ApiService;
 import com.example.androidnativegrupo5.network.RetrofitClient;
+import com.example.androidnativegrupo5.network.TokenManager;
 import com.example.androidnativegrupo5.utils.Constants;
 import com.google.android.material.textfield.TextInputEditText;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.AndroidEntryPoint;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -31,12 +35,18 @@ import retrofit2.Response;
 /**
  * OtpFragment handles the verification of the One-Time Password (OTP) sent to the user.
  */
+@AndroidEntryPoint
 public class OtpFragment extends Fragment {
+
+    @Inject
+    ApiService apiService;
+
+    @Inject
+    TokenManager tokenManager;
 
     private String email;
     private TextInputEditText otpEditText;
     private Button verifyButton;
-    private ApiService apiService;
 
     @Nullable
     @Override
@@ -47,8 +57,6 @@ public class OtpFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        apiService = RetrofitClient.getClient().create(ApiService.class);
 
         if (getArguments() != null) {
             email = getArguments().getString(Constants.EXTRA_EMAIL);
@@ -93,7 +101,9 @@ public class OtpFragment extends Fragment {
             public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
                 setLoading(false);
                 if (response.isSuccessful() && response.body() != null) {
-                    saveToken(response.body().getToken());
+                    //saveToken(response.body().getToken());
+                    String token = response.body().getToken();
+                    tokenManager.saveToken(token);
                     Toast.makeText(getContext(), R.string.welcome, Toast.LENGTH_SHORT).show();
                     NavHostFragment.findNavController(OtpFragment.this)
                             .navigate(R.id.action_OtpFragment_to_FirstFragment);

@@ -25,16 +25,22 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.AndroidEntryPoint;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+@AndroidEntryPoint
 public class RegisterFragment extends Fragment {
+
+    @Inject
+    ApiService apiService;
 
     private TextInputLayout usernameLayout, emailLayout, passwordLayout, confirmPasswordLayout;
     private TextInputEditText usernameEditText, emailEditText, passwordEditText, confirmPasswordEditText;
     private Button registerButton;
-    private ApiService apiService;
 
     public RegisterFragment() {}
 
@@ -48,8 +54,6 @@ public class RegisterFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        apiService = RetrofitClient.getClient().create(ApiService.class);
 
         usernameLayout = view.findViewById(R.id.usernameLayout);
         emailLayout = view.findViewById(R.id.emailLayout);

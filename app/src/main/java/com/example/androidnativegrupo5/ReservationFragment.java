@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import dagger.hilt.android.AndroidEntryPoint;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -38,13 +39,18 @@ import retrofit2.Response;
 import com.google.android.material.chip.Chip;
 import java.util.LinkedHashSet;
 
+import javax.inject.Inject;
+
+@AndroidEntryPoint
 public class ReservationFragment extends Fragment {
+
+    @Inject
+    ApiService apiService;
 
     private FragmentReservationBinding binding;
     private String activityName;
     private double activityPrice;
     private Calendar calendar = Calendar.getInstance();
-    private ApiService apiService;
 
     private int availableSlots = 0;
     private String selectedDateFormatted = "";
@@ -60,8 +66,6 @@ public class ReservationFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        apiService = RetrofitClient.getClient().create(ApiService.class);
 
         loadAvailabilities();
 

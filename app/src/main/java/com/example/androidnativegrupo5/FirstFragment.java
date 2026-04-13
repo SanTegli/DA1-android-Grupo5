@@ -24,15 +24,21 @@ import com.example.androidnativegrupo5.model.Activity;
 import com.example.androidnativegrupo5.model.PaginatedResponse;
 import com.example.androidnativegrupo5.model.ReservationResponse;
 import com.example.androidnativegrupo5.network.ApiService;
-import com.example.androidnativegrupo5.network.RetrofitClient;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.AndroidEntryPoint;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+@AndroidEntryPoint
 public class FirstFragment extends Fragment {
+
+    @Inject
+    ApiService apiService;
 
     private FragmentFirstBinding binding;
     private ActivityAdapter adapter;
@@ -46,7 +52,7 @@ public class FirstFragment extends Fragment {
 
     private String filterCategory = null;
     private String filterDestination = null;
-    private String filterDuration = null;
+    private Integer filterDuration = null;
     private Integer filterMinPrice = null;
     private Integer filterMaxPrice = null;
     private String filterSearch = null;
@@ -88,7 +94,7 @@ public class FirstFragment extends Fragment {
                 this.filterDestination = destination;
                 this.filterMinPrice = minPrice != null ? minPrice.intValue() : null;
                 this.filterMaxPrice = maxPrice != null ? maxPrice.intValue() : null;
-                
+
                 currentPage = 0;
                 isLastPage = false;
                 adapter.clearActivities();
@@ -149,8 +155,6 @@ public class FirstFragment extends Fragment {
         SharedPreferences prefs = requireContext().getSharedPreferences("prefs", Context.MODE_PRIVATE);
         String token = prefs.getString("auth_token", null);
 
-        ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
-
         if (token != null) {
             apiService.getRecommendedActivities("Bearer " + token)
                     .enqueue(new Callback<PaginatedResponse<Activity>>() {
@@ -178,8 +182,8 @@ public class FirstFragment extends Fragment {
     }
 
     private void loadDefaultFeatured(ApiService apiService) {
-        // Fetch first 15 activities as "featured"
-        apiService.getActivities(0, 15, null, null, null, null, null)
+        // Fetch first 5 activities as "featured"
+        apiService.getActivities(0, 5, null, null, null, null, null)
                 .enqueue(new Callback<PaginatedResponse<Activity>>() {
                     @Override
                     public void onResponse(@NonNull Call<PaginatedResponse<Activity>> call, @NonNull Response<PaginatedResponse<Activity>> response) {
@@ -210,9 +214,7 @@ public class FirstFragment extends Fragment {
         isLoading = true;
         binding.progressBar.setVisibility(View.VISIBLE);
 
-        ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
-
-        apiService.getActivities(currentPage, PAGE_SIZE, filterCategory, filterDestination, filterMinPrice, filterMaxPrice, filterSearch)
+        apiService.getActivities(currentPage, PAGE_SIZE, filterCategory, filterDestination, filterMaxPrice, filterDuration, null)
                 .enqueue(new Callback<PaginatedResponse<Activity>>() {
 
                     @Override

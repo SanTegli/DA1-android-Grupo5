@@ -27,18 +27,24 @@ import com.google.android.material.textfield.TextInputEditText;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.AndroidEntryPoint;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+@AndroidEntryPoint
 public class ProfileFragment extends Fragment {
+
+    @Inject
+    ApiService apiService;
 
     private TextInputEditText usernameEditText, emailEditText, phoneEditText, imageUrlEditText;
     private Spinner categorySpinner, destinationSpinner, durationSpinner;
     private Slider budgetSlider;
     private Button saveButton;
     private ProgressBar progressBar;
-    private ApiService apiService;
     private String token;
 
     private final List<String> categories = Arrays.asList("Aventura", "Cultura", "Gastronomía", "Bienestar", "Naturaleza");
@@ -55,7 +61,6 @@ public class ProfileFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        apiService = RetrofitClient.getClient().create(ApiService.class);
         token = getAuthToken();
 
         usernameEditText = view.findViewById(R.id.usernameEditText);

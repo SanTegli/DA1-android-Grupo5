@@ -12,12 +12,18 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.example.androidnativegrupo5.databinding.ActivityMainBinding;
+import com.example.androidnativegrupo5.network.TokenManager;
 import com.google.android.material.snackbar.Snackbar;
+
+import javax.inject.Inject;
+
+import dagger.hilt.android.AndroidEntryPoint;
 
 /**
  * MainActivity serves as the primary entry point for the logged-in user.
  * it manages the main navigation flow using a NavHostFragment and a Toolbar.
  */
+@AndroidEntryPoint
 public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration appBarConfiguration;
