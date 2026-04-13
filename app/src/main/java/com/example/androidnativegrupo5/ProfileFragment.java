@@ -1,7 +1,10 @@
 package com.example.androidnativegrupo5;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -9,18 +12,21 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.bumptech.glide.Glide;
 import com.example.androidnativegrupo5.model.UserPreferences;
 import com.example.androidnativegrupo5.model.UserResponse;
 import com.example.androidnativegrupo5.network.ApiService;
-import com.example.androidnativegrupo5.network.RetrofitClient;
 import com.google.android.material.slider.Slider;
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -40,16 +46,28 @@ public class ProfileFragment extends Fragment {
     @Inject
     ApiService apiService;
 
-    private TextInputEditText usernameEditText, emailEditText, phoneEditText, imageUrlEditText;
+    private TextInputEditText usernameEditText, emailEditText, phoneEditText;
     private Spinner categorySpinner, destinationSpinner, durationSpinner;
     private Slider budgetSlider;
     private Button saveButton;
     private ProgressBar progressBar;
+    private ImageView profileImageView;
     private String token;
+    private Uri selectedImageUri;
 
     private final List<String> categories = Arrays.asList("Aventura", "Cultura", "Gastronomía", "Bienestar", "Naturaleza");
     private final List<String> destinations = Arrays.asList("Bariloche", "Buenos Aires", "Mendoza", "Salta", "Iguazú");
     private final List<String> durations = Arrays.asList("1-2 horas", "Media jornada", "Día completo");
+
+    private final ActivityResultLauncher<Intent> pickImageLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                    selectedImageUri = result.getData().getData();
+                    Glide.with(this).load(selectedImageUri).circleCrop().into(profileImageView);
+                }
+            }
+    );
 
     @Nullable
     @Override
@@ -66,7 +84,18 @@ public class ProfileFragment extends Fragment {
         usernameEditText = view.findViewById(R.id.usernameEditText);
         emailEditText = view.findViewById(R.id.emailEditText);
         phoneEditText = view.findViewById(R.id.phoneEditText);
-        imageUrlEditText = view.findViewById(R.id.imageUrlEditText);
+        profileImageView = view.findViewById(R.id.profileImage);
+
+        // Bloquear edición de email
+        emailEditText.setFocusable(false);
+        emailEditText.setClickable(false);
+        emailEditText.setEnabled(false);
+
+        // Ocultamos el campo de URL si existe, ya que ahora usamos selección de imagen
+        View imageUrlLayout = view.findViewById(R.id.imageUrlLayout);
+        if (imageUrlLayout != null) {
+            imageUrlLayout.setVisibility(View.GONE);
+        }
 
         categorySpinner = view.findViewById(R.id.categorySpinner);
         destinationSpinner = view.findViewById(R.id.destinationSpinner);
@@ -86,6 +115,12 @@ public class ProfileFragment extends Fragment {
         loadProfile();
 
         saveButton.setOnClickListener(v -> saveProfile());
+
+        profileImageView.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_PICK);
+            intent.setType("image/*");
+            pickImageLauncher.launch(intent);
+        });
     }
 
     private void setupSpinners() {
@@ -121,16 +156,8 @@ public class ProfileFragment extends Fragment {
                 if (response.isSuccessful() && response.body() != null) {
                     populateFields(response.body());
                 } else {
-                    String errorMsg = "Error al cargar perfil";
-                    try {
-                        if (response.errorBody() != null) {
-                            errorMsg += ": " + response.errorBody().string();
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    Log.e("ProfileFragment", "Error loading profile: " + response.code() + " " + errorMsg);
-                    Toast.makeText(getContext(), errorMsg, Toast.LENGTH_SHORT).show();
+                    Log.e("ProfileFragment", "Error loading profile: " + response.code());
+                    Toast.makeText(getContext(), "Error al cargar perfil", Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -146,7 +173,14 @@ public class ProfileFragment extends Fragment {
         usernameEditText.setText(user.getUsername());
         emailEditText.setText(user.getEmail());
         phoneEditText.setText(user.getPhone());
-        imageUrlEditText.setText(user.getProfileImageUrl());
+
+        if (user.getProfileImageUrl() != null && !user.getProfileImageUrl().isEmpty()) {
+            Glide.with(this)
+                    .load(user.getProfileImageUrl())
+                    .placeholder(android.R.drawable.ic_menu_report_image)
+                    .circleCrop()
+                    .into(profileImageView);
+        }
 
         UserPreferences prefs = user.getPreferences();
         if (prefs != null) {
@@ -168,7 +202,9 @@ public class ProfileFragment extends Fragment {
     private void saveProfile() {
         String username = usernameEditText.getText().toString().trim();
         String phone = phoneEditText.getText().toString().trim();
-        String imageUrl = imageUrlEditText.getText().toString().trim();
+        String email = emailEditText.getText().toString().trim();
+        // Si no se seleccionó imagen nueva, mantenemos la anterior (o dejamos que el backend la mantenga)
+        String imageUrl = selectedImageUri != null ? selectedImageUri.toString() : null;
 
         UserPreferences prefs = new UserPreferences(
                 categorySpinner.getSelectedItem().toString(),
@@ -177,7 +213,15 @@ public class ProfileFragment extends Fragment {
                 durationSpinner.getSelectedItem().toString()
         );
 
-        UserResponse updateRequest = new UserResponse(username, phone, imageUrl, prefs);
+        // Creamos el objeto de respuesta para la actualización
+        UserResponse updateRequest = new UserResponse();
+        updateRequest.setUsername(username);
+        updateRequest.setPhone(phone);
+        updateRequest.setEmail(email);
+        updateRequest.setPreferences(prefs);
+        if (imageUrl != null) {
+            updateRequest.setProfileImageUrl(imageUrl);
+        }
 
         setLoading(true);
         apiService.updateProfile(token, updateRequest).enqueue(new Callback<UserResponse>() {
@@ -187,6 +231,7 @@ public class ProfileFragment extends Fragment {
                 if (response.isSuccessful()) {
                     Toast.makeText(getContext(), "✓ Perfil actualizado correctamente", Toast.LENGTH_SHORT).show();
                 } else {
+                    Log.e("ProfileFragment", "Update fail: " + response.code());
                     Toast.makeText(getContext(), "Error al actualizar perfil", Toast.LENGTH_SHORT).show();
                 }
             }
