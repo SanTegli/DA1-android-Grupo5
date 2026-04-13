@@ -6,15 +6,15 @@ public class UserResponse {
     private String email;
     private String phone;
     private String profileImageUrl;
-    private String travelPreferences;
+    private UserPreferences preferences;
 
     public UserResponse() {}
 
-    public UserResponse(String username, String phone, String profileImageUrl, String travelPreferences) {
+    public UserResponse(String username, String phone, String profileImageUrl, UserPreferences preferences) {
         this.username = username;
         this.phone = phone;
         this.profileImageUrl = profileImageUrl;
-        this.travelPreferences = travelPreferences;
+        this.preferences = preferences;
     }
 
     public Long getId() { return id; }
@@ -32,6 +32,6 @@ public class UserResponse {
     public String getProfileImageUrl() { return profileImageUrl; }
     public void setProfileImageUrl(String profileImageUrl) { this.profileImageUrl = profileImageUrl; }
 
-    public String getTravelPreferences() { return travelPreferences; }
-    public void setTravelPreferences(String travelPreferences) { this.travelPreferences = travelPreferences; }
+    public UserPreferences getPreferences() { return preferences; }
+    public void setPreferences(UserPreferences preferences) { this.preferences = preferences; }
 }
