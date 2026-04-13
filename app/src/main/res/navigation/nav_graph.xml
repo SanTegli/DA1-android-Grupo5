@@ -8,7 +8,7 @@
     <fragment
         android:id="@+id/LoginFragment"
         android:name="com.example.androidnativegrupo5.LoginFragment"
-        android:label="@string/iniciar_sesi_n"
+        android:label="@string/iniciar_sesion"
         tools:layout="@layout/fragment_login">
         <action
             android:id="@+id/action_LoginFragment_to_OtpFragment"

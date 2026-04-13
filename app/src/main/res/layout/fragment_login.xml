@@ -11,7 +11,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/iniciar_sesi_n"
+        android:text="@string/iniciar_sesion"
         android:textSize="28sp"
         android:textStyle="bold"
         android:fontFamily="sans-serif-medium"
@@ -47,7 +47,7 @@
             android:id="@+id/passwordEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/contrase_a"
+            android:hint="@string/contrasena"
             android:inputType="textPassword"/>
 
     </com.google.android.material.textfield.TextInputLayout>
@@ -65,7 +65,7 @@
         android:id="@+id/registerText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/no_ten_s_cuenta_registrate"
+        android:text="@string/no_tenes_cuenta_registrate"
         android:layout_marginTop="16dp"/>
 
 </LinearLayout>

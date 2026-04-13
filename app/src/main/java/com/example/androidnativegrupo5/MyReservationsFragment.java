@@ -1,5 +1,7 @@
 package com.example.androidnativegrupo5;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -58,7 +60,15 @@ public class MyReservationsFragment extends Fragment implements ReservationAdapt
     }
 
     private void loadReservations() {
-        apiService.getMyReservations().enqueue(new Callback<List<ReservationResponse>>() {
+        SharedPreferences prefs = requireContext().getSharedPreferences("prefs", Context.MODE_PRIVATE);
+        String token = prefs.getString("auth_token", null);
+
+        if (token == null) {
+            Toast.makeText(getContext(), "Inicie sesión para ver sus reservas", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        apiService.getMyReservations("Bearer " + token).enqueue(new Callback<List<ReservationResponse>>() {
             @Override
             public void onResponse(@NonNull Call<List<ReservationResponse>> call,
                                    @NonNull Response<List<ReservationResponse>> response) {
@@ -82,7 +92,15 @@ public class MyReservationsFragment extends Fragment implements ReservationAdapt
     public void onCancelClick(ReservationResponse reservation) {
         if (reservation.getId() == null) return;
 
-        apiService.cancelReservation(reservation.getId()).enqueue(new Callback<Void>() {
+        SharedPreferences prefs = requireContext().getSharedPreferences("prefs", Context.MODE_PRIVATE);
+        String token = prefs.getString("auth_token", null);
+
+        if (token == null) {
+            Toast.makeText(getContext(), "Error de autenticación", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        apiService.cancelReservation("Bearer " + token, reservation.getId()).enqueue(new Callback<Void>() {
             @Override
             public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
                 if (response.isSuccessful()) {

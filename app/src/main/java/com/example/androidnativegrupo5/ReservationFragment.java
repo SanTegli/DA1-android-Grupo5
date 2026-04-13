@@ -2,6 +2,8 @@ package com.example.androidnativegrupo5;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -124,7 +126,15 @@ public class ReservationFragment extends Fragment {
                 selectedTime
         );
 
-        apiService.createReservation(request).enqueue(new Callback<ReservationResponse>() {
+        SharedPreferences prefs = requireContext().getSharedPreferences("prefs", Context.MODE_PRIVATE);
+        String token = prefs.getString("auth_token", null);
+
+        if (token == null) {
+            Toast.makeText(getContext(), "Inicie sesión para reservar", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        apiService.createReservation("Bearer " + token, request).enqueue(new Callback<ReservationResponse>() {
             @Override
             public void onResponse(Call<ReservationResponse> call, Response<ReservationResponse> response) {
                 if (response.isSuccessful()) {

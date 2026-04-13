@@ -1,5 +1,7 @@
 package com.example.androidnativegrupo5;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -50,8 +52,11 @@ public class FirstFragment extends Fragment {
 
     private String filterCategory = null;
     private String filterDestination = null;
-    private String filterDuration = null;
-    private Double filterMaxPrice = null;
+    private Integer filterDuration = null;
+    private Integer filterMinPrice = null;
+    private Integer filterMaxPrice = null;
+    private String filterSearch = null;
+
     private boolean isInitialSelect = true;
 
     @Override
@@ -79,8 +84,30 @@ public class FirstFragment extends Fragment {
         binding.recyclerActivities.setAdapter(adapter);
 
         setupFeaturedCarousel(navController);
+        loadActivities();
 
-        setupFilters();
+        binding.btnFilter.setOnClickListener(v -> {
+            FilterBottomSheetDialogFragment bottomSheet = new FilterBottomSheetDialogFragment();
+            bottomSheet.setOnFiltersAppliedListener((search, category, destination, minPrice, maxPrice) -> {
+                this.filterSearch = search;
+                this.filterCategory = category;
+                this.filterDestination = destination;
+                this.filterMinPrice = minPrice != null ? minPrice.intValue() : null;
+                this.filterMaxPrice = maxPrice != null ? maxPrice.intValue() : null;
+
+                currentPage = 0;
+                isLastPage = false;
+                adapter.clearActivities();
+                loadActivities();
+
+                if (filterCategory != null || filterDestination != null || filterMaxPrice != null || (filterSearch != null && !filterSearch.isEmpty())) {
+                    binding.layoutFeatured.setVisibility(View.GONE);
+                } else {
+                    binding.layoutFeatured.setVisibility(View.VISIBLE);
+                }
+            });
+            bottomSheet.show(getParentFragmentManager(), "FilterBottomSheet");
+        });
 
         // Scroll infinito
         binding.recyclerActivities.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -111,34 +138,6 @@ public class FirstFragment extends Fragment {
         });
     }
 
-    private void applyFilters() {
-        if (binding == null) return;
-
-        filterCategory = binding.spinnerCategory.getSelectedItem().toString();
-        if (filterCategory.equals("Categorías")) filterCategory = null;
-
-        filterDestination = binding.spinnerDestination.getSelectedItem().toString();
-        if (filterDestination.equals("Destinos")) filterDestination = null;
-
-        filterDuration = binding.spinnerDuration.getSelectedItem().toString();
-        if (filterDuration.equals("Duración")) filterDuration = null;
-
-        String selectedPrice = binding.spinnerPrice.getSelectedItem().toString();
-        filterMaxPrice = mapPriceRange(selectedPrice);
-
-        // Hide featured if filters are applied
-        if (filterCategory != null || filterDestination != null || filterDuration != null || filterMaxPrice != null) {
-            binding.layoutFeatured.setVisibility(View.GONE);
-        } else {
-            binding.layoutFeatured.setVisibility(View.VISIBLE);
-        }
-
-        currentPage = 0;
-        isLastPage = false;
-        adapter.clearActivities();
-        loadActivities();
-    }
-
     private void setupFeaturedCarousel(NavController navController) {
         featuredAdapter = new FeaturedActivityAdapter(activity -> {
             Bundle bundle = new Bundle();
@@ -153,6 +152,36 @@ public class FirstFragment extends Fragment {
     }
 
     private void loadFeaturedActivities() {
+        SharedPreferences prefs = requireContext().getSharedPreferences("prefs", Context.MODE_PRIVATE);
+        String token = prefs.getString("auth_token", null);
+
+        if (token != null) {
+            apiService.getRecommendedActivities("Bearer " + token)
+                    .enqueue(new Callback<PaginatedResponse<Activity>>() {
+                        @Override
+                        public void onResponse(@NonNull Call<PaginatedResponse<Activity>> call, @NonNull Response<PaginatedResponse<Activity>> response) {
+                            if (response.isSuccessful() && response.body() != null) {
+                                List<Activity> activities = response.body().getContent();
+                                if (activities != null && !activities.isEmpty()) {
+                                    featuredAdapter.setActivities(activities);
+                                    binding.layoutFeatured.setVisibility(View.VISIBLE);
+                                    return;
+                                }
+                            }
+                            loadDefaultFeatured(apiService);
+                        }
+
+                        @Override
+                        public void onFailure(@NonNull Call<PaginatedResponse<Activity>> call, @NonNull Throwable t) {
+                            loadDefaultFeatured(apiService);
+                        }
+                    });
+        } else {
+            loadDefaultFeatured(apiService);
+        }
+    }
+
+    private void loadDefaultFeatured(ApiService apiService) {
         // Fetch first 5 activities as "featured"
         apiService.getActivities(0, 5, null, null, null, null, null)
                 .enqueue(new Callback<PaginatedResponse<Activity>>() {
@@ -181,60 +210,11 @@ public class FirstFragment extends Fragment {
                 });
     }
 
-    private void setupFilters() {
-            String[] categories = {"Categorías", "Aventura", "Cultura", "Gastronomía", "Naturaleza"};
-            String[] destinations = {"Destinos", "Mendoza", "Bariloche", "Buenos Aires", "Iguazú"};
-            String[] durations = {"Duración", "1-2 horas", "Media jornada", "Día completo"};
-            String[] prices = {"Precio", "Hasta $5000", "Hasta $10000", "Hasta $20000"};
-
-            setupSpinner(binding.spinnerCategory, categories);
-            setupSpinner(binding.spinnerDestination, destinations);
-            setupSpinner(binding.spinnerDuration, durations);
-            setupSpinner(binding.spinnerPrice, prices);
-
-            AdapterView.OnItemSelectedListener itemSelectedListener = new AdapterView.OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    if (isInitialSelect) {
-                        return;
-                    }
-                    applyFilters();
-                }
-
-                @Override
-                public void onNothingSelected(AdapterView<?> parent) {}
-            };
-
-            binding.spinnerCategory.setOnItemSelectedListener(itemSelectedListener);
-            binding.spinnerDestination.setOnItemSelectedListener(itemSelectedListener);
-            binding.spinnerDuration.setOnItemSelectedListener(itemSelectedListener);
-            binding.spinnerPrice.setOnItemSelectedListener(itemSelectedListener);
-
-            isInitialSelect = false;
-            loadActivities();
-        }
-
-        private void setupSpinner(Spinner spinner, String[] items) {
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
-                    android.R.layout.simple_spinner_item, items);
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            spinner.setAdapter(adapter);
-        }
-
-        private Double mapPriceRange(String selectedPrice) {
-            switch (selectedPrice) {
-                case "Hasta $5000": return 5000.0;
-                case "Hasta $10000": return 10000.0;
-                case "Hasta $20000": return 20000.0;
-                default: return null;
-            }
-        }
-
     private void loadActivities() {
         isLoading = true;
         binding.progressBar.setVisibility(View.VISIBLE);
 
-        apiService.getActivities(currentPage, PAGE_SIZE, filterCategory, filterDestination, filterDuration, null, filterMaxPrice)
+        apiService.getActivities(currentPage, PAGE_SIZE, filterCategory, filterDestination, filterMaxPrice, filterDuration, null)
                 .enqueue(new Callback<PaginatedResponse<Activity>>() {
 
                     @Override

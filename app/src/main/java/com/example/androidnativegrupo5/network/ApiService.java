@@ -52,25 +52,28 @@ public interface ApiService {
             @Query("size") int size,
             @Query("category") String category,
             @Query("destination") String destination,
-            @Query("duration") String duration,
-            @Query("minPrice") Double minPrice,
-            @Query("maxPrice") Double maxPrice
+            @Query("minPrice") Integer minPrice,
+            @Query("maxPrice") Integer maxPrice,
+            @Query("search") String search
     );
+
+    @GET("/api/v1/activities/recommended")
+    Call<PaginatedResponse<Activity>> getRecommendedActivities(@Header("Authorization") String token);
 
     @GET("/api/v1/activities/{id}")
     Call<Activity> getActivityById(@Path("id") Long id);
 
     @POST("/api/v1/reservations")
-    Call<ReservationResponse> createReservation(@Body CreateReservationRequest request);
+    Call<ReservationResponse> createReservation(@Header("Authorization") String token, @Body CreateReservationRequest request);
 
     @GET("/api/v1/activities/{id}/availability")
     Call<List<AvailabilitySlotResponse>> getAvailability(@Path("id") Long id);
 
     @GET("api/v1/reservations/me")
-    Call<List<ReservationResponse>> getMyReservations();
+    Call<List<ReservationResponse>> getMyReservations(@Header("Authorization") String token);
 
     @PATCH("/api/v1/reservations/{id}/cancel")
-    Call<Void> cancelReservation(@Path("id") Long id);
+    Call<Void> cancelReservation(@Header("Authorization") String token, @Path("id") Long id);
     @GET("/api/v1/users/me")
     Call<UserResponse> getMyProfile(@Header("Authorization") String token);
 

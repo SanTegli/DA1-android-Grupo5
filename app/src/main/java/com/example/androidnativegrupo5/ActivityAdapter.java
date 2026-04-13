@@ -67,6 +67,7 @@ public class ActivityAdapter extends RecyclerView.Adapter<ActivityAdapter.Activi
         private final TextView textDescription;
         private final TextView textDestination;
         private final TextView textDuration;
+        private final TextView textSlots;
         private final TextView textPrice;
         private final Button btnDetail;
 
@@ -77,6 +78,7 @@ public class ActivityAdapter extends RecyclerView.Adapter<ActivityAdapter.Activi
             textDescription = itemView.findViewById(R.id.text_description);
             textDestination = itemView.findViewById(R.id.text_destination);
             textDuration = itemView.findViewById(R.id.text_duration);
+            textSlots = itemView.findViewById(R.id.text_slots);
             textPrice = itemView.findViewById(R.id.text_price);
             btnDetail = itemView.findViewById(R.id.btn_detail);
         }
@@ -88,6 +90,7 @@ public class ActivityAdapter extends RecyclerView.Adapter<ActivityAdapter.Activi
             textDescription.setText(activity.getDescription() != null ? activity.getDescription() : "");
             textDestination.setText(activity.getDestination() != null ? activity.getDestination() : "");
             textDuration.setText(activity.getDuration() != null ? activity.getDuration() : "");
+            textSlots.setText(String.format(Locale.getDefault(), "%d cupos", activity.getAvailableSlots()));
 
             if (activity.getPrice() <= 0) {
                 textPrice.setText("Gratis");

@@ -5,6 +5,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -61,15 +62,19 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.action_settings) {
-            // Future implementation for settings
+        if (id == R.id.action_dark_mode) {
+            item.setChecked(!item.isChecked());
+            if (item.isChecked()) {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+            } else {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+            }
             return true;
         } else if (id == R.id.action_profile) {
             NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
-//            navController.navigate(R.id.ProfileFragment);
+            navController.navigate(R.id.ProfileFragment);
             return true;
         }
 

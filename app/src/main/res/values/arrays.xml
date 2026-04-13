@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="categories_array">
+        <item>Categorías</item>
+        <item>Aventura</item>
+        <item>Cultura</item>
+        <item>Gastronomía</item>
+        <item>Naturaleza</item>
+        <item>Bienestar</item>
+    </string-array>
+
+    <string-array name="destinations_array">
+        <item>Destinos</item>
+        <item>Mendoza</item>
+        <item>Bariloche</item>
+        <item>Buenos Aires</item>
+        <item>Iguazú</item>
+        <item>Salta</item>
+    </string-array>
+
+    <string-array name="durations_array">
+        <item>Duración</item>
+        <item>1-2 horas</item>
+        <item>Media jornada</item>
+        <item>Día completo</item>
+    </string-array>
+
+    <string-array name="prices_array">
+        <item>Precio</item>
+        <item>Hasta $5000</item>
+        <item>Hasta $10000</item>
+        <item>Hasta $20000</item>
+    </string-array>
+
+    <integer-array name="initial_range_values">
+        <item>0</item>
+        <item>5000</item>
+    </integer-array>
+</resources>
