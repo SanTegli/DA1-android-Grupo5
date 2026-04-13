@@ -67,6 +67,36 @@
             app:layout_constraintTop_toBottomOf="@+id/text_slots"
             tools:text="Estado: CONFIRMED" />
 
+        <LinearLayout
+            android:id="@+id/layout_buttons"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/text_status">
+
+            <Button
+                android:id="@+id/btn_cancel_reservation"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cancelar"
+                android:textColor="@android:color/holo_red_dark" />
+
+            <Button
+                android:id="@+id/btn_rate_reservation"
+                style="@style/Widget.MaterialComponents.Button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="Calificar"
+                android:visibility="gone"
+                tools:visibility="visible" />
+        </LinearLayout>
+
         <TextView
             android:id="@+id/text_total_price"
             android:layout_width="wrap_content"
@@ -74,22 +104,10 @@
             android:textColor="@color/design_default_color_primary"
             android:textSize="18sp"
             android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="@+id/btn_cancel_reservation"
+            app:layout_constraintBottom_toBottomOf="@+id/layout_buttons"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/btn_cancel_reservation"
+            app:layout_constraintTop_toTopOf="@+id/layout_buttons"
             tools:text="$50.00" />
-
-        <Button
-            android:id="@+id/btn_cancel_reservation"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Cancelar"
-            android:textColor="@android:color/holo_red_dark"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/text_status" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
