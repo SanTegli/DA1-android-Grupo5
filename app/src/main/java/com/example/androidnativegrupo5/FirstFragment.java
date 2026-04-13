@@ -182,8 +182,6 @@ public class FirstFragment extends Fragment {
     }
 
     private void loadDefaultFeatured(ApiService apiService) {
-        // Fetch first 15 activities as "featured"
-        apiService.getActivities(0, 15, null, null, null, null, null);
         // Fetch first 5 activities as "featured"
         apiService.getActivities(0, 5, null, null, null, null, null)
                 .enqueue(new Callback<PaginatedResponse<Activity>>() {
