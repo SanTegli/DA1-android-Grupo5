@@ -106,4 +106,15 @@
         android:label="Perfil del Viajero"
         tools:layout="@layout/fragment_profile" />
 
+    <fragment
+        android:id="@+id/HistoryFragment"
+        android:name="com.example.androidnativegrupo5.HistoryFragment"
+        android:label="Historial"
+        tools:layout="@layout/fragment_history">
+
+        <action
+            android:id="@+id/action_HistoryFragment_to_DetailFragment"
+            app:destination="@id/DetailFragment" />
+    </fragment>
+
 </navigation>

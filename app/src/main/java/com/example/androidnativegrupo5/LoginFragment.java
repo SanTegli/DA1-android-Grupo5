@@ -18,7 +18,6 @@ import com.example.androidnativegrupo5.model.LoginRequest;
 import com.example.androidnativegrupo5.model.MessageResponse;
 import com.example.androidnativegrupo5.model.OtpRequest;
 import com.example.androidnativegrupo5.network.ApiService;
-import com.example.androidnativegrupo5.network.RetrofitClient;
 import com.example.androidnativegrupo5.network.TokenManager;
 import com.example.androidnativegrupo5.utils.Constants;
 import com.google.android.material.snackbar.Snackbar;

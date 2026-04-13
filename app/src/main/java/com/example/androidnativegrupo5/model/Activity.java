@@ -11,6 +11,9 @@ public class Activity {
     private String duration;
     private double price;
 
+    @SerializedName("guideName")
+    private String guideName;
+
     @SerializedName("available_slots")
     private int availableSlots;
 
@@ -73,6 +76,14 @@ public class Activity {
 
     public void setPrice(double price) {
         this.price = price;
+    }
+
+    public String getGuideName() {
+        return guideName;
+    }
+
+    public void setGuideName(String guideName) {
+        this.guideName = guideName;
     }
 
     public int getAvailableSlots() {
