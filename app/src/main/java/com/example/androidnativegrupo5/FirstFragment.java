@@ -24,7 +24,6 @@ import com.example.androidnativegrupo5.model.Activity;
 import com.example.androidnativegrupo5.model.PaginatedResponse;
 import com.example.androidnativegrupo5.model.ReservationResponse;
 import com.example.androidnativegrupo5.network.ApiService;
-import com.example.androidnativegrupo5.network.RetrofitClient;
 
 import java.util.List;
 
@@ -53,7 +52,7 @@ public class FirstFragment extends Fragment {
 
     private String filterCategory = null;
     private String filterDestination = null;
-    private String filterDuration = null;
+    private Integer filterDuration = null;
     private Integer filterMinPrice = null;
     private Integer filterMaxPrice = null;
     private String filterSearch = null;
@@ -156,8 +155,6 @@ public class FirstFragment extends Fragment {
         SharedPreferences prefs = requireContext().getSharedPreferences("prefs", Context.MODE_PRIVATE);
         String token = prefs.getString("auth_token", null);
 
-        ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
-
         if (token != null) {
             apiService.getRecommendedActivities("Bearer " + token)
                     .enqueue(new Callback<PaginatedResponse<Activity>>() {
@@ -186,7 +183,7 @@ public class FirstFragment extends Fragment {
 
     private void loadDefaultFeatured(ApiService apiService) {
         // Fetch first 15 activities as "featured"
-        apiService.getActivities(0, 15, null, null, null, null, null)
+        apiService.getActivities(0, 15, null, null, null, null, null);
         // Fetch first 5 activities as "featured"
         apiService.getActivities(0, 5, null, null, null, null, null)
                 .enqueue(new Callback<PaginatedResponse<Activity>>() {
@@ -219,7 +216,7 @@ public class FirstFragment extends Fragment {
         isLoading = true;
         binding.progressBar.setVisibility(View.VISIBLE);
 
-        apiService.getActivities(currentPage, PAGE_SIZE, filterCategory, filterDestination, filterDuration, null, filterMaxPrice)
+        apiService.getActivities(currentPage, PAGE_SIZE, filterCategory, filterDestination, filterMaxPrice, filterDuration, null)
                 .enqueue(new Callback<PaginatedResponse<Activity>>() {
 
                     @Override
