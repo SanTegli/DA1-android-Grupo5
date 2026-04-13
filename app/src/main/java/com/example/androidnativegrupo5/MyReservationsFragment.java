@@ -28,7 +28,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 @AndroidEntryPoint
-public class MyReservationsFragment extends Fragment implements ReservationAdapter.OnCancelClickListener {
+public class MyReservationsFragment extends Fragment implements ReservationAdapter.OnReservationActionListener {
 
     @Inject
     ApiService apiService;
@@ -105,11 +105,7 @@ public class MyReservationsFragment extends Fragment implements ReservationAdapt
             public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
                 if (response.isSuccessful()) {
                     Toast.makeText(getContext(), "Reserva cancelada con éxito", Toast.LENGTH_SHORT).show();
-
-                    if (adapter != null) {
-                        adapter.removeReservationById(reservation.getId());
-                    }
-
+                    loadReservations(); // Refresh list to update status
                 } else {
                     Toast.makeText(getContext(), "Error al cancelar la reserva", Toast.LENGTH_SHORT).show();
                 }
@@ -117,6 +113,73 @@ public class MyReservationsFragment extends Fragment implements ReservationAdapt
 
             @Override
             public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
+                Toast.makeText(getContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    @Override
+    public void onRateClick(ReservationResponse reservation) {
+        showRatingDialog(reservation);
+    }
+
+    private void showRatingDialog(ReservationResponse reservation) {
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_rating, null);
+        com.google.android.material.dialog.MaterialAlertDialogBuilder builder = new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext());
+        builder.setView(dialogView);
+
+        androidx.appcompat.app.AlertDialog dialog = builder.create();
+
+        android.widget.RatingBar ratingActivity = dialogView.findViewById(R.id.rating_activity);
+        android.widget.RatingBar ratingGuide = dialogView.findViewById(R.id.rating_guide);
+        com.google.android.material.textfield.TextInputEditText etComment = dialogView.findViewById(R.id.et_comment);
+        android.widget.Button btnSubmit = dialogView.findViewById(R.id.btn_submit);
+
+        btnSubmit.setOnClickListener(v -> {
+            int activityScore = (int) ratingActivity.getRating();
+            int guideScore = (int) ratingGuide.getRating();
+            String comment = etComment.getText().toString();
+
+            if (activityScore == 0 || guideScore == 0) {
+                Toast.makeText(getContext(), "Por favor, califique ambos aspectos", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            submitRating(reservation.getActivityId(), activityScore, guideScore, comment, dialog);
+        });
+
+        dialog.show();
+    }
+
+    private void submitRating(Long activityId, int activityScore, int guideScore, String comment, androidx.appcompat.app.AlertDialog dialog) {
+        SharedPreferences prefs = requireContext().getSharedPreferences("prefs", Context.MODE_PRIVATE);
+        String token = prefs.getString("auth_token", null);
+
+        if (token == null) return;
+
+        com.example.androidnativegrupo5.model.CreateRatingRequest request =
+                new com.example.androidnativegrupo5.model.CreateRatingRequest(activityScore, guideScore, comment);
+
+        apiService.createRating("Bearer " + token, activityId, request).enqueue(new Callback<com.example.androidnativegrupo5.model.Rating>() {
+            @Override
+            public void onResponse(@NonNull Call<com.example.androidnativegrupo5.model.Rating> call,
+                                   @NonNull Response<com.example.androidnativegrupo5.model.Rating> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(getContext(), "¡Gracias por tu calificación!", Toast.LENGTH_SHORT).show();
+                    dialog.dismiss();
+                    // Optional: mark as rated in UI if needed
+                } else {
+                    try {
+                        String errorMsg = response.errorBody() != null ? response.errorBody().string() : "Error al enviar calificación";
+                        Toast.makeText(getContext(), errorMsg, Toast.LENGTH_LONG).show();
+                    } catch (Exception e) {
+                        Toast.makeText(getContext(), "Error al procesar respuesta", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<com.example.androidnativegrupo5.model.Rating> call, @NonNull Throwable t) {
                 Toast.makeText(getContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
             }
         });

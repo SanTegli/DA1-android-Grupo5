@@ -9,6 +9,9 @@ import com.example.androidnativegrupo5.model.MessageResponse;
 import com.example.androidnativegrupo5.model.OtpRequest;
 import com.example.androidnativegrupo5.model.OtpVerifyRequest;
 import com.example.androidnativegrupo5.model.PaginatedResponse;
+import com.example.androidnativegrupo5.model.CreateRatingRequest;
+import com.example.androidnativegrupo5.model.Rating;
+import com.example.androidnativegrupo5.model.RatingStatsResponse;
 import com.example.androidnativegrupo5.model.RegisterRequest;
 import com.example.androidnativegrupo5.model.CreateReservationRequest;
 import com.example.androidnativegrupo5.model.ReservationResponse;
@@ -86,5 +89,24 @@ public interface ApiService {
             @Query("toDate") String toDate,
             @Query("destination") String destination
     );
+
+    @POST("/api/v1/ratings/activity/{activityId}")
+    Call<Rating> createRating(
+            @Header("Authorization") String token,
+            @Path("activityId") Long activityId,
+            @Body CreateRatingRequest request
+    );
+
+    @GET("/api/v1/ratings/activity/{activityId}")
+    Call<List<Rating>> getRatingsByActivity(@Path("activityId") Long activityId);
+
+    @GET("/api/v1/ratings/activity/{activityId}/stats")
+    Call<RatingStatsResponse> getRatingStats(@Path("activityId") Long activityId);
+
+    @GET("/api/v1/ratings/my-ratings")
+    Call<List<Rating>> getMyRatings(@Header("Authorization") String token);
+
+    @DELETE("/api/v1/ratings/{id}")
+    Call<Void> deleteRating(@Header("Authorization") String token, @Path("id") Long id);
 
 }
