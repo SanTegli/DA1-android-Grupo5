@@ -1,7 +1,5 @@
 package com.example.androidnativegrupo5;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.example.androidnativegrupo5.databinding.FragmentMyReservationsBinding;
 import com.example.androidnativegrupo5.model.ReservationResponse;
 import com.example.androidnativegrupo5.network.ApiService;
+import com.example.androidnativegrupo5.network.TokenManager;
 
 import java.util.List;
 
@@ -32,6 +31,9 @@ public class MyReservationsFragment extends Fragment implements ReservationAdapt
 
     @Inject
     ApiService apiService;
+
+    @Inject
+    TokenManager tokenManager;
 
     private FragmentMyReservationsBinding binding;
     private ReservationAdapter adapter;
@@ -60,15 +62,16 @@ public class MyReservationsFragment extends Fragment implements ReservationAdapt
     }
 
     private void loadReservations() {
-        SharedPreferences prefs = requireContext().getSharedPreferences("prefs", Context.MODE_PRIVATE);
-        String token = prefs.getString("auth_token", null);
+        String token = tokenManager.getToken();
 
         if (token == null) {
             Toast.makeText(getContext(), "Inicie sesión para ver sus reservas", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        apiService.getMyReservations("Bearer " + token).enqueue(new Callback<List<ReservationResponse>>() {
+        String authHeader = token.startsWith("Bearer ") ? token : "Bearer " + token;
+
+        apiService.getMyReservations(authHeader).enqueue(new Callback<List<ReservationResponse>>() {
             @Override
             public void onResponse(@NonNull Call<List<ReservationResponse>> call,
                                    @NonNull Response<List<ReservationResponse>> response) {
@@ -92,15 +95,16 @@ public class MyReservationsFragment extends Fragment implements ReservationAdapt
     public void onCancelClick(ReservationResponse reservation) {
         if (reservation.getId() == null) return;
 
-        SharedPreferences prefs = requireContext().getSharedPreferences("prefs", Context.MODE_PRIVATE);
-        String token = prefs.getString("auth_token", null);
+        String token = tokenManager.getToken();
 
         if (token == null) {
             Toast.makeText(getContext(), "Error de autenticación", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        apiService.cancelReservation("Bearer " + token, reservation.getId()).enqueue(new Callback<Void>() {
+        String authHeader = token.startsWith("Bearer ") ? token : "Bearer " + token;
+
+        apiService.cancelReservation(authHeader, reservation.getId()).enqueue(new Callback<Void>() {
             @Override
             public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
                 if (response.isSuccessful()) {
@@ -152,15 +156,16 @@ public class MyReservationsFragment extends Fragment implements ReservationAdapt
     }
 
     private void submitRating(Long activityId, int activityScore, int guideScore, String comment, androidx.appcompat.app.AlertDialog dialog) {
-        SharedPreferences prefs = requireContext().getSharedPreferences("prefs", Context.MODE_PRIVATE);
-        String token = prefs.getString("auth_token", null);
+        String token = tokenManager.getToken();
 
         if (token == null) return;
+
+        String authHeader = token.startsWith("Bearer ") ? token : "Bearer " + token;
 
         com.example.androidnativegrupo5.model.CreateRatingRequest request =
                 new com.example.androidnativegrupo5.model.CreateRatingRequest(activityScore, guideScore, comment);
 
-        apiService.createRating("Bearer " + token, activityId, request).enqueue(new Callback<com.example.androidnativegrupo5.model.Rating>() {
+        apiService.createRating(authHeader, activityId, request).enqueue(new Callback<com.example.androidnativegrupo5.model.Rating>() {
             @Override
             public void onResponse(@NonNull Call<com.example.androidnativegrupo5.model.Rating> call,
                                    @NonNull Response<com.example.androidnativegrupo5.model.Rating> response) {

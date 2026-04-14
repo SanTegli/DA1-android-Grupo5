@@ -11,11 +11,13 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.bumptech.glide.Glide;
 import com.example.androidnativegrupo5.databinding.FragmentDetailBinding;
 import com.example.androidnativegrupo5.model.Activity;
 import com.example.androidnativegrupo5.model.AvailabilitySlotResponse;
+import com.example.androidnativegrupo5.model.Rating;
 import com.example.androidnativegrupo5.network.ApiService;
 
 import java.time.DayOfWeek;
@@ -40,6 +42,7 @@ public class DetailFragment extends Fragment {
 
     private FragmentDetailBinding binding;
     private Activity activity;
+    private CommentAdapter commentAdapter;
 
     @Override
     public View onCreateView(
@@ -61,8 +64,16 @@ public class DetailFragment extends Fragment {
             return;
         }
 
+        setupCommentsRecyclerView();
         loadActivityDetail(activityId);
         loadAvailability(activityId);
+        loadComments(activityId);
+    }
+
+    private void setupCommentsRecyclerView() {
+        commentAdapter = new CommentAdapter();
+        binding.recyclerComments.setLayoutManager(new LinearLayoutManager(getContext()));
+        binding.recyclerComments.setAdapter(commentAdapter);
     }
 
     private void loadActivityDetail(Long id) {
@@ -115,6 +126,34 @@ public class DetailFragment extends Fragment {
             public void onFailure(@NonNull Call<Activity> call, @NonNull Throwable t) {
                 if (!isAdded() || binding == null) return;
                 Toast.makeText(getContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void loadComments(Long activityId) {
+        apiService.getRatingsByActivity(activityId).enqueue(new Callback<List<Rating>>() {
+            @Override
+            public void onResponse(@NonNull Call<List<Rating>> call, @NonNull Response<List<Rating>> response) {
+                if (!isAdded() || binding == null) return;
+
+                if (response.isSuccessful() && response.body() != null) {
+                    List<Rating> comments = response.body();
+                    commentAdapter.setComments(comments);
+
+                    if (comments.isEmpty()) {
+                        binding.textNoComments.setVisibility(View.VISIBLE);
+                        binding.recyclerComments.setVisibility(View.GONE);
+                    } else {
+                        binding.textNoComments.setVisibility(View.GONE);
+                        binding.recyclerComments.setVisibility(View.VISIBLE);
+                        binding.textCommentsHeader.setText("Comentarios (" + comments.size() + ")");
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<List<Rating>> call, @NonNull Throwable t) {
+                // Silently fail or log
             }
         });
     }

@@ -1,9 +1,7 @@
 package com.example.androidnativegrupo5;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -27,6 +25,7 @@ import com.bumptech.glide.Glide;
 import com.example.androidnativegrupo5.model.UserPreferences;
 import com.example.androidnativegrupo5.model.UserResponse;
 import com.example.androidnativegrupo5.network.ApiService;
+import com.example.androidnativegrupo5.network.TokenManager;
 import com.google.android.material.slider.Slider;
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -45,6 +44,9 @@ public class ProfileFragment extends Fragment {
 
     @Inject
     ApiService apiService;
+
+    @Inject
+    TokenManager tokenManager;
 
     private TextInputEditText usernameEditText, emailEditText, phoneEditText;
     private Spinner categorySpinner, destinationSpinner, durationSpinner;
@@ -87,9 +89,11 @@ public class ProfileFragment extends Fragment {
         profileImageView = view.findViewById(R.id.profileImage);
 
         // Bloquear edición de email
-        emailEditText.setFocusable(false);
-        emailEditText.setClickable(false);
-        emailEditText.setEnabled(false);
+        if (emailEditText != null) {
+            emailEditText.setFocusable(false);
+            emailEditText.setClickable(false);
+            emailEditText.setEnabled(false);
+        }
 
         // Ocultamos el campo de URL si existe, ya que ahora usamos selección de imagen
         View imageUrlLayout = view.findViewById(R.id.imageUrlLayout);
@@ -108,7 +112,8 @@ public class ProfileFragment extends Fragment {
         setupSpinners();
 
         if (token == null) {
-            Toast.makeText(getContext(), "Error: Token no encontrado. Inicie sesión.", Toast.LENGTH_LONG).show();
+            Toast.makeText(getContext(), "Sesión no encontrada. Por favor inicie sesión.", Toast.LENGTH_LONG).show();
+            // Evitar crash si el token es null pero no salimos del fragmento inmediatamente
             return;
         }
 
@@ -138,9 +143,7 @@ public class ProfileFragment extends Fragment {
     }
 
     private String getAuthToken() {
-        if (getContext() == null) return null;
-        SharedPreferences prefs = getContext().getSharedPreferences("prefs", Context.MODE_PRIVATE);
-        String savedToken = prefs.getString("auth_token", null);
+        String savedToken = tokenManager.getToken();
         if (savedToken != null && !savedToken.startsWith("Bearer ")) {
             return "Bearer " + savedToken;
         }
@@ -148,6 +151,7 @@ public class ProfileFragment extends Fragment {
     }
 
     private void loadProfile() {
+        if (token == null) return;
         setLoading(true);
         apiService.getMyProfile(token).enqueue(new Callback<UserResponse>() {
             @Override
@@ -157,19 +161,24 @@ public class ProfileFragment extends Fragment {
                     populateFields(response.body());
                 } else {
                     Log.e("ProfileFragment", "Error loading profile: " + response.code());
-                    Toast.makeText(getContext(), "Error al cargar perfil", Toast.LENGTH_SHORT).show();
+                    if (getContext() != null) {
+                        Toast.makeText(getContext(), "Error al cargar perfil", Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
 
             @Override
             public void onFailure(Call<UserResponse> call, Throwable t) {
                 setLoading(false);
-                Toast.makeText(getContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
+                if (getContext() != null) {
+                    Toast.makeText(getContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
 
     private void populateFields(UserResponse user) {
+        if (user == null) return;
         usernameEditText.setText(user.getUsername());
         emailEditText.setText(user.getEmail());
         phoneEditText.setText(user.getPhone());
@@ -185,13 +194,16 @@ public class ProfileFragment extends Fragment {
         UserPreferences prefs = user.getPreferences();
         if (prefs != null) {
             if (prefs.getPreferredCategory() != null) {
-                categorySpinner.setSelection(categories.indexOf(prefs.getPreferredCategory()));
+                int index = categories.indexOf(prefs.getPreferredCategory());
+                if (index >= 0) categorySpinner.setSelection(index);
             }
             if (prefs.getPreferredDestination() != null) {
-                destinationSpinner.setSelection(destinations.indexOf(prefs.getPreferredDestination()));
+                int index = destinations.indexOf(prefs.getPreferredDestination());
+                if (index >= 0) destinationSpinner.setSelection(index);
             }
             if (prefs.getActivityDuration() != null) {
-                durationSpinner.setSelection(durations.indexOf(prefs.getActivityDuration()));
+                int index = durations.indexOf(prefs.getActivityDuration());
+                if (index >= 0) durationSpinner.setSelection(index);
             }
             if (prefs.getMaxPrice() != null) {
                 budgetSlider.setValue(prefs.getMaxPrice().floatValue());
@@ -200,10 +212,10 @@ public class ProfileFragment extends Fragment {
     }
 
     private void saveProfile() {
+        if (token == null) return;
         String username = usernameEditText.getText().toString().trim();
         String phone = phoneEditText.getText().toString().trim();
         String email = emailEditText.getText().toString().trim();
-        // Si no se seleccionó imagen nueva, mantenemos la anterior (o dejamos que el backend la mantenga)
         String imageUrl = selectedImageUri != null ? selectedImageUri.toString() : null;
 
         UserPreferences prefs = new UserPreferences(
@@ -213,7 +225,6 @@ public class ProfileFragment extends Fragment {
                 durationSpinner.getSelectedItem().toString()
         );
 
-        // Creamos el objeto de respuesta para la actualización
         UserResponse updateRequest = new UserResponse();
         updateRequest.setUsername(username);
         updateRequest.setPhone(phone);
@@ -229,17 +240,23 @@ public class ProfileFragment extends Fragment {
             public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
                 setLoading(false);
                 if (response.isSuccessful()) {
-                    Toast.makeText(getContext(), "✓ Perfil actualizado correctamente", Toast.LENGTH_SHORT).show();
+                    if (getContext() != null) {
+                        Toast.makeText(getContext(), "✓ Perfil actualizado correctamente", Toast.LENGTH_SHORT).show();
+                    }
                 } else {
                     Log.e("ProfileFragment", "Update fail: " + response.code());
-                    Toast.makeText(getContext(), "Error al actualizar perfil", Toast.LENGTH_SHORT).show();
+                    if (getContext() != null) {
+                        Toast.makeText(getContext(), "Error al actualizar perfil", Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
 
             @Override
             public void onFailure(Call<UserResponse> call, Throwable t) {
                 setLoading(false);
-                Toast.makeText(getContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
+                if (getContext() != null) {
+                    Toast.makeText(getContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }

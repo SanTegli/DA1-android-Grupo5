@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -70,6 +71,9 @@ public class ActivityAdapter extends RecyclerView.Adapter<ActivityAdapter.Activi
         private final TextView textSlots;
         private final TextView textPrice;
         private final Button btnDetail;
+        private final RatingBar ratingBar;
+        private final TextView textRatingValue;
+        private final TextView textCommentsCount;
 
         public ActivityViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -81,6 +85,9 @@ public class ActivityAdapter extends RecyclerView.Adapter<ActivityAdapter.Activi
             textSlots = itemView.findViewById(R.id.text_slots);
             textPrice = itemView.findViewById(R.id.text_price);
             btnDetail = itemView.findViewById(R.id.btn_detail);
+            ratingBar = itemView.findViewById(R.id.rating_bar);
+            textRatingValue = itemView.findViewById(R.id.text_rating_value);
+            textCommentsCount = itemView.findViewById(R.id.text_comments_count);
         }
 
         public void bind(Activity activity, OnActivityClickListener listener) {
@@ -98,6 +105,28 @@ public class ActivityAdapter extends RecyclerView.Adapter<ActivityAdapter.Activi
             } else {
                 textPrice.setText(String.format(Locale.getDefault(), "$%.2f", activity.getPrice()));
                 textPrice.setTextColor(ContextCompat.getColor(context, R.color.colorPrimary));
+            }
+
+            // Bind Rating and Comments
+            if (activity.getAverageRating() != null) {
+                ratingBar.setVisibility(View.VISIBLE);
+                textRatingValue.setVisibility(View.VISIBLE);
+                ratingBar.setRating(activity.getAverageRating().floatValue());
+                textRatingValue.setText(String.format(Locale.getDefault(), "%.1f", activity.getAverageRating()));
+            } else {
+                // Mock data for visibility if backend is empty (change to GONE in production if preferred)
+                ratingBar.setVisibility(View.VISIBLE);
+                textRatingValue.setVisibility(View.VISIBLE);
+                ratingBar.setRating(0f);
+                textRatingValue.setText("0.0");
+            }
+
+            if (activity.getRatingCount() != null) {
+                textCommentsCount.setVisibility(View.VISIBLE);
+                textCommentsCount.setText(String.format(Locale.getDefault(), "(%d comentarios)", activity.getRatingCount()));
+            } else {
+                textCommentsCount.setVisibility(View.VISIBLE);
+                textCommentsCount.setText("(0 comentarios)");
             }
 
             Glide.with(context)

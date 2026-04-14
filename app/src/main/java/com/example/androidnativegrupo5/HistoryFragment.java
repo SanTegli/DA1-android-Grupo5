@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.example.androidnativegrupo5.databinding.FragmentHistoryBinding;
 import com.example.androidnativegrupo5.model.ActivityHistoryItem;
 import com.example.androidnativegrupo5.network.ApiService;
+import com.example.androidnativegrupo5.network.TokenManager;
 
 import java.util.Calendar;
 import java.util.List;
@@ -37,6 +38,9 @@ public class HistoryFragment extends Fragment {
 
     @Inject
     ApiService apiService;
+
+    @Inject
+    TokenManager tokenManager;
 
     private String fromDate = null;
     private String toDate = null;
@@ -113,6 +117,12 @@ public class HistoryFragment extends Fragment {
     private void loadHistory() {
         if (binding == null) return;
 
+        String token = tokenManager.getToken();
+        if (token == null) {
+            Toast.makeText(requireContext(), "Inicie sesión para ver su historial", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         binding.progressBarHistory.setVisibility(View.VISIBLE);
         binding.textEmptyHistory.setVisibility(View.GONE);
 
@@ -124,7 +134,9 @@ public class HistoryFragment extends Fragment {
             destination = null;
         }
 
-        apiService.getHistory(fromDate, toDate, destination).enqueue(new Callback<List<ActivityHistoryItem>>() {
+        String authHeader = token.startsWith("Bearer ") ? token : "Bearer " + token;
+
+        apiService.getHistory(authHeader, fromDate, toDate, destination).enqueue(new Callback<List<ActivityHistoryItem>>() {
             @Override
             public void onResponse(@NonNull Call<List<ActivityHistoryItem>> call,
                                    @NonNull Response<List<ActivityHistoryItem>> response) {

@@ -77,6 +77,7 @@ public interface ApiService {
 
     @PATCH("/api/v1/reservations/{id}/cancel")
     Call<Void> cancelReservation(@Header("Authorization") String token, @Path("id") Long id);
+
     @GET("/api/v1/users/me")
     Call<UserResponse> getMyProfile(@Header("Authorization") String token);
 
@@ -85,6 +86,7 @@ public interface ApiService {
 
     @GET("api/v1/history")
     Call<List<ActivityHistoryItem>> getHistory(
+            @Header("Authorization") String token,
             @Query("fromDate") String fromDate,
             @Query("toDate") String toDate,
             @Query("destination") String destination
