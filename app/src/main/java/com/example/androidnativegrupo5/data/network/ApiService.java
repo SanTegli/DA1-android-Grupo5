@@ -14,6 +14,7 @@ import com.example.androidnativegrupo5.data.model.Rating;
 import com.example.androidnativegrupo5.data.model.RatingStatsResponse;
 import com.example.androidnativegrupo5.data.model.RegisterRequest;
 import com.example.androidnativegrupo5.data.model.CreateReservationRequest;
+import com.example.androidnativegrupo5.data.model.RescheduleReservationRequest;
 import com.example.androidnativegrupo5.data.model.ReservationResponse;
 
 import com.example.androidnativegrupo5.data.model.UserResponse;
@@ -109,4 +110,9 @@ public interface ApiService {
     @DELETE("/api/v1/ratings/{id}")
     Call<Void> deleteRating(@Path("id") Long id);
 
+    @PUT("/api/v1/reservations/{id}/reschedule")
+    Call<ReservationResponse> rescheduleReservation(
+            @Path("id") Long id,
+            @Body RescheduleReservationRequest request
+    );
 }

@@ -68,6 +68,7 @@ public class Reserva {
     public ReservationResponse toResponse() {
         ReservationResponse res = new ReservationResponse();
         res.setId(this.getId());
+        res.setActivityId(this.getActivityId());
         res.setActivityName(this.getActivityName());
         res.setDate(this.getDate());
         res.setTime(this.getTime());

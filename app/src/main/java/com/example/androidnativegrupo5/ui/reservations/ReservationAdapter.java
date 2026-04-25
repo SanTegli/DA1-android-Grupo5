@@ -23,6 +23,7 @@ public class ReservationAdapter extends RecyclerView.Adapter<ReservationAdapter.
     public interface OnReservationActionListener {
         void onCancelClick(ReservationResponse reservation);
         void onRateClick(ReservationResponse reservation);
+        void onRescheduleClick(ReservationResponse reservation);
     }
 
     public ReservationAdapter(List<ReservationResponse> list, OnReservationActionListener listener) {
@@ -33,7 +34,7 @@ public class ReservationAdapter extends RecyclerView.Adapter<ReservationAdapter.
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView name, date, time, slots, status, totalPrice;
         ImageView image;
-        Button btnCancel, btnRate;
+        Button btnCancel, btnRate, btnReschedule;
 
         public ViewHolder(View view) {
             super(view);
@@ -45,6 +46,7 @@ public class ReservationAdapter extends RecyclerView.Adapter<ReservationAdapter.
             totalPrice = view.findViewById(R.id.text_total_price);
             btnCancel = view.findViewById(R.id.btn_cancel_reservation);
             btnRate = view.findViewById(R.id.btn_rate_reservation);
+            btnReschedule = view.findViewById(R.id.btn_reschedule_reservation);
         }
     }
 
@@ -79,18 +81,27 @@ public class ReservationAdapter extends RecyclerView.Adapter<ReservationAdapter.
             }
         });
 
+        holder.btnReschedule.setOnClickListener(v -> {
+            if (actionListener != null) {
+                actionListener.onRescheduleClick(r);
+            }
+        });
+
         if ("CANCELLED".equalsIgnoreCase(r.getStatus())) {
             holder.btnCancel.setEnabled(false);
             holder.btnCancel.setAlpha(0.5f);
             holder.btnRate.setVisibility(View.GONE);
+            holder.btnReschedule.setVisibility(View.GONE);
         } else if ("COMPLETED".equalsIgnoreCase(r.getStatus())) {
             holder.btnCancel.setVisibility(View.GONE);
             holder.btnRate.setVisibility(View.VISIBLE);
+            holder.btnReschedule.setVisibility(View.GONE);
         } else {
             holder.btnCancel.setVisibility(View.VISIBLE);
             holder.btnCancel.setEnabled(true);
             holder.btnCancel.setAlpha(1.0f);
             holder.btnRate.setVisibility(View.GONE);
+            holder.btnReschedule.setVisibility(View.VISIBLE);
         }
     }
 
