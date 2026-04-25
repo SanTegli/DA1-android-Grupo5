@@ -137,7 +137,7 @@ public class HistoryFragment extends Fragment {
 
         String authHeader = token.startsWith("Bearer ") ? token : "Bearer " + token;
 
-        apiService.getHistory(authHeader, fromDate, toDate, destination).enqueue(new Callback<List<ActivityHistoryItem>>() {
+        apiService.getHistory(fromDate, toDate, destination).enqueue(new Callback<List<ActivityHistoryItem>>() {
             @Override
             public void onResponse(@NonNull Call<List<ActivityHistoryItem>> call,
                                    @NonNull Response<List<ActivityHistoryItem>> response) {

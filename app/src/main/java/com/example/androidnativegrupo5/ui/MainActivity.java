@@ -12,17 +12,29 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.example.androidnativegrupo5.R;
+import com.example.androidnativegrupo5.data.local.TokenManager;
+import com.example.androidnativegrupo5.data.local.db.Reserva;
+import com.example.androidnativegrupo5.data.local.db.ReservaDao;
 import com.example.androidnativegrupo5.databinding.ActivityMainBinding;
 import com.google.android.material.snackbar.Snackbar;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import javax.inject.Inject;
+
 import dagger.hilt.android.AndroidEntryPoint;
 
-/**
- * MainActivity serves as the primary entry point for the logged-in user.
- * it manages the main navigation flow using a NavHostFragment and a Toolbar.
- */
 @AndroidEntryPoint
 public class MainActivity extends AppCompatActivity {
+
+    @Inject
+    TokenManager tokenManager;
+
+    @Inject
+    ReservaDao reservaDao;
+
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
@@ -40,6 +52,11 @@ public class MainActivity extends AppCompatActivity {
 
         // Setup Navigation Component
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
+
+        if (tokenManager.getToken() != null) {
+            navController.navigate(R.id.MyReservationsFragment);
+        }
+
         appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
 

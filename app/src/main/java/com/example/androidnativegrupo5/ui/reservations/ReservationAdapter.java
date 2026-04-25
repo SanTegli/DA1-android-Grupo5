@@ -109,4 +109,9 @@ public class ReservationAdapter extends RecyclerView.Adapter<ReservationAdapter.
             }
         }
     }
+
+    public void updateData(List<ReservationResponse> newList) {
+        this.list = newList;
+        notifyDataSetChanged();
+    }
 }

@@ -1,6 +1,7 @@
-package com.example.androidnativegrupo5.data.network;
+package com.example.androidnativegrupo5.di;
 
 import com.example.androidnativegrupo5.data.local.TokenManager;
+import com.example.androidnativegrupo5.data.network.ApiService;
 import com.example.androidnativegrupo5.utils.Constants;
 
 import javax.inject.Singleton;

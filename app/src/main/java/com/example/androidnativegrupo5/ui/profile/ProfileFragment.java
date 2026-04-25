@@ -154,7 +154,7 @@ public class ProfileFragment extends Fragment {
     private void loadProfile() {
         if (token == null) return;
         setLoading(true);
-        apiService.getMyProfile(token).enqueue(new Callback<UserResponse>() {
+        apiService.getMyProfile().enqueue(new Callback<UserResponse>() {
             @Override
             public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
                 setLoading(false);
@@ -236,7 +236,7 @@ public class ProfileFragment extends Fragment {
         }
 
         setLoading(true);
-        apiService.updateProfile(token, updateRequest).enqueue(new Callback<UserResponse>() {
+        apiService.updateProfile(updateRequest).enqueue(new Callback<UserResponse>() {
             @Override
             public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
                 setLoading(false);

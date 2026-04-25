@@ -11,16 +11,19 @@ public class TokenManager {
 
     private SharedPreferences prefs;
 
+    private static final String PREF_NAME = "auth";
+    private static final String KEY_TOKEN = "token";
+
     @Inject
     public TokenManager(@ApplicationContext Context context) {
-        prefs = context.getSharedPreferences("auth", Context.MODE_PRIVATE);
+        prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
     }
 
     public String getToken() {
-        return prefs.getString("token", null);
+        return prefs.getString(KEY_TOKEN, null);
     }
 
     public void saveToken(String token) {
-        prefs.edit().putString("token", token).apply();
+        prefs.edit().putString(KEY_TOKEN, token).apply();
     }
 }

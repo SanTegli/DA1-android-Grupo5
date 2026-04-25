@@ -155,7 +155,7 @@ public class HomeFragment extends Fragment {
 
         if (token != null) {
             String authHeader = token.startsWith("Bearer ") ? token : "Bearer " + token;
-            apiService.getRecommendedActivities(authHeader)
+            apiService.getRecommendedActivities()
                     .enqueue(new Callback<PaginatedResponse<Activity>>() {
                         @Override
                         public void onResponse(@NonNull Call<PaginatedResponse<Activity>> call, @NonNull Response<PaginatedResponse<Activity>> response) {
