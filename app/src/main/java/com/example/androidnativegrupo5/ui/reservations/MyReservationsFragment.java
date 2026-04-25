@@ -313,7 +313,6 @@ public class MyReservationsFragment extends Fragment implements ReservationAdapt
     }
 
     private void showRescheduleDialog(ReservationResponse reservation) {
-        // 1. Cargamos disponibilidad real de la actividad
         apiService.getAvailability(reservation.getActivityId()).enqueue(new Callback<List<AvailabilitySlotResponse>>() {
             @Override
             public void onResponse(Call<List<AvailabilitySlotResponse>> call, Response<List<AvailabilitySlotResponse>> response) {
