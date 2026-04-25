@@ -54,4 +54,5 @@ dependencies {
     annotationProcessor(libs.hilt.compiler)
     implementation("androidx.room:room-runtime:2.6.1")
     annotationProcessor("androidx.room:room-compiler:2.6.1")
+    implementation("androidx.cardview:cardview:1.0.0")
 }

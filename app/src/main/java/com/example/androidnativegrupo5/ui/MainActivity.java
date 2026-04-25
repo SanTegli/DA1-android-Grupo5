@@ -1,22 +1,19 @@
 package com.example.androidnativegrupo5.ui;
 
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
+import android.view.View;
 
 import com.example.androidnativegrupo5.R;
 import com.example.androidnativegrupo5.data.local.TokenManager;
-import com.example.androidnativegrupo5.data.local.db.Reserva;
 import com.example.androidnativegrupo5.data.local.db.ReservaDao;
 import com.example.androidnativegrupo5.databinding.ActivityMainBinding;
-import com.google.android.material.snackbar.Snackbar;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -36,71 +33,71 @@ public class MainActivity extends AppCompatActivity {
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
-    private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
+    private boolean darkModeEnabled = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Inflate the layout using View Binding
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        // Setup the toolbar
-        setSupportActionBar(binding.toolbar);
+        NavController navController =
+                Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
 
-        // Setup Navigation Component
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
+        binding.btnBack.setOnClickListener(v -> {
+            NavController controller = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
+            controller.navigateUp();
+        });
+
+        navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
+
+            boolean hideBars =
+                    destination.getId() == R.id.LoginFragment ||
+                            destination.getId() == R.id.RegisterFragment;
+
+            // 🔹 Header y Footer
+            if (hideBars) {
+                binding.header.setVisibility(View.GONE);
+                binding.footer.setVisibility(View.GONE);
+            } else {
+                binding.header.setVisibility(View.VISIBLE);
+                binding.footer.setVisibility(View.VISIBLE);
+            }
+
+            // 🔹 Flecha back
+            if (destination.getId() == R.id.FirstFragment || hideBars) {
+                binding.btnBack.setVisibility(View.GONE);
+            } else {
+                binding.btnBack.setVisibility(View.VISIBLE);
+            }
+        });
 
         if (tokenManager.getToken() != null) {
             navController.navigate(R.id.MyReservationsFragment);
         }
 
-        appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
-        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
+        binding.btnTheme.setOnClickListener(v -> {
+            int currentMode = AppCompatDelegate.getDefaultNightMode();
 
-        // Action for the Floating Action Button
-        binding.fab.setOnClickListener(view -> 
-            Snackbar.make(view, R.string.custom_action, Snackbar.LENGTH_LONG)
-                    .setAnchorView(R.id.fab)
-                    .setAction(R.string.close, null).show()
-        );
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == R.id.action_dark_mode) {
-            item.setChecked(!item.isChecked());
-            if (item.isChecked()) {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-            } else {
+            if (currentMode == AppCompatDelegate.MODE_NIGHT_YES) {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+            } else {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
             }
-            return true;
-        } else if (id == R.id.action_profile) {
-            NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
-            navController.navigate(R.id.ProfileFragment);
-            return true;
-        }
+        });
 
-        return super.onOptionsItemSelected(item);
-    }
+        binding.navDiscover.setOnClickListener(v ->
+                navController.navigate(R.id.FirstFragment)
+        );
 
-    @Override
-    public boolean onSupportNavigateUp() {
-        // Handles the Up button navigation in the action bar
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
-        return NavigationUI.navigateUp(navController, appBarConfiguration)
-                || super.onSupportNavigateUp();
+        binding.btnMyReservations.setOnClickListener(v ->
+                navController.navigate(R.id.MyReservationsFragment)
+        );
+
+        binding.navProfile.setOnClickListener(v ->
+                navController.navigate(R.id.ProfileFragment)
+        );
     }
 }

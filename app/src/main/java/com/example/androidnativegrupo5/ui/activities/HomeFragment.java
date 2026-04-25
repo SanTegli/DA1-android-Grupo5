@@ -56,8 +56,6 @@ public class HomeFragment extends Fragment {
     private Integer filterMaxPrice = null;
     private String filterSearch = null;
 
-    private boolean isInitialSelect = true;
-
     @Override
     public View onCreateView(
             @NonNull LayoutInflater inflater, ViewGroup container,
@@ -88,11 +86,12 @@ public class HomeFragment extends Fragment {
         binding.btnFilter.setOnClickListener(v -> {
             FilterBottomSheetDialogFragment bottomSheet = new FilterBottomSheetDialogFragment();
             bottomSheet.setOnFiltersAppliedListener((search, category, destination, minPrice, maxPrice) -> {
-                this.filterSearch = search;
-                this.filterCategory = category;
-                this.filterDestination = destination;
-                this.filterMinPrice = minPrice != null ? minPrice.intValue() : null;
-                this.filterMaxPrice = maxPrice != null ? maxPrice.intValue() : null;
+
+                filterSearch = search;
+                filterCategory = category;
+                filterDestination = destination;
+                filterMinPrice = minPrice != null ? minPrice.intValue() : null;
+                filterMaxPrice = maxPrice != null ? maxPrice.intValue() : null;
 
                 currentPage = 0;
                 isLastPage = false;
@@ -105,6 +104,7 @@ public class HomeFragment extends Fragment {
                     binding.layoutFeatured.setVisibility(View.VISIBLE);
                 }
             });
+
             bottomSheet.show(getParentFragmentManager(), "FilterBottomSheet");
         });
 
@@ -112,8 +112,6 @@ public class HomeFragment extends Fragment {
         binding.recyclerActivities.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-
                 if (dy <= 0) return;
 
                 LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
@@ -130,11 +128,6 @@ public class HomeFragment extends Fragment {
                 }
             }
         });
-
-        binding.btnMyReservations.setOnClickListener(v -> {
-            Navigation.findNavController(v)
-                    .navigate(R.id.action_FirstFragment_to_MyReservationsFragment);
-        });
     }
 
     private void setupFeaturedCarousel(NavController navController) {
@@ -144,48 +137,23 @@ public class HomeFragment extends Fragment {
             navController.navigate(R.id.action_FirstFragment_to_DetailFragment, bundle);
         });
 
-        binding.recyclerFeatured.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
-        binding.recyclerFeatured.setAdapter(featuredAdapter);
+        binding.recyclerFeatured.setLayoutManager(
+                new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        );
 
+        binding.recyclerFeatured.setAdapter(featuredAdapter);
         loadFeaturedActivities();
     }
 
     private void loadFeaturedActivities() {
-        String token = tokenManager.getToken();
-
-        if (token != null) {
-            String authHeader = token.startsWith("Bearer ") ? token : "Bearer " + token;
-            apiService.getRecommendedActivities()
-                    .enqueue(new Callback<PaginatedResponse<Activity>>() {
-                        @Override
-                        public void onResponse(@NonNull Call<PaginatedResponse<Activity>> call, @NonNull Response<PaginatedResponse<Activity>> response) {
-                            if (response.isSuccessful() && response.body() != null) {
-                                List<Activity> activities = response.body().getContent();
-                                if (activities != null && !activities.isEmpty()) {
-                                    featuredAdapter.setActivities(activities);
-                                    binding.layoutFeatured.setVisibility(View.VISIBLE);
-                                    return;
-                                }
-                            }
-                            loadDefaultFeatured(apiService);
-                        }
-
-                        @Override
-                        public void onFailure(@NonNull Call<PaginatedResponse<Activity>> call, @NonNull Throwable t) {
-                            loadDefaultFeatured(apiService);
-                        }
-                    });
-        } else {
-            loadDefaultFeatured(apiService);
-        }
-    }
-
-    private void loadDefaultFeatured(ApiService apiService) {
-        // Fetch first 5 activities as "featured"
         apiService.getActivities(0, 5, null, null, null, null, null)
                 .enqueue(new Callback<PaginatedResponse<Activity>>() {
                     @Override
-                    public void onResponse(@NonNull Call<PaginatedResponse<Activity>> call, @NonNull Response<PaginatedResponse<Activity>> response) {
+                    public void onResponse(@NonNull Call<PaginatedResponse<Activity>> call,
+                                           @NonNull Response<PaginatedResponse<Activity>> response) {
+
+                        if (!isAdded() || binding == null) return;
+
                         if (response.isSuccessful() && response.body() != null) {
                             List<Activity> activities = response.body().getContent();
                             if (activities != null && !activities.isEmpty()) {
@@ -200,18 +168,22 @@ public class HomeFragment extends Fragment {
                     }
 
                     @Override
-                    public void onFailure(@NonNull Call<PaginatedResponse<Activity>> call, @NonNull Throwable t) {
-                        Log.e("FirstFragment", "Error loading featured: " + t.getMessage());
-                        if (binding != null) {
-                            binding.layoutFeatured.setVisibility(View.GONE);
-                        }
+                    public void onFailure(@NonNull Call<PaginatedResponse<Activity>> call,
+                                          @NonNull Throwable t) {
+                        if (!isAdded() || binding == null) return;
+
+                        Log.e("HomeFragment", "Error featured: " + t.getMessage());
+                        binding.layoutFeatured.setVisibility(View.GONE);
                     }
                 });
     }
 
     private void loadActivities() {
         isLoading = true;
-        binding.progressBar.setVisibility(View.VISIBLE);
+
+        if (binding != null) {
+            binding.progressBar.setVisibility(View.VISIBLE);
+        }
 
         apiService.getActivities(currentPage, PAGE_SIZE, filterCategory, filterDestination, filterMaxPrice, filterDuration, null)
                 .enqueue(new Callback<PaginatedResponse<Activity>>() {
@@ -221,20 +193,20 @@ public class HomeFragment extends Fragment {
                                            @NonNull Response<PaginatedResponse<Activity>> response) {
 
                         isLoading = false;
-                        binding.progressBar.setVisibility(View.GONE);
 
                         if (!isAdded() || binding == null) return;
 
+                        binding.progressBar.setVisibility(View.GONE);
+
                         if (response.isSuccessful() && response.body() != null) {
 
-                            PaginatedResponse<Activity> paginatedResponse = response.body();
-                            List<Activity> activities = paginatedResponse.getContent();
+                            List<Activity> activities = response.body().getContent();
 
                             if (activities != null && !activities.isEmpty()) {
 
                                 adapter.addActivities(activities);
 
-                                if (currentPage >= paginatedResponse.getTotalPages() - 1) {
+                                if (currentPage >= response.body().getTotalPages() - 1) {
                                     isLastPage = true;
                                 } else {
                                     currentPage++;
@@ -250,7 +222,6 @@ public class HomeFragment extends Fragment {
                             }
 
                         } else {
-                            Log.e("FirstFragment", "Error code: " + response.code());
                             Toast.makeText(requireContext(),
                                     "Error al obtener actividades",
                                     Toast.LENGTH_SHORT).show();
@@ -267,10 +238,10 @@ public class HomeFragment extends Fragment {
 
                         binding.progressBar.setVisibility(View.GONE);
 
-                        Log.e("FirstFragment", "Error: " + t.getMessage(), t);
+                        Log.e("HomeFragment", "Error: " + t.getMessage());
 
                         Toast.makeText(requireContext(),
-                                "Error de conexión con el servidor",
+                                "Error de conexión",
                                 Toast.LENGTH_SHORT).show();
                     }
                 });
