@@ -46,6 +46,12 @@ public class MainActivity extends AppCompatActivity {
         NavController navController =
                 Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
 
+        if (savedInstanceState == null) {
+            if (tokenManager.getToken() != null) {
+                navController.navigate(R.id.MyReservationsFragment);
+            }
+        }
+
         binding.btnBack.setOnClickListener(v -> {
             NavController controller = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
             controller.navigateUp();
@@ -73,10 +79,6 @@ public class MainActivity extends AppCompatActivity {
                 binding.btnBack.setVisibility(View.VISIBLE);
             }
         });
-
-        if (tokenManager.getToken() != null) {
-            navController.navigate(R.id.MyReservationsFragment);
-        }
 
         binding.btnTheme.setOnClickListener(v -> {
             int currentMode = AppCompatDelegate.getDefaultNightMode();
