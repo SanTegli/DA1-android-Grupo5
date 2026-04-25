@@ -20,6 +20,12 @@ public class Activity {
     @SerializedName("image_url")
     private String imageUrl;
 
+    @SerializedName("average_rating")
+    private Double averageRating;
+
+    @SerializedName("rating_count")
+    private Integer ratingCount;
+
     public Activity() {}
 
     public Long getId() {
@@ -100,5 +106,21 @@ public class Activity {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public Double getAverageRating() {
+        return averageRating;
+    }
+
+    public void setAverageRating(Double averageRating) {
+        this.averageRating = averageRating;
+    }
+
+    public Integer getRatingCount() {
+        return ratingCount;
+    }
+
+    public void setRatingCount(Integer ratingCount) {
+        this.ratingCount = ratingCount;
     }
 }

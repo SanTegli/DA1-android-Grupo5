@@ -1,7 +1,5 @@
 package com.example.androidnativegrupo5;
 
-import android.app.DatePickerDialog;
-import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -11,7 +9,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -23,28 +20,30 @@ import com.example.androidnativegrupo5.model.AvailabilitySlotResponse;
 import com.example.androidnativegrupo5.model.CreateReservationRequest;
 import com.example.androidnativegrupo5.model.ReservationResponse;
 import com.example.androidnativegrupo5.network.ApiService;
+import com.example.androidnativegrupo5.network.TokenManager;
+import com.google.android.material.chip.Chip;
 
 import java.util.Calendar;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+
+import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import com.google.android.material.chip.Chip;
-import java.util.LinkedHashSet;
-
-import javax.inject.Inject;
-
 @AndroidEntryPoint
 public class ReservationFragment extends Fragment {
 
     @Inject
     ApiService apiService;
+
+    @Inject
+    TokenManager tokenManager;
 
     private FragmentReservationBinding binding;
     private String activityName;
@@ -126,24 +125,28 @@ public class ReservationFragment extends Fragment {
                 selectedTime
         );
 
-        SharedPreferences prefs = requireContext().getSharedPreferences("prefs", Context.MODE_PRIVATE);
-        String token = prefs.getString("auth_token", null);
+        String token = tokenManager.getToken();
 
         if (token == null) {
             Toast.makeText(getContext(), "Inicie sesión para reservar", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        apiService.createReservation("Bearer " + token, request).enqueue(new Callback<ReservationResponse>() {
+        String authHeader = token.startsWith("Bearer ") ? token : "Bearer " + token;
+
+        apiService.createReservation(authHeader, request).enqueue(new Callback<ReservationResponse>() {
             @Override
             public void onResponse(Call<ReservationResponse> call, Response<ReservationResponse> response) {
                 if (response.isSuccessful()) {
                     Toast.makeText(getContext(), "¡Reserva exitosa!", Toast.LENGTH_SHORT).show();
-                    requireActivity().getOnBackPressedDispatcher().onBackPressed();
+                    if (getActivity() != null) {
+                        getActivity().getOnBackPressedDispatcher().onBackPressed();
+                    }
                 } else {
                     try {
-                        String errorBody = response.errorBody().string();
+                        String errorBody = response.errorBody() != null ? response.errorBody().string() : "Error desconocido";
                         Log.e("RESERVA_ERROR", "Code: " + response.code() + " Body: " + errorBody);
+                        Toast.makeText(getContext(), "Error al realizar la reserva", Toast.LENGTH_SHORT).show();
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -216,23 +219,28 @@ public class ReservationFragment extends Fragment {
 
             @Override
             public void onFailure(Call<List<AvailabilitySlotResponse>> call, Throwable t) {
-                Toast.makeText(getContext(), "Error al cargar disponibilidad", Toast.LENGTH_SHORT).show();
+                if (getContext() != null) {
+                    Toast.makeText(getContext(), "Error al cargar disponibilidad", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
 
     private void showDates() {
+        if (binding == null) return;
         binding.chipGroupDates.removeAllViews();
 
         Set<String> uniqueDates = new LinkedHashSet<>();
 
-        for (AvailabilitySlotResponse slot : allSlots) {
-            uniqueDates.add(slot.getDate());
+        if (allSlots != null) {
+            for (AvailabilitySlotResponse slot : allSlots) {
+                uniqueDates.add(slot.getDate());
+            }
         }
 
         for (String date : uniqueDates) {
 
-            Chip chip = new Chip(getContext());
+            Chip chip = new Chip(requireContext());
             chip.setText(date);
             chip.setCheckable(true);
 
@@ -255,33 +263,36 @@ public class ReservationFragment extends Fragment {
     }
 
     private void showTimes(String date) {
+        if (binding == null) return;
         binding.chipGroupTimes.removeAllViews();
 
-        for (AvailabilitySlotResponse slot : allSlots) {
+        if (allSlots != null) {
+            for (AvailabilitySlotResponse slot : allSlots) {
 
-            if (slot.getDate().equals(date)) {
+                if (slot.getDate().equals(date)) {
 
-                Chip chip = new Chip(getContext());
-                String time = slot.getTime().substring(0, 5);
+                    Chip chip = new Chip(requireContext());
+                    String time = slot.getTime().length() >= 5 ? slot.getTime().substring(0, 5) : slot.getTime();
 
-                chip.setText(time);
-                chip.setCheckable(true);
+                    chip.setText(time);
+                    chip.setCheckable(true);
 
-                chip.setChipBackgroundColorResource(R.color.chip_selector_bg);
-                chip.setTextColor(getResources().getColorStateList(R.color.chip_selector));
+                    chip.setChipBackgroundColorResource(R.color.chip_selector_bg);
+                    chip.setTextColor(getResources().getColorStateList(R.color.chip_selector));
 
-                if (slot.getAvailableSlots() == 0) {
-                    chip.setEnabled(false);
+                    if (slot.getAvailableSlots() == 0) {
+                        chip.setEnabled(false);
+                    }
+
+                    chip.setOnClickListener(v -> {
+                        selectedTime = time;
+                        availableSlots = slot.getAvailableSlots();
+
+                        binding.textAvailableSlots.setText("Cupos: " + availableSlots);
+                    });
+
+                    binding.chipGroupTimes.addView(chip);
                 }
-
-                chip.setOnClickListener(v -> {
-                    selectedTime = time;
-                    availableSlots = slot.getAvailableSlots();
-
-                    binding.textAvailableSlots.setText("Cupos: " + availableSlots);
-                });
-
-                binding.chipGroupTimes.addView(chip);
             }
         }
     }

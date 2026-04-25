@@ -24,6 +24,7 @@ import com.example.androidnativegrupo5.model.Activity;
 import com.example.androidnativegrupo5.model.PaginatedResponse;
 import com.example.androidnativegrupo5.model.ReservationResponse;
 import com.example.androidnativegrupo5.network.ApiService;
+import com.example.androidnativegrupo5.network.TokenManager;
 
 import java.util.List;
 
@@ -39,6 +40,9 @@ public class FirstFragment extends Fragment {
 
     @Inject
     ApiService apiService;
+
+    @Inject
+    TokenManager tokenManager;
 
     private FragmentFirstBinding binding;
     private ActivityAdapter adapter;
@@ -152,11 +156,11 @@ public class FirstFragment extends Fragment {
     }
 
     private void loadFeaturedActivities() {
-        SharedPreferences prefs = requireContext().getSharedPreferences("prefs", Context.MODE_PRIVATE);
-        String token = prefs.getString("auth_token", null);
+        String token = tokenManager.getToken();
 
         if (token != null) {
-            apiService.getRecommendedActivities("Bearer " + token)
+            String authHeader = token.startsWith("Bearer ") ? token : "Bearer " + token;
+            apiService.getRecommendedActivities(authHeader)
                     .enqueue(new Callback<PaginatedResponse<Activity>>() {
                         @Override
                         public void onResponse(@NonNull Call<PaginatedResponse<Activity>> call, @NonNull Response<PaginatedResponse<Activity>> response) {
