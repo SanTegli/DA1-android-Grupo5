@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import android.view.View;
+import android.content.res.Configuration;
 
 import com.example.androidnativegrupo5.R;
 import com.example.androidnativegrupo5.data.local.TokenManager;
@@ -81,9 +82,10 @@ public class MainActivity extends AppCompatActivity {
         });
 
         binding.btnTheme.setOnClickListener(v -> {
-            int currentMode = AppCompatDelegate.getDefaultNightMode();
+            int nightMode = getResources().getConfiguration().uiMode
+                    & Configuration.UI_MODE_NIGHT_MASK;
 
-            if (currentMode == AppCompatDelegate.MODE_NIGHT_YES) {
+            if (nightMode == Configuration.UI_MODE_NIGHT_YES) {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
             } else {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);

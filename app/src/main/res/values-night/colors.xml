@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="app_background">#121212</color>
+    <color name="app_surface">#0E0E0E</color>
+    <color name="app_card">#1C1C1C</color>
+    <color name="app_text">#EFE8DF</color>
+    <color name="app_text_secondary">#A08C89</color>
+    <color name="app_primary">#FFB4A9</color>
+    <color name="app_accent">#1D5D69</color>
+    <color name="app_input">#1C1C1C</color>
+    <color name="app_input_border">#2C2C2C</color>
+    <color name="app_footer_inactive">#8F8F8F</color>
+
+    <color name="black">#EFE8DF</color>
+    <color name="white">#121212</color>
+    <color name="colorPrimary">#FFB4A9</color>
+    <color name="priceColor">#FFB4A9</color>
+</resources>
