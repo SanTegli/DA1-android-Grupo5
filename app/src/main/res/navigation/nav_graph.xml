@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/LoginFragment"
-        android:name="com.example.androidnativegrupo5.LoginFragment"
+        android:name="com.example.androidnativegrupo5.ui.auth.LoginFragment"
         android:label="@string/iniciar_sesion"
         tools:layout="@layout/fragment_login">
         <action
@@ -22,7 +22,7 @@
 
     <fragment
         android:id="@+id/OtpFragment"
-        android:name="com.example.androidnativegrupo5.OtpFragment"
+        android:name="com.example.androidnativegrupo5.ui.auth.OtpFragment"
         android:label="@string/verify_identity"
         tools:layout="@layout/fragment_otp">
         <argument
@@ -47,7 +47,7 @@
 
     <fragment
         android:id="@+id/RegisterFragment"
-        android:name="com.example.androidnativegrupo5.RegisterFragment"
+        android:name="com.example.androidnativegrupo5.ui.auth.RegisterFragment"
         android:label="Register">
         <action
             android:id="@+id/action_registerFragment_to_otpFragment"
@@ -56,7 +56,7 @@
 
     <fragment
         android:id="@+id/FirstFragment"
-        android:name="com.example.androidnativegrupo5.FirstFragment"
+        android:name="com.example.androidnativegrupo5.ui.activities.HomeFragment"
         android:label="Actividades">
         <action
             android:id="@+id/action_FirstFragment_to_DetailFragment"
@@ -68,7 +68,7 @@
 
     <fragment
         android:id="@+id/DetailFragment"
-        android:name="com.example.androidnativegrupo5.DetailFragment"
+        android:name="com.example.androidnativegrupo5.ui.activities.DetailFragment"
         android:label="DetailFragment">
         <argument
             android:name="activityId"
@@ -80,7 +80,7 @@
 
     <fragment
         android:id="@+id/ReservationFragment"
-        android:name="com.example.androidnativegrupo5.ReservationFragment"
+        android:name="com.example.androidnativegrupo5.ui.reservations.ReservationFragment"
         android:label="ReservationFragment"
         tools:layout="@layout/fragment_reservation">
         <argument
@@ -96,19 +96,19 @@
 
     <fragment
         android:id="@+id/MyReservationsFragment"
-        android:name="com.example.androidnativegrupo5.MyReservationsFragment"
+        android:name="com.example.androidnativegrupo5.ui.reservations.MyReservationsFragment"
         android:label="Mis Reservas"
         tools:layout="@layout/fragment_my_reservations" />
 
     <fragment
         android:id="@+id/ProfileFragment"
-        android:name="com.example.androidnativegrupo5.ProfileFragment"
+        android:name="com.example.androidnativegrupo5.ui.profile.ProfileFragment"
         android:label="Perfil del Viajero"
         tools:layout="@layout/fragment_profile" />
 
     <fragment
         android:id="@+id/HistoryFragment"
-        android:name="com.example.androidnativegrupo5.HistoryFragment"
+        android:name="com.example.androidnativegrupo5.ui.activities.HistoryFragment"
         android:label="Historial"
         tools:layout="@layout/fragment_history">
 
