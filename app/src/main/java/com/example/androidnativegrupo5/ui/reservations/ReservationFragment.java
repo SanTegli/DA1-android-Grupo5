@@ -14,6 +14,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.androidnativegrupo5.R;
+import com.example.androidnativegrupo5.data.local.db.Reserva;
+import com.example.androidnativegrupo5.data.local.db.ReservaDao;
 import com.example.androidnativegrupo5.databinding.FragmentReservationBinding;
 import com.example.androidnativegrupo5.data.model.AvailabilitySlotResponse;
 import com.example.androidnativegrupo5.data.model.CreateReservationRequest;
@@ -27,6 +29,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.inject.Inject;
 
@@ -43,6 +47,12 @@ public class ReservationFragment extends Fragment {
 
     @Inject
     TokenManager tokenManager;
+
+    @Inject
+    ReservaDao reservaDao;
+
+    // Room no permite operaciones en el main thread
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     private FragmentReservationBinding binding;
     private String activityName;
@@ -131,12 +141,14 @@ public class ReservationFragment extends Fragment {
             return;
         }
 
-        String authHeader = token.startsWith("Bearer ") ? token : "Bearer " + token;
-
-        apiService.createReservation(authHeader, request).enqueue(new Callback<ReservationResponse>() {
+        apiService.createReservation(request).enqueue(new Callback<ReservationResponse>() {
             @Override
             public void onResponse(Call<ReservationResponse> call, Response<ReservationResponse> response) {
-                if (response.isSuccessful()) {
+                if (response.isSuccessful() && response.body() != null) {
+                    Reserva reservaLocal = Reserva.fromResponse(response.body());
+                    executor.execute(() -> {
+                        reservaDao.insert(reservaLocal);
+                    });
                     Toast.makeText(getContext(), "¡Reserva exitosa!", Toast.LENGTH_SHORT).show();
                     if (getActivity() != null) {
                         getActivity().getOnBackPressedDispatcher().onBackPressed();

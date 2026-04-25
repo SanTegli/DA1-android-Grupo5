@@ -64,4 +64,16 @@
         app:layout_constraintEnd_toEndOf="parent"
         tools:listitem="@layout/item_reservation"/>
 
+    <TextView
+        android:id="@+id/layoutOfflineWarning"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#FFF3CD"
+        android:textColor="#856404"
+        android:padding="8dp"
+        android:text="Estás en modo sin conexión. Mostrando reservas guardadas."
+        android:textAlignment="center"
+        android:visibility="gone"
+        tools:ignore="MissingConstraints" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -61,32 +61,31 @@ public interface ApiService {
     );
 
     @GET("/api/v1/activities/recommended")
-    Call<PaginatedResponse<Activity>> getRecommendedActivities(@Header("Authorization") String token);
+    Call<PaginatedResponse<Activity>> getRecommendedActivities();
 
     @GET("/api/v1/activities/{id}")
     Call<Activity> getActivityById(@Path("id") Long id);
 
     @POST("/api/v1/reservations")
-    Call<ReservationResponse> createReservation(@Header("Authorization") String token, @Body CreateReservationRequest request);
+    Call<ReservationResponse> createReservation(@Body CreateReservationRequest request);
 
     @GET("/api/v1/activities/{id}/availability")
     Call<List<AvailabilitySlotResponse>> getAvailability(@Path("id") Long id);
 
     @GET("api/v1/reservations/me")
-    Call<List<ReservationResponse>> getMyReservations(@Header("Authorization") String token);
+    Call<List<ReservationResponse>> getMyReservations();
 
     @PATCH("/api/v1/reservations/{id}/cancel")
-    Call<Void> cancelReservation(@Header("Authorization") String token, @Path("id") Long id);
+    Call<Void> cancelReservation(@Path("id") Long id);
 
     @GET("/api/v1/users/me")
-    Call<UserResponse> getMyProfile(@Header("Authorization") String token);
+    Call<UserResponse> getMyProfile();
 
     @PUT("/api/v1/users/me")
-    Call<UserResponse> updateProfile(@Header("Authorization") String token, @Body UserResponse user);
+    Call<UserResponse> updateProfile(@Body UserResponse user);
 
     @GET("api/v1/history")
     Call<List<ActivityHistoryItem>> getHistory(
-            @Header("Authorization") String token,
             @Query("fromDate") String fromDate,
             @Query("toDate") String toDate,
             @Query("destination") String destination
@@ -94,7 +93,6 @@ public interface ApiService {
 
     @POST("/api/v1/ratings/activity/{activityId}")
     Call<Rating> createRating(
-            @Header("Authorization") String token,
             @Path("activityId") Long activityId,
             @Body CreateRatingRequest request
     );
@@ -106,9 +104,9 @@ public interface ApiService {
     Call<RatingStatsResponse> getRatingStats(@Path("activityId") Long activityId);
 
     @GET("/api/v1/ratings/my-ratings")
-    Call<List<Rating>> getMyRatings(@Header("Authorization") String token);
+    Call<List<Rating>> getMyRatings();
 
     @DELETE("/api/v1/ratings/{id}")
-    Call<Void> deleteRating(@Header("Authorization") String token, @Path("id") Long id);
+    Call<Void> deleteRating(@Path("id") Long id);
 
 }
