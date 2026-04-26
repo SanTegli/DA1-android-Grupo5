@@ -10,6 +10,7 @@
         android:name="com.example.androidnativegrupo5.ui.auth.LoginFragment"
         android:label="@string/iniciar_sesion"
         tools:layout="@layout/fragment_login">
+
         <action
             android:id="@+id/action_LoginFragment_to_OtpFragment"
             app:destination="@id/OtpFragment" />
@@ -17,6 +18,14 @@
         <action
             android:id="@+id/action_LoginFragment_to_RegisterFragment"
             app:destination="@id/RegisterFragment" />
+
+        <action
+            android:id="@+id/action_LoginFragment_to_biometricFragment"
+            app:destination="@id/biometricFragment" />
+
+        <action
+            android:id="@+id/action_LoginFragment_to_FirstFragment"
+            app:destination="@id/FirstFragment" />
 
     </fragment>
 
@@ -33,16 +42,6 @@
             app:destination="@id/FirstFragment"
             app:popUpTo="@id/LoginFragment"
             app:popUpToInclusive="true" />
-    </fragment>
-
-    <fragment
-        android:id="@+id/SecondFragment"
-        android:name="com.example.androidnativegrupo5.SecondFragment"
-        android:label="@string/second_fragment_label"
-        tools:layout="@layout/fragment_second">
-        <action
-            android:id="@+id/action_SecondFragment_to_FirstFragment"
-            app:destination="@id/FirstFragment" />
     </fragment>
 
     <fragment
@@ -116,5 +115,11 @@
             android:id="@+id/action_HistoryFragment_to_DetailFragment"
             app:destination="@id/DetailFragment" />
     </fragment>
+
+    <fragment
+        android:id="@+id/biometricFragment"
+        android:name="com.example.androidnativegrupo5.ui.biometric.BiometricFragment"
+        android:label="Biometría"
+        tools:layout="@layout/fragment_biometric" />
 
 </navigation>

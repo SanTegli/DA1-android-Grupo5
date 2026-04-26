@@ -60,7 +60,15 @@
         android:text="@string/ingresar"
         android:textSize="16sp"/>
 
-    <!-- Register button -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnAuthenticate"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Usar Huella"
+        app:icon="@android:drawable/ic_dialog_info" />
+
     <TextView
         android:id="@+id/registerText"
         android:layout_width="wrap_content"

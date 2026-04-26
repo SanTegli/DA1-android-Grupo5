@@ -6,6 +6,7 @@
     <string name="second_fragment_label">Detalles de Actividad</string>
     <string name="next">Siguiente</string>
     <string name="previous">Anterior</string>
+    <string name="error_field_required">Este campo es obligatorio</string>
 
     <string name="lorem_ipsum">
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam in scelerisque sem. Mauris

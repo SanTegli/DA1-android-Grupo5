@@ -80,31 +80,22 @@ public class OtpFragment extends Fragment {
         }
     }
 
-    private boolean validarOtp(String otp) {
-        if (otp.isEmpty()) {
-            otpEditText.setError(getString(R.string.error_otp_required));
-            return false;
-        } else if (otp.length() != Constants.OTP_LENGTH) {
-            otpEditText.setError(getString(R.string.error_otp_length));
-            return false;
-        }
-        return true;
-    }
-
     private void verificarOtp(String email, String otp) {
         OtpVerifyRequest request = new OtpVerifyRequest(email, otp);
-
         setLoading(true);
 
         apiService.verifyOtp(request).enqueue(new Callback<AuthResponse>() {
             @Override
             public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
+                if (!isAdded() || getView() == null) return;
+
                 setLoading(false);
                 if (response.isSuccessful() && response.body() != null) {
-                    //saveToken(response.body().getToken());
                     String token = response.body().getToken();
                     tokenManager.saveToken(token);
+
                     Toast.makeText(getContext(), R.string.welcome, Toast.LENGTH_SHORT).show();
+
                     NavHostFragment.findNavController(OtpFragment.this)
                             .navigate(R.id.action_OtpFragment_to_FirstFragment);
                 } else {
@@ -114,34 +105,29 @@ public class OtpFragment extends Fragment {
 
             @Override
             public void onFailure(Call<AuthResponse> call, Throwable t) {
+                if (!isAdded()) return;
                 setLoading(false);
-                String message = getString(R.string.error_connection_detail, t.getMessage());
-                Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), R.string.error_connection, Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    private void saveToken(String token) {
-        if (getContext() == null) return;
-        SharedPreferences prefs = getContext().getSharedPreferences("prefs", Context.MODE_PRIVATE);
-        prefs.edit().putString("auth_token", token).apply();
-    }
-
     private void reenviarOtp() {
+        if (email == null) return;
         OtpRequest request = new OtpRequest(email);
 
         apiService.resendOtp(request).enqueue(new Callback<MessageResponse>() {
             @Override
             public void onResponse(Call<MessageResponse> call, Response<MessageResponse> response) {
+                if (!isAdded()) return;
                 if (response.isSuccessful()) {
                     Toast.makeText(getContext(), R.string.otp_resent, Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(getContext(), R.string.error_resend_otp, Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<MessageResponse> call, Throwable t) {
+                if (!isAdded()) return;
                 Toast.makeText(getContext(), R.string.error_network, Toast.LENGTH_SHORT).show();
             }
         });
@@ -152,5 +138,16 @@ public class OtpFragment extends Fragment {
         verifyButton.setEnabled(!isLoading);
         verifyButton.setText(isLoading ? R.string.verifying : R.string.verify);
         otpEditText.setEnabled(!isLoading);
+    }
+
+    private boolean validarOtp(String otp) {
+        if (otp.isEmpty()) {
+            otpEditText.setError(getString(R.string.error_otp_required));
+            return false;
+        } else if (otp.length() != Constants.OTP_LENGTH) {
+            otpEditText.setError(getString(R.string.error_otp_length));
+            return false;
+        }
+        return true;
     }
 }
