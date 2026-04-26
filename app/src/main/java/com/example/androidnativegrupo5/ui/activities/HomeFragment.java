@@ -44,7 +44,7 @@ public class HomeFragment extends Fragment {
     private FeaturedActivityAdapter featuredAdapter;
 
     private int currentPage = 0;
-    private static final int PAGE_SIZE = 10;
+    private static final int PAGE_SIZE = 3;
 
     private boolean isLoading = false;
     private boolean isLastPage = false;
@@ -113,20 +113,39 @@ public class HomeFragment extends Fragment {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 if (dy <= 0) return;
+        /*
+        // Scroll infinito
+            binding.recyclerActivities.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                @Override
+                public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                    super.onScrolled(recyclerView, dx, dy);
 
-                LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
-                if (layoutManager == null || isLoading || isLastPage) return;
+                    if (dy <= 0) return;
 
-                int visibleItemCount = layoutManager.getChildCount();
-                int totalItemCount = layoutManager.getItemCount();
-                int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
+                    LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                    if (layoutManager == null || isLoading || isLastPage) return;
 
-                if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount
-                        && firstVisibleItemPosition >= 0
-                        && totalItemCount >= PAGE_SIZE) {
-                    loadActivities();
+                    int visibleItemCount = layoutManager.getChildCount();
+                    int totalItemCount = layoutManager.getItemCount();
+                    int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
+
+                    if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount
+                            && firstVisibleItemPosition >= 0
+                            && totalItemCount >= PAGE_SIZE) {
+                        loadActivities();
+                    }
                 }
             }
+            });*/
+
+        binding.btnMyReservations.setOnClickListener(v -> {
+            Navigation.findNavController(v)
+                    .navigate(R.id.action_FirstFragment_to_MyReservationsFragment);
+        });
+
+        binding.textSeeAllActivities.setOnClickListener(clickedView -> {
+            Navigation.findNavController(clickedView)
+                    .navigate(R.id.action_FirstFragment_to_ExploreActivitiesFragment);
         });
     }
 

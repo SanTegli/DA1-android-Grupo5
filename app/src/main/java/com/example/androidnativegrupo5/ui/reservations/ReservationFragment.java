@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+import androidx.core.content.ContextCompat;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -256,7 +257,7 @@ public class ReservationFragment extends Fragment {
             chip.setCheckable(true);
 
             chip.setChipBackgroundColorResource(R.color.chip_selector_bg);
-            chip.setTextColor(getResources().getColorStateList(R.color.chip_selector));
+            chip.setTextColor(ContextCompat.getColorStateList(requireContext(), R.color.chip_selector));
 
             chip.setOnClickListener(v -> {
                 selectedDateFormatted = date;
@@ -289,7 +290,7 @@ public class ReservationFragment extends Fragment {
                     chip.setCheckable(true);
 
                     chip.setChipBackgroundColorResource(R.color.chip_selector_bg);
-                    chip.setTextColor(getResources().getColorStateList(R.color.chip_selector));
+                    chip.setTextColor(ContextCompat.getColorStateList(requireContext(), R.color.chip_selector));
 
                     if (slot.getAvailableSlots() == 0) {
                         chip.setEnabled(false);

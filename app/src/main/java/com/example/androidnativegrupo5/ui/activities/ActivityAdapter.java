@@ -63,6 +63,12 @@ public class ActivityAdapter extends RecyclerView.Adapter<ActivityAdapter.Activi
         return activities.size();
     }
 
+    public void setActivities(List<Activity> newActivities) {
+        activities.clear();
+        activities.addAll(newActivities);
+        notifyDataSetChanged();
+    }
+
     static class ActivityViewHolder extends RecyclerView.ViewHolder {
         private final ImageView imageActivity;
         private final TextView textName;

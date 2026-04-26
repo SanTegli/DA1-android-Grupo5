@@ -18,6 +18,11 @@
             android:text="Where to next,"
             android:textSize="22sp"
             android:textStyle="bold"/>
+            android:layout_weight="1"
+            android:text="Inicio"
+            android:textColor="@color/black"
+            android:textSize="24sp"
+            android:textStyle="bold" />
 
         <TextView
             android:layout_width="wrap_content"

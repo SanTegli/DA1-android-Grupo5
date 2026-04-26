@@ -26,16 +26,12 @@ import dagger.hilt.android.AndroidEntryPoint;
 @AndroidEntryPoint
 public class MainActivity extends AppCompatActivity {
 
-    @Inject
-    TokenManager tokenManager;
-
-    @Inject
-    ReservaDao reservaDao;
-
-    private final ExecutorService executor = Executors.newSingleThreadExecutor();
+    @Inject TokenManager tokenManager;
+    @Inject ReservaDao reservaDao;
 
     private ActivityMainBinding binding;
     private boolean darkModeEnabled = false;
+    private NavController navController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,6 +87,38 @@ public class MainActivity extends AppCompatActivity {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
             }
         });
+        setSupportActionBar(binding.toolbar);
+
+        androidx.navigation.fragment.NavHostFragment navHostFragment =
+                (androidx.navigation.fragment.NavHostFragment) getSupportFragmentManager()
+                        .findFragmentById(R.id.nav_host_fragment_content_main);
+
+        if (navHostFragment != null) {
+            navController = navHostFragment.getNavController();
+
+            appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
+            NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
+        }
+
+        binding.fab.setOnClickListener(view ->
+                Snackbar.make(view, R.string.custom_action, Snackbar.LENGTH_LONG)
+                        .setAnchorView(R.id.fab)
+                        .setAction(R.string.close, null).show()
+        );
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.action_dark_mode) {
+            return true;
+        } else if (id == R.id.action_profile) {
+            if (navController != null) {
+                navController.navigate(R.id.ProfileFragment);
+            }
+            return true;
+        }
 
         binding.navDiscover.setOnClickListener(v ->
                 navController.navigate(R.id.FirstFragment)
@@ -103,5 +131,9 @@ public class MainActivity extends AppCompatActivity {
         binding.navProfile.setOnClickListener(v ->
                 navController.navigate(R.id.ProfileFragment)
         );
+    @Override
+    public boolean onSupportNavigateUp() {
+        return (navController != null && NavigationUI.navigateUp(navController, appBarConfiguration))
+                || super.onSupportNavigateUp();
     }
 }

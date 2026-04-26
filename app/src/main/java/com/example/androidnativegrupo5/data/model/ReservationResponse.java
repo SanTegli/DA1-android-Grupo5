@@ -4,7 +4,10 @@ import com.google.gson.annotations.SerializedName;
 
 public class ReservationResponse {
     private Long id;
+
+    @SerializedName("activityId")
     private Long activityId;
+
     private String activityName;
     private Integer participants;
     private String date;
@@ -12,7 +15,6 @@ public class ReservationResponse {
     private String status;
     private double totalPrice;
 
-    // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
