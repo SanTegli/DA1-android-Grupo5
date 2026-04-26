@@ -1,5 +1,7 @@
 package com.example.androidnativegrupo5.ui.reservations;
 
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -19,18 +21,25 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.example.androidnativegrupo5.R;
 import com.example.androidnativegrupo5.data.local.db.Reserva;
 import com.example.androidnativegrupo5.data.local.db.ReservaDao;
+import com.example.androidnativegrupo5.data.model.AvailabilitySlotResponse;
 import com.example.androidnativegrupo5.data.model.CreateRatingRequest;
 import com.example.androidnativegrupo5.data.model.Rating;
+import com.example.androidnativegrupo5.data.model.RescheduleReservationRequest;
 import com.example.androidnativegrupo5.databinding.FragmentMyReservationsBinding;
 import com.example.androidnativegrupo5.data.model.ReservationResponse;
 import com.example.androidnativegrupo5.data.network.ApiService;
 import com.example.androidnativegrupo5.data.local.TokenManager;
 import com.example.androidnativegrupo5.utils.NetworkUtils;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -308,6 +317,110 @@ public class MyReservationsFragment extends Fragment implements ReservationAdapt
                         Log.e("SYNC", "Fallo al sincronizar reserva " + r.getId());
                     }
                 });
+            }
+        });
+    }
+
+    @Override
+    public void onRescheduleClick(ReservationResponse reservation) {
+        Log.d("RESCHEDULE", "Iniciando para: " + reservation.getActivityName());
+        showRescheduleDialog(reservation);
+    }
+
+    private void showRescheduleDialog(ReservationResponse reservation) {
+        apiService.getAvailability(reservation.getActivityId()).enqueue(new Callback<List<AvailabilitySlotResponse>>() {
+            @Override
+            public void onResponse(Call<List<AvailabilitySlotResponse>> call, Response<List<AvailabilitySlotResponse>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    renderRescheduleDialog(reservation, response.body());
+                }
+            }
+            @Override
+            public void onFailure(Call<List<AvailabilitySlotResponse>> call, Throwable t) {
+                Toast.makeText(getContext(), "Error al cargar horarios", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void renderRescheduleDialog(ReservationResponse reservation, List<AvailabilitySlotResponse> slots) {
+        View view = LayoutInflater.from(getContext()).inflate(R.layout.dialog_reschedule, null);
+        ChipGroup cgDates = view.findViewById(R.id.chipGroupDatesReschedule);
+        ChipGroup cgTimes = view.findViewById(R.id.chipGroupTimesReschedule);
+
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext());
+        builder.setTitle("Reprogramar Actividad");
+        builder.setView(view);
+
+        final String[] tempDate = {""};
+        final String[] tempTime = {""};
+
+        Set<String> uniqueDates = new LinkedHashSet<>();
+        for (AvailabilitySlotResponse s : slots) uniqueDates.add(s.getDate());
+
+        for (String date : uniqueDates) {
+            Chip chip = new Chip(requireContext());
+            chip.setText(date);
+            chip.setCheckable(true);
+            chip.setOnClickListener(v -> {
+                tempDate[0] = date;
+                cgTimes.removeAllViews();
+                for (AvailabilitySlotResponse s : slots) {
+                    if (s.getDate().equals(date)) {
+                        Chip tChip = new Chip(requireContext());
+                        tChip.setText(s.getTime());
+                        tChip.setCheckable(true);
+                        if (s.getAvailableSlots() < reservation.getParticipants()) tChip.setEnabled(false);
+                        tChip.setOnClickListener(vt -> tempTime[0] = s.getTime());
+                        cgTimes.addView(tChip);
+                    }
+                }
+            });
+            cgDates.addView(chip);
+        }
+
+        builder.setPositiveButton("Reprogramar", (dialog, which) -> {
+            if (!tempDate[0].isEmpty() && !tempTime[0].isEmpty()) {
+                executeReschedule(reservation.getId(), tempDate[0], tempTime[0], reservation.getParticipants());
+            } else {
+                Toast.makeText(getContext(), "Debe seleccionar fecha y hora", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        builder.setNegativeButton("Cancelar", null);
+        builder.show();
+    }
+
+    private void executeReschedule(Long id, String date, String time, int participants) {
+        String token = tokenManager.getToken();
+        if (token == null) {
+            Toast.makeText(getContext(), "Error: Sesión no válida", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        RescheduleReservationRequest request = new RescheduleReservationRequest(date, time, participants);
+
+        apiService.rescheduleReservation(id, request).enqueue(new Callback<ReservationResponse>() {
+            @Override
+            public void onResponse(@NonNull Call<ReservationResponse> call, @NonNull Response<ReservationResponse> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(getContext(), "¡Reserva reprogramada con éxito!", Toast.LENGTH_SHORT).show();
+
+                    loadReservations();
+                } else {
+                    try {
+                        String error = response.errorBody() != null ? response.errorBody().string() : "Error al reprogramar";
+                        Log.e("RESCHEDULE_ERROR", error);
+                        Toast.makeText(getContext(), "No se pudo reprogramar: " + error, Toast.LENGTH_LONG).show();
+                    } catch (Exception e) {
+                        Toast.makeText(getContext(), "Error de disponibilidad", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<ReservationResponse> call, @NonNull Throwable t) {
+                Log.e("NETWORK_ERROR", t.getMessage());
+                Toast.makeText(getContext(), "Fallo la conexión con el servidor", Toast.LENGTH_SHORT).show();
             }
         });
     }
