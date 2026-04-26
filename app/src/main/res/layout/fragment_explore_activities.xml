@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F5F5F5">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@android:color/white"
+        android:elevation="4dp"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Todas las actividades"
+            android:textColor="@color/black"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/text_results_count"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="0 actividades encontradas"
+            android:textColor="#777777"
+            android:textSize="13sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <EditText
+                android:id="@+id/edit_search_activities"
+                android:layout_width="0dp"
+                android:layout_height="44dp"
+                android:layout_weight="1"
+                android:background="@android:drawable/edit_text"
+                android:hint="Buscar por nombre, destino o categoría"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:singleLine="true"
+                android:textSize="14sp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_filter_explore"
+                style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+                android:layout_width="wrap_content"
+                android:layout_height="44dp"
+                android:layout_marginStart="8dp"
+                android:text="Filtrar"
+                android:textAllCaps="false"
+                app:icon="@android:drawable/ic_menu_sort_by_size" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/progress_explore"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="12dp"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/text_empty_explore"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:gravity="center"
+        android:text="No se encontraron actividades"
+        android:textColor="#777777"
+        android:textSize="14sp"
+        android:visibility="gone" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_explore_activities"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:paddingTop="8dp"
+        android:paddingBottom="12dp" />
+
+</LinearLayout>

@@ -44,7 +44,7 @@ public class HomeFragment extends Fragment {
     private FeaturedActivityAdapter featuredAdapter;
 
     private int currentPage = 0;
-    private static final int PAGE_SIZE = 10;
+    private static final int PAGE_SIZE = 3;
 
     private boolean isLoading = false;
     private boolean isLastPage = false;
@@ -85,55 +85,38 @@ public class HomeFragment extends Fragment {
         setupFeaturedCarousel(navController);
         loadActivities();
 
-        binding.btnFilter.setOnClickListener(v -> {
-            FilterBottomSheetDialogFragment bottomSheet = new FilterBottomSheetDialogFragment();
-            bottomSheet.setOnFiltersAppliedListener((search, category, destination, minPrice, maxPrice) -> {
-                this.filterSearch = search;
-                this.filterCategory = category;
-                this.filterDestination = destination;
-                this.filterMinPrice = minPrice != null ? minPrice.intValue() : null;
-                this.filterMaxPrice = maxPrice != null ? maxPrice.intValue() : null;
-
-                currentPage = 0;
-                isLastPage = false;
-                adapter.clearActivities();
-                loadActivities();
-
-                if (filterCategory != null || filterDestination != null || filterMaxPrice != null || (filterSearch != null && !filterSearch.isEmpty())) {
-                    binding.layoutFeatured.setVisibility(View.GONE);
-                } else {
-                    binding.layoutFeatured.setVisibility(View.VISIBLE);
-                }
-            });
-            bottomSheet.show(getParentFragmentManager(), "FilterBottomSheet");
-        });
-
+        /*
         // Scroll infinito
-        binding.recyclerActivities.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
+            binding.recyclerActivities.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                @Override
+                public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                    super.onScrolled(recyclerView, dx, dy);
 
-                if (dy <= 0) return;
+                    if (dy <= 0) return;
 
-                LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
-                if (layoutManager == null || isLoading || isLastPage) return;
+                    LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                    if (layoutManager == null || isLoading || isLastPage) return;
 
-                int visibleItemCount = layoutManager.getChildCount();
-                int totalItemCount = layoutManager.getItemCount();
-                int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
+                    int visibleItemCount = layoutManager.getChildCount();
+                    int totalItemCount = layoutManager.getItemCount();
+                    int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
 
-                if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount
-                        && firstVisibleItemPosition >= 0
-                        && totalItemCount >= PAGE_SIZE) {
-                    loadActivities();
+                    if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount
+                            && firstVisibleItemPosition >= 0
+                            && totalItemCount >= PAGE_SIZE) {
+                        loadActivities();
+                    }
                 }
-            }
-        });
+            });*/
 
         binding.btnMyReservations.setOnClickListener(v -> {
             Navigation.findNavController(v)
                     .navigate(R.id.action_FirstFragment_to_MyReservationsFragment);
+        });
+
+        binding.textSeeAllActivities.setOnClickListener(clickedView -> {
+            Navigation.findNavController(clickedView)
+                    .navigate(R.id.action_FirstFragment_to_ExploreActivitiesFragment);
         });
     }
 
