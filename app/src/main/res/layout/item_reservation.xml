@@ -87,6 +87,14 @@
                 android:textColor="@android:color/holo_red_dark" />
 
             <Button
+                android:id="@+id/btn_reschedule_reservation"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="Reprogramar" />
+
+            <Button
                 android:id="@+id/btn_rate_reservation"
                 style="@style/Widget.MaterialComponents.Button"
                 android:layout_width="wrap_content"
