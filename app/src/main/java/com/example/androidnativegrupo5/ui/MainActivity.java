@@ -28,11 +28,8 @@ import dagger.hilt.android.AndroidEntryPoint;
 @AndroidEntryPoint
 public class MainActivity extends AppCompatActivity {
 
-    @Inject
-    TokenManager tokenManager;
-
-    @Inject
-    ReservaDao reservaDao;
+    @Inject TokenManager tokenManager;
+    @Inject ReservaDao reservaDao;
 
     private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
@@ -44,7 +41,6 @@ public class MainActivity extends AppCompatActivity {
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
         setSupportActionBar(binding.toolbar);
 
         androidx.navigation.fragment.NavHostFragment navHostFragment =
@@ -53,10 +49,6 @@ public class MainActivity extends AppCompatActivity {
 
         if (navHostFragment != null) {
             navController = navHostFragment.getNavController();
-
-            if (tokenManager.getToken() != null) {
-                navController.navigate(R.id.MyReservationsFragment);
-            }
 
             appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
             NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
