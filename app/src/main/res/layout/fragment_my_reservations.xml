@@ -1,79 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F5F5"
-    tools:context=".ui.reservations.MyReservationsFragment">
+    android:background="@color/surface_container_lowest">
 
-    <!-- Header -->
-    <LinearLayout
-        android:id="@+id/header_layout"
+    <View
+        android:id="@+id/headerBg"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:background="@color/surface_container"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/text_title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="16dp"
-        android:gravity="center_vertical"
-        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginStart="24dp"
+        android:fontFamily="@font/plus_jakarta_sans_bold"
+        android:text="Mis reservas"
+        android:textColor="@color/on_surface"
+        android:textSize="22sp"
+        app:layout_constraintBottom_toBottomOf="@id/headerBg"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintTop_toTopOf="@id/headerBg" />
 
-        <TextView
-            android:id="@+id/text_title"
-            android:layout_width="210dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Mis reservas"
-            android:textColor="@android:color/black"
-            android:textSize="22sp"
-            android:textStyle="bold" />
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_go_history"
+        style="@style/Widget.AdventurousTourism.Button.TextButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:fontFamily="@font/plus_jakarta_sans_bold"
+        android:text="Historial"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="@id/headerBg"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/headerBg" />
 
-        <Button
-            android:id="@+id/btn_go_history"
-            android:layout_width="wrap_content"
-            android:layout_height="36dp"
-            android:text="Historial"
-            android:textAllCaps="false"
-            android:textSize="13sp"
-            android:background="@drawable/bg_detail_button"
-            android:textColor="@android:color/white"
-            android:paddingHorizontal="12dp"/>
-    </LinearLayout>
-
-    <!-- Divider -->
-    <View
-        android:layout_width="0dp"
-        android:layout_height="1dp"
-        android:background="#DDDDDD"
-        app:layout_constraintTop_toBottomOf="@id/header_layout"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
-
-    <!-- Recycler -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_reservations"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:paddingTop="8dp"
         android:clipToPadding="false"
-        app:layout_constraintTop_toBottomOf="@id/header_layout"
+        android:paddingTop="12dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        tools:listitem="@layout/item_reservation"/>
+        app:layout_constraintTop_toBottomOf="@id/headerBg"
+        tools:listitem="@layout/item_reservation" />
 
     <TextView
         android:id="@+id/layoutOfflineWarning"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="#FFF3CD"
-        android:textColor="#856404"
+        android:fontFamily="@font/plus_jakarta_sans_regular"
         android:padding="8dp"
-        android:text="Estás en modo sin conexión. Mostrando reservas guardadas."
+        android:text="Modo sin conexión. Mostrando reservas guardadas."
         android:textAlignment="center"
+        android:textColor="#856404"
+        android:textSize="12sp"
         android:visibility="gone"
-        tools:ignore="MissingConstraints" />
+        app:layout_constraintTop_toBottomOf="@id/headerBg" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

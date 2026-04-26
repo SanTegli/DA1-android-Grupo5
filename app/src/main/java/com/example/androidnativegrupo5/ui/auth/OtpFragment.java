@@ -1,7 +1,5 @@
 package com.example.androidnativegrupo5.ui.auth;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,6 +22,7 @@ import com.example.androidnativegrupo5.data.network.ApiService;
 import com.example.androidnativegrupo5.data.local.TokenManager;
 import com.example.androidnativegrupo5.utils.Constants;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 
 import javax.inject.Inject;
 
@@ -32,9 +31,6 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-/**
- * OtpFragment handles the verification of the One-Time Password (OTP) sent to the user.
- */
 @AndroidEntryPoint
 public class OtpFragment extends Fragment {
 
@@ -45,8 +41,9 @@ public class OtpFragment extends Fragment {
     TokenManager tokenManager;
 
     private String email;
-    private TextInputEditText otpEditText;
-    private Button verifyButton;
+    private TextInputLayout tilOtp;
+    private TextInputEditText etOtp;
+    private Button btnVerify;
 
     @Nullable
     @Override
@@ -62,13 +59,14 @@ public class OtpFragment extends Fragment {
             email = getArguments().getString(Constants.EXTRA_EMAIL);
         }
 
-        otpEditText = view.findViewById(R.id.otpEditText);
-        verifyButton = view.findViewById(R.id.verifyButton);
-        TextView resendText = view.findViewById(R.id.resendText);
+        tilOtp = view.findViewById(R.id.tilOtp);
+        etOtp = view.findViewById(R.id.etOtp);
+        btnVerify = view.findViewById(R.id.btnVerify);
+        TextView resendText = view.findViewById(R.id.btnResend);
 
-        verifyButton.setOnClickListener(v -> {
-            if (otpEditText.getText() == null) return;
-            String otp = otpEditText.getText().toString().trim();
+        btnVerify.setOnClickListener(v -> {
+            if (etOtp.getText() == null) return;
+            String otp = etOtp.getText().toString().trim();
 
             if (validarOtp(otp)) {
                 verificarOtp(email, otp);
@@ -116,7 +114,7 @@ public class OtpFragment extends Fragment {
         if (email == null) return;
         OtpRequest request = new OtpRequest(email);
 
-        apiService.resendOtp(request).enqueue(new Callback<MessageResponse>() {
+        apiService.requestOtp(request).enqueue(new Callback<MessageResponse>() {
             @Override
             public void onResponse(Call<MessageResponse> call, Response<MessageResponse> response) {
                 if (!isAdded()) return;
@@ -135,17 +133,17 @@ public class OtpFragment extends Fragment {
 
     private void setLoading(boolean isLoading) {
         if (getView() == null) return;
-        verifyButton.setEnabled(!isLoading);
-        verifyButton.setText(isLoading ? R.string.verifying : R.string.verify);
-        otpEditText.setEnabled(!isLoading);
+        btnVerify.setEnabled(!isLoading);
+        btnVerify.setText(isLoading ? R.string.verifying : R.string.verify);
+        etOtp.setEnabled(!isLoading);
     }
 
     private boolean validarOtp(String otp) {
         if (otp.isEmpty()) {
-            otpEditText.setError(getString(R.string.error_otp_required));
+            etOtp.setError(getString(R.string.error_otp_required));
             return false;
-        } else if (otp.length() != Constants.OTP_LENGTH) {
-            otpEditText.setError(getString(R.string.error_otp_length));
+        } else if (otp.length() != 6) { // Usamos 6 que es lo estándar para tu App
+            etOtp.setError(getString(R.string.error_otp_length));
             return false;
         }
         return true;

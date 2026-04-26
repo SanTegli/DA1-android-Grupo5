@@ -52,7 +52,7 @@ public class WelcomeFragment extends Fragment {
         );
 
         view.findViewById(R.id.tvRegisterWelcome).setOnClickListener(v ->
-                NavHostFragment.findNavController(this).navigate(R.id.action_LoginFragment_to_RegisterFragment)
+                NavHostFragment.findNavController(this).navigate(R.id.action_WelcomeFragment_to_RegisterFragment)
         );
     }
 

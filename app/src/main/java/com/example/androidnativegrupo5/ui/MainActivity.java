@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
         );
 
         if (savedInstanceState == null && tokenManager.getToken() != null) {
-            navController.navigate(R.id.MyReservationsFragment);
+            navController.navigate(R.id.FirstFragment);
         }
 
         binding.btnBack.setOnClickListener(v -> navController.navigateUp());
