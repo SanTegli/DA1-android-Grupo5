@@ -1,4 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <!-- BASE (los tuyos) -->
     <color name="app_background">#FFF8F1</color>
     <color name="app_surface">#EFE8DF</color>
     <color name="app_card">#D8BA98</color>
@@ -10,8 +13,18 @@
     <color name="app_input_border">#E1BFB9</color>
     <color name="app_footer_inactive">#888888</color>
 
+    <!-- EXTRA (para que no rompa nada nuevo) -->
+    <color name="app_card_light">#F4EDE4</color>
+    <color name="app_border">#E1BFB9</color>
+
+    <!-- PARA BOTONES / FEATURE -->
+    <color name="app_filter_bg">#B9E7F2</color>
+    <color name="app_filter_text">#3D6973</color>
+
+    <!-- OBLIGATORIOS (NO TOCAR) -->
     <color name="black">#000000</color>
     <color name="white">#FFFFFF</color>
     <color name="colorPrimary">#7F0303</color>
     <color name="priceColor">#7F0303</color>
+
 </resources>

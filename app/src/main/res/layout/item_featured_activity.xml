@@ -14,6 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <!-- Imagen -->
         <ImageView
             android:id="@+id/image_featured"
             android:layout_width="match_parent"
@@ -21,13 +22,13 @@
             android:scaleType="centerCrop"
             android:src="@android:drawable/ic_menu_gallery"/>
 
-        <!-- Overlay -->
+        <!-- Overlay degradado -->
         <View
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="#80000000"/>
+            android:background="#66000000"/>
 
-        <!-- Info abajo -->
+        <!-- Info -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -39,8 +40,8 @@
                 android:id="@+id/text_featured_destination"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Destino"
-                android:textColor="#CCCCCC"
+                android:text="Costa Brava, Spain"
+                android:textColor="#EDEDED"
                 android:textSize="12sp"
                 android:fontFamily="@font/plus_jakarta_sans_regular"/>
 
@@ -48,11 +49,48 @@
                 android:id="@+id/text_featured_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Nombre actividad"
+                android:text="Crystal Cove Diving"
                 android:textColor="@android:color/white"
                 android:textSize="18sp"
                 android:textStyle="bold"
+                android:layout_marginTop="4dp"
                 android:fontFamily="@font/plus_jakarta_sans_bold"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/text_featured_price"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="FROM $89"
+                    android:textColor="@android:color/white"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:background="#7F0303"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="4dp"/>
+
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="1"/>
+
+                <TextView
+                    android:id="@+id/text_featured_rating"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="★ 4.9"
+                    android:textColor="@android:color/white"
+                    android:textSize="13sp"
+                    android:textStyle="bold"/>
+            </LinearLayout>
 
         </LinearLayout>
 

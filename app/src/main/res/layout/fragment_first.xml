@@ -1,115 +1,100 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/app_background"
-    android:fillViewport="true">
+    android:background="#FFF8F1">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="24dp">
+        android:padding="16dp">
 
-        <!-- 🔍 HEADER / SEARCH -->
+        <!-- TITULO -->
         <TextView
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Where to next,\nAdventurer?"
-            android:textSize="26sp"
-            android:textStyle="bold"
-            android:textColor="@color/app_text"
-            android:fontFamily="@font/plus_jakarta_sans_bold"/>
+            android:text="Where to next,"
+            android:textSize="22sp"
+            android:textStyle="bold"/>
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Adventurer?"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="#7F0303"/>
+
+        <!-- SEARCH + FILTER -->
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:layout_marginTop="16dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
             android:orientation="horizontal">
 
             <EditText
-                android:id="@+id/editSearch"
                 android:layout_width="0dp"
-                android:layout_height="match_parent"
+                android:layout_height="48dp"
                 android:layout_weight="1"
-                android:background="@color/app_input"
                 android:hint="Search experiences..."
-                android:textColor="@color/app_text"
-                android:textColorHint="@color/app_text_secondary"
-                android:padding="16dp"
-                android:fontFamily="@font/plus_jakarta_sans_regular"/>
+                android:background="#F4EDE4"
+                android:paddingStart="16dp"/>
 
             <ImageButton
                 android:id="@+id/btnFilter"
-                android:layout_width="52dp"
-                android:layout_height="52dp"
-                android:layout_marginStart="12dp"
-                android:background="@color/app_accent"
-                android:src="@drawable/ic_tune"
-                android:tint="@android:color/white"/>
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="8dp"
+                android:background="#B9E7F2"
+                android:src="@drawable/ic_tune"/>
         </LinearLayout>
 
-        <!-- ⭐ FEATURED (IMPORTANTE: ESTE ID ES EL QUE TE FALTABA) -->
+        <!-- FEATURED -->
         <LinearLayout
             android:id="@+id/layoutFeatured"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginTop="32dp">
+            android:layout_marginTop="24dp"
+            android:orientation="vertical">
 
             <TextView
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Featured Experiences"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:textColor="@color/app_text"
-                android:fontFamily="@font/plus_jakarta_sans_bold"/>
+                android:textSize="18sp"
+                android:textStyle="bold"/>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerFeatured"
                 android:layout_width="match_parent"
-                android:layout_height="250dp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"/>
         </LinearLayout>
 
-        <!-- 📍 POPULAR -->
+        <!-- POPULAR -->
         <TextView
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Popular Near You"
-            android:textSize="20sp"
+            android:textSize="18sp"
             android:textStyle="bold"
-            android:textColor="@color/app_text"
-            android:layout_marginTop="32dp"
-            android:fontFamily="@font/plus_jakarta_sans_bold"/>
+            android:layout_marginTop="24dp"/>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerActivities"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:nestedScrollingEnabled="false"
-            android:layout_marginTop="12dp"/>
+            android:layout_height="wrap_content"/>
 
-        <!-- 🔄 LOADING -->
+        <!-- LOADING -->
         <ProgressBar
             android:id="@+id/progressBar"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="16dp"
             android:visibility="gone"/>
-
-        <!-- 🔘 MIS RESERVAS -->
-        <Button
-            android:id="@+id/btnMyReservations"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:text="Mis Reservas"
-            android:textColor="@android:color/white"
-            android:background="@color/app_primary"
-            android:layout_marginTop="24dp"
-            android:fontFamily="@font/plus_jakarta_sans_bold"/>
 
     </LinearLayout>
 
