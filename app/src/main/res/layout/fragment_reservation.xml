@@ -157,50 +157,6 @@
             app:layout_constraintEnd_toEndOf="parent"
             tools:text="$50.00" />
 
-        <TextView
-            android:id="@+id/text_meeting_point_title"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="28dp"
-            android:text="Punto de encuentro"
-            android:textColor="@android:color/black"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            app:layout_constraintTop_toBottomOf="@id/text_total_label"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-
-        <TextView
-            android:id="@+id/text_meeting_point"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:text="Dirección del punto de encuentro"
-            android:textColor="#444444"
-            android:textSize="14sp"
-            app:layout_constraintTop_toBottomOf="@id/text_meeting_point_title"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-
-        <com.google.android.gms.maps.MapView
-            android:id="@+id/map_view"
-            android:layout_width="0dp"
-            android:layout_height="220dp"
-            android:layout_marginTop="12dp"
-            app:layout_constraintTop_toBottomOf="@id/text_meeting_point"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-
-        <Button
-            android:id="@+id/btn_how_to_get_there"
-            android:layout_width="0dp"
-            android:layout_height="45dp"
-            android:layout_marginTop="10dp"
-            android:text="Cómo llegar"
-            android:textAllCaps="false"
-            app:layout_constraintTop_toBottomOf="@id/map_view"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
 
         <Button
             android:id="@+id/button_confirm_reservation"
@@ -210,7 +166,7 @@
             android:layout_marginBottom="16dp"
             android:padding="12dp"
             android:text="Confirmar reserva"
-            app:layout_constraintTop_toBottomOf="@id/btn_how_to_get_there"
+            app:layout_constraintTop_toBottomOf="@id/text_total_label"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />

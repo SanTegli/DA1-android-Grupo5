@@ -21,7 +21,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Explorar actividades"
+            android:text="Inicio"
             android:textColor="@color/black"
             android:textSize="24sp"
             android:textStyle="bold" />
@@ -37,6 +37,7 @@
             android:textColor="@color/white" />
     </LinearLayout>
 
+    <!-- Card superior: destacadas -->
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -49,29 +50,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingStart="16dp"
-                android:paddingTop="16dp"
-                android:paddingEnd="16dp"
-                android:paddingBottom="8dp"
-                android:text="Explorar actividades"
-                android:textColor="@color/black"
-                android:textSize="24sp"
-                android:textStyle="bold" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_filter"
-                style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:layout_marginEnd="16dp"
-                android:text="FILTRAR"
-                app:icon="@android:drawable/ic_menu_sort_by_size" />
+            android:orientation="vertical"
+            android:paddingBottom="8dp">
 
             <LinearLayout
                 android:id="@+id/layout_featured"
@@ -84,7 +64,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:paddingStart="16dp"
-                    android:paddingTop="8dp"
+                    android:paddingTop="16dp"
+                    android:paddingBottom="8dp"
                     android:text="Actividades destacadas"
                     android:textColor="@color/black"
                     android:textSize="18sp"
@@ -99,9 +80,43 @@
                     android:paddingEnd="8dp"
                     android:clipToPadding="false"
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
             </LinearLayout>
+
         </LinearLayout>
     </androidx.cardview.widget.CardView>
+
+    <!-- Header de actividades generales -->
+    <LinearLayout
+        android:id="@+id/layout_all_activities_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="4dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Actividades"
+            android:textColor="@color/black"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/text_see_all_activities"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Ver todas"
+            android:textColor="@color/colorPrimary"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
 
     <ProgressBar
         android:id="@+id/progressBar"
