@@ -1,6 +1,5 @@
 package com.example.androidnativegrupo5.ui;
 
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.View;
 
@@ -29,6 +28,9 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Forzar modo claro para evitar que el sistema cambie los colores
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        
         super.onCreate(savedInstanceState);
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
@@ -58,18 +60,29 @@ public class MainActivity extends AppCompatActivity {
         );
 
         navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
-            boolean hideBars =
+            boolean isAuthScreen =
                     destination.getId() == R.id.LoginFragment ||
                             destination.getId() == R.id.RegisterFragment ||
                             destination.getId() == R.id.WelcomeFragment;
 
-            binding.header.setVisibility(hideBars ? View.GONE : View.VISIBLE);
-            binding.footer.setVisibility(hideBars ? View.GONE : View.VISIBLE);
+            // Mostrar header y footer en RatingFragment pero no en pantallas de Auth
+            binding.header.setVisibility(isAuthScreen ? View.GONE : View.VISIBLE);
+            binding.footer.setVisibility(isAuthScreen ? View.GONE : View.VISIBLE);
 
-            if (destination.getId() == R.id.FirstFragment || hideBars) {
+            if (destination.getId() == R.id.FirstFragment || isAuthScreen) {
                 binding.btnBack.setVisibility(View.GONE);
             } else {
                 binding.btnBack.setVisibility(View.VISIBLE);
+            }
+            
+            if (destination.getId() == R.id.RatingFragment) {
+                binding.txtHeaderTitle.setText("Calificar");
+            } else if (destination.getId() == R.id.FirstFragment) {
+                binding.txtHeaderTitle.setText("Explora");
+            } else if (destination.getId() == R.id.MyReservationsFragment) {
+                binding.txtHeaderTitle.setText("Mis Reservas");
+            } else if (destination.getId() == R.id.ProfileFragment) {
+                binding.txtHeaderTitle.setText("Mi Perfil");
             }
         });
     }

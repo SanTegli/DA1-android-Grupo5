@@ -5,7 +5,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -13,7 +12,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.androidnativegrupo5.R;
 import com.example.androidnativegrupo5.data.model.ReservationResponse;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class ReservationAdapter extends RecyclerView.Adapter<ReservationAdapter.ViewHolder> {
 
@@ -34,7 +37,6 @@ public class ReservationAdapter extends RecyclerView.Adapter<ReservationAdapter.
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView name, date, time, slots, status, totalPrice;
-        //ImageView image;
         Button btnCancel, btnRate, btnReschedule;
 
         public ViewHolder(View view) {
@@ -102,14 +104,47 @@ public class ReservationAdapter extends RecyclerView.Adapter<ReservationAdapter.
             holder.btnReschedule.setVisibility(View.GONE);
         } else if ("COMPLETED".equalsIgnoreCase(r.getStatus())) {
             holder.btnCancel.setVisibility(View.GONE);
-            holder.btnRate.setVisibility(View.VISIBLE);
             holder.btnReschedule.setVisibility(View.GONE);
+            
+            if (isWithinRatingWindow(r.getDate(), r.getTime())) {
+                holder.btnRate.setVisibility(View.VISIBLE);
+            } else {
+                holder.btnRate.setVisibility(View.GONE);
+            }
         } else {
             holder.btnCancel.setVisibility(View.VISIBLE);
             holder.btnCancel.setEnabled(true);
             holder.btnCancel.setAlpha(1.0f);
             holder.btnRate.setVisibility(View.GONE);
             holder.btnReschedule.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private boolean isWithinRatingWindow(String dateStr, String timeStr) {
+        try {
+            // Se asume formato yyyy-MM-dd y HH:mm (ajustar si es necesario)
+            // Si el tiempo viene como "10:00 AM", el parseo debe ser diferente.
+            // Según item_reservation.xml tools: "2023-10-25" y "10:00 AM"
+            
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm a", Locale.US);
+            Date activityDate = sdf.parse(dateStr + " " + timeStr);
+            
+            if (activityDate == null) return false;
+
+            long currentTime = System.currentTimeMillis();
+            long activityTimeMillis = activityDate.getTime();
+            
+            // 48 horas en milisegundos
+            long fortyEightHoursInMillis = 48 * 60 * 60 * 1000L;
+            
+            // La opción aparece DESPUÉS de finalizar y hasta 48 horas después
+            return currentTime > activityTimeMillis && currentTime <= (activityTimeMillis + fortyEightHoursInMillis);
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            // Por defecto, si hay error de parseo, permitimos calificar si está COMPLETED 
+            // para no bloquear al usuario, o retornamos false según política.
+            return true; 
         }
     }
 

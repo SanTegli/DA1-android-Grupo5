@@ -9,6 +9,11 @@ public class ActivityHistoryItem {
     private String destination;
     private String guideName;
     private String duration;
+    
+    // Agregados para mostrar la calificación en el historial
+    private Integer activityScore;
+    private Integer guideScore;
+    private String comment;
 
     public Long getReservationId() {
         return reservationId;
@@ -36,5 +41,17 @@ public class ActivityHistoryItem {
 
     public String getDuration() {
         return duration;
+    }
+
+    public Integer getActivityScore() {
+        return activityScore;
+    }
+
+    public Integer getGuideScore() {
+        return guideScore;
+    }
+
+    public String getComment() {
+        return comment;
     }
 }

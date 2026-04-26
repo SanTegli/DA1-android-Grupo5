@@ -103,6 +103,9 @@
         <action
             android:id="@+id/action_MyReservationsFragment_to_HistoryFragment"
             app:destination="@id/HistoryFragment" />
+        <action
+            android:id="@+id/action_MyReservationsFragment_to_RatingFragment"
+            app:destination="@id/RatingFragment" />
     </fragment>
 
     <fragment
@@ -140,6 +143,22 @@
         <action
             android:id="@+id/action_HistoryFragment_to_DetailFragment"
             app:destination="@id/DetailFragment" />
+        <action
+            android:id="@+id/action_HistoryFragment_to_RatingFragment"
+            app:destination="@id/RatingFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/RatingFragment"
+        android:name="com.example.androidnativegrupo5.ui.activities.RatingFragment"
+        android:label="Calificar"
+        tools:layout="@layout/fragment_rating">
+        <argument
+            android:name="activityId"
+            app:argType="long" />
+        <argument
+            android:name="activityName"
+            app:argType="string" />
     </fragment>
 
     <fragment
