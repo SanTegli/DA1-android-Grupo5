@@ -1,22 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
-    <color name="colorPrimary">#FF018786</color>
-    <color name="colorSecondary">#FF03DAC5</color>
-    <color name="colorAccent">#FF6200EE</color>
-    <color name="priceColor">#FF2E7D32</color>
-    <color name="primary">#570001</color> <color name="primary_container">#7F0303</color>
-    <color name="on_primary">#FFFFFF</color>
-    <color name="background">#FFF8F1</color>
-    <color name="surface_container_lowest">#FFFFFF</color>
-    <color name="surface_container">#F4EDE4</color>
-    <color name="on_surface">#1E1B16</color>
-    <color name="on_surface_variant">#59413D</color>
-    <color name="secondary">#38656E</color>
-    <color name="outline">#8D706C</color>
-    <color name="surface_container_low">#FAF3E9</color>
-    <color name="surface_container_highest">#E8E1D9</color>
-    <color name="outline_variant">#E1BFB9</color>
-    <color name="on_secondary_container">#3D6973</color>
+
+    <!-- BASE (los tuyos) -->
+    <color name="app_background">#FFF8F1</color>
+    <color name="app_surface">#EFE8DF</color>
+    <color name="app_card">#D8BA98</color>
+    <color name="app_text">#1E1B16</color>
+    <color name="app_text_secondary">#6F625C</color>
+    <color name="app_primary">#7F0303</color>
+    <color name="app_accent">#38656E</color>
+    <color name="app_input">#FAF3E9</color>
+    <color name="app_input_border">#E1BFB9</color>
+    <color name="app_footer_inactive">#888888</color>
+
+    <!-- EXTRA (para que no rompa nada nuevo) -->
+    <color name="app_card_light">#F4EDE4</color>
+    <color name="app_border">#E1BFB9</color>
+
+    <!-- PARA BOTONES / FEATURE -->
+    <color name="app_filter_bg">#B9E7F2</color>
+    <color name="app_filter_text">#3D6973</color>
+
+    <!-- OBLIGATORIOS (NO TOCAR) -->
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
+    <color name="colorPrimary">#7F0303</color>
+    <color name="priceColor">#7F0303</color>
+
 </resources>

@@ -115,6 +115,8 @@ public class MyReservationsFragment extends Fragment implements ReservationAdapt
             public void onResponse(@NonNull Call<List<ReservationResponse>> call,
                                    @NonNull Response<List<ReservationResponse>> response) {
 
+                if (!isAdded() || binding == null) return;
+
                 if (response.isSuccessful() && response.body() != null) {
                     syncLocalDatabase(response.body());
                     adapter = new ReservationAdapter(response.body(), MyReservationsFragment.this);
@@ -263,7 +265,11 @@ public class MyReservationsFragment extends Fragment implements ReservationAdapt
             }
 
             requireActivity().runOnUiThread(() -> {
+
+                if (!isAdded() || binding == null) return;
+
                 binding.layoutOfflineWarning.setVisibility(View.VISIBLE);
+
                 if (adapter == null) {
                     adapter = new ReservationAdapter(uiList, MyReservationsFragment.this);
                     binding.recyclerReservations.setAdapter(adapter);
