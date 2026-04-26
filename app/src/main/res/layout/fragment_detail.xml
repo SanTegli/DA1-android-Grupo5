@@ -219,6 +219,40 @@
                     android:text="Descripción larga..."
                     android:textSize="14sp" />
 
+                <!-- MAPA Y PUNTO DE ENCUENTRO -->
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="18dp"
+                    android:text="Punto de encuentro"
+                    android:textColor="@android:color/black"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/text_meeting_point"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="Dirección del punto de encuentro"
+                    android:textColor="#444444"
+                    android:textSize="14sp" />
+
+                <com.google.android.gms.maps.MapView
+                    android:id="@+id/map_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="220dp"
+                    android:layout_marginTop="12dp" />
+
+                <Button
+                    android:id="@+id/btn_how_to_get_there"
+                    android:layout_width="match_parent"
+                    android:layout_height="45dp"
+                    android:layout_marginTop="10dp"
+                    android:text="Cómo llegar"
+                    android:textAllCaps="false" />
+
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"

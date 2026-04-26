@@ -275,6 +275,21 @@ public class MyReservationsFragment extends Fragment implements ReservationAdapt
         });
     }
 
+    @Override
+    public void onDetailClick(ReservationResponse reservation) {
+        if (reservation == null || reservation.getActivityId() == null) {
+            Toast.makeText(getContext(), "No se pudo abrir el detalle", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Bundle bundle = new Bundle();
+        bundle.putLong("activityId", reservation.getActivityId());
+        bundle.putString("activityName", reservation.getActivityName());
+
+        NavHostFragment.findNavController(this)
+                .navigate(R.id.DetailFragment, bundle);
+    }
+
     private void syncLocalDatabase(List<ReservationResponse> remoteData) {
         executor.execute(() -> {
             reservaDao.deleteAll();

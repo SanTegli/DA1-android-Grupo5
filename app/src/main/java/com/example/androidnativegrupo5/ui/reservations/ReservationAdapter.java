@@ -4,7 +4,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -18,11 +17,12 @@ import java.util.List;
 public class ReservationAdapter extends RecyclerView.Adapter<ReservationAdapter.ViewHolder> {
 
     private List<ReservationResponse> list;
-    private OnReservationActionListener actionListener;
+    private final OnReservationActionListener actionListener;
 
     public interface OnReservationActionListener {
         void onCancelClick(ReservationResponse reservation);
         void onRateClick(ReservationResponse reservation);
+        void onDetailClick(ReservationResponse reservation);
         void onRescheduleClick(ReservationResponse reservation);
     }
 
@@ -52,14 +52,14 @@ public class ReservationAdapter extends RecyclerView.Adapter<ReservationAdapter.
 
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public ReservationAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_reservation, parent, false);
         return new ViewHolder(v);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ReservationAdapter.ViewHolder holder, int position) {
         ReservationResponse r = list.get(position);
 
         holder.name.setText(r.getActivityName());
@@ -68,6 +68,12 @@ public class ReservationAdapter extends RecyclerView.Adapter<ReservationAdapter.
         holder.slots.setText("Personas: " + (r.getParticipants() != null ? r.getParticipants() : 1));
         holder.status.setText("Estado: " + r.getStatus());
         holder.totalPrice.setText("$" + String.format("%.2f", r.getTotalPrice()));
+
+        holder.itemView.setOnClickListener(v -> {
+            if (actionListener != null) {
+                actionListener.onDetailClick(r);
+            }
+        });
 
         holder.btnCancel.setOnClickListener(v -> {
             if (actionListener != null) {
@@ -88,6 +94,7 @@ public class ReservationAdapter extends RecyclerView.Adapter<ReservationAdapter.
         });
 
         if ("CANCELLED".equalsIgnoreCase(r.getStatus())) {
+            holder.btnCancel.setVisibility(View.VISIBLE);
             holder.btnCancel.setEnabled(false);
             holder.btnCancel.setAlpha(0.5f);
             holder.btnRate.setVisibility(View.GONE);
@@ -107,18 +114,7 @@ public class ReservationAdapter extends RecyclerView.Adapter<ReservationAdapter.
 
     @Override
     public int getItemCount() {
-        return list.size();
-    }
-
-    public void removeReservationById(Long id) {
-        for (int i = 0; i < list.size(); i++) {
-            if (list.get(i).getId().equals(id)) {
-                list.remove(i);
-                notifyItemRemoved(i);
-                notifyItemRangeChanged(i, list.size());
-                break;
-            }
-        }
+        return list != null ? list.size() : 0;
     }
 
     public void updateData(List<ReservationResponse> newList) {

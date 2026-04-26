@@ -1,5 +1,7 @@
 package com.example.androidnativegrupo5.ui.activities;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,11 +17,17 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.bumptech.glide.Glide;
 import com.example.androidnativegrupo5.R;
-import com.example.androidnativegrupo5.databinding.FragmentDetailBinding;
 import com.example.androidnativegrupo5.data.model.Activity;
 import com.example.androidnativegrupo5.data.model.AvailabilitySlotResponse;
 import com.example.androidnativegrupo5.data.model.Rating;
 import com.example.androidnativegrupo5.data.network.ApiService;
+import com.example.androidnativegrupo5.databinding.FragmentDetailBinding;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -36,7 +44,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 @AndroidEntryPoint
-public class DetailFragment extends Fragment {
+public class DetailFragment extends Fragment implements OnMapReadyCallback {
 
     @Inject
     ApiService apiService;
@@ -44,10 +52,12 @@ public class DetailFragment extends Fragment {
     private FragmentDetailBinding binding;
     private Activity activity;
     private CommentAdapter commentAdapter;
+    private GoogleMap googleMap;
 
     @Override
     public View onCreateView(
-            @NonNull LayoutInflater inflater, ViewGroup container,
+            @NonNull LayoutInflater inflater,
+            ViewGroup container,
             Bundle savedInstanceState
     ) {
         binding = FragmentDetailBinding.inflate(inflater, container, false);
@@ -58,7 +68,9 @@ public class DetailFragment extends Fragment {
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        long activityId = getArguments().getLong("activityId", -1);
+        long activityId = getArguments() != null
+                ? getArguments().getLong("activityId", -1)
+                : -1;
 
         if (activityId == -1) {
             Toast.makeText(getContext(), "Error al cargar actividad", Toast.LENGTH_SHORT).show();
@@ -66,6 +78,16 @@ public class DetailFragment extends Fragment {
         }
 
         setupCommentsRecyclerView();
+
+        try {
+            MapsInitializer.initialize(requireContext());
+        } catch (Exception ignored) {
+        }
+
+        binding.mapView.onCreate(savedInstanceState);
+        binding.mapView.onResume();
+        binding.mapView.getMapAsync(this);
+
         loadActivityDetail(activityId);
         loadAvailability(activityId);
         loadComments(activityId);
@@ -108,6 +130,8 @@ public class DetailFragment extends Fragment {
                             .error(android.R.drawable.ic_menu_report_image)
                             .into(binding.imageDetail);
 
+                    setupMeetingPoint();
+
                     binding.btnReserve.setOnClickListener(v -> {
                         Bundle bundle = new Bundle();
                         bundle.putLong("activityId", activity.getId());
@@ -129,6 +153,74 @@ public class DetailFragment extends Fragment {
                 Toast.makeText(getContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void setupMeetingPoint() {
+        if (activity == null || binding == null) return;
+
+        String address = activity.getMeetingPointAddress();
+        Double lat = activity.getMeetingPointLat();
+        Double lng = activity.getMeetingPointLng();
+
+        if (address == null || address.trim().isEmpty()) {
+            binding.textMeetingPoint.setText("Punto de encuentro no disponible");
+        } else {
+            binding.textMeetingPoint.setText(address);
+        }
+
+        if (lat == null || lng == null) {
+            binding.mapView.setVisibility(View.GONE);
+            binding.btnHowToGetThere.setVisibility(View.GONE);
+            return;
+        }
+
+        binding.mapView.setVisibility(View.VISIBLE);
+        binding.btnHowToGetThere.setVisibility(View.VISIBLE);
+
+        LatLng meetingPoint = new LatLng(lat, lng);
+
+        if (googleMap != null) {
+            googleMap.clear();
+
+            googleMap.addMarker(new MarkerOptions()
+                    .position(meetingPoint)
+                    .title("Punto de encuentro"));
+
+            binding.mapView.post(() ->
+                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(meetingPoint, 15f))
+            );
+        }
+
+        binding.btnHowToGetThere.setOnClickListener(v -> openNavigation(lat, lng));
+    }
+
+    private void openNavigation(Double lat, Double lng) {
+        Uri navigationUri = Uri.parse("google.navigation:q=" + lat + "," + lng);
+        Intent navigationIntent = new Intent(Intent.ACTION_VIEW, navigationUri);
+        navigationIntent.setPackage("com.google.android.apps.maps");
+
+        if (navigationIntent.resolveActivity(requireActivity().getPackageManager()) != null) {
+            startActivity(navigationIntent);
+        } else {
+            Uri browserUri = Uri.parse(
+                    "https://www.google.com/maps/dir/?api=1&destination=" + lat + "," + lng
+            );
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, browserUri);
+            startActivity(browserIntent);
+        }
+    }
+
+    @Override
+    public void onMapReady(@NonNull GoogleMap map) {
+        googleMap = map;
+
+        googleMap.getUiSettings().setZoomControlsEnabled(true);
+        googleMap.getUiSettings().setMapToolbarEnabled(true);
+        googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+
+        if (activity != null) {
+            setupMeetingPoint();
+        }
     }
 
     private void loadComments(Long activityId) {
@@ -154,7 +246,6 @@ public class DetailFragment extends Fragment {
 
             @Override
             public void onFailure(@NonNull Call<List<Rating>> call, @NonNull Throwable t) {
-                // Silently fail or log
             }
         });
     }
@@ -245,7 +336,34 @@ public class DetailFragment extends Fragment {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        if (binding != null) {
+            binding.mapView.onResume();
+        }
+    }
+
+    @Override
+    public void onPause() {
+        if (binding != null) {
+            binding.mapView.onPause();
+        }
+        super.onPause();
+    }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        if (binding != null) {
+            binding.mapView.onLowMemory();
+        }
+    }
+
+    @Override
     public void onDestroyView() {
+        if (binding != null) {
+            binding.mapView.onDestroy();
+        }
         super.onDestroyView();
         binding = null;
     }

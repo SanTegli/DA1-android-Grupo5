@@ -60,7 +60,6 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- FECHAS -->
         <TextView
             android:id="@+id/text_select_date"
             android:layout_width="wrap_content"
@@ -70,7 +69,7 @@
             android:textSize="16sp"
             android:layout_marginTop="24dp"
             app:layout_constraintTop_toBottomOf="@id/card_activity_summary"
-            app:layout_constraintStart_toStartOf="parent"/>
+            app:layout_constraintStart_toStartOf="parent" />
 
         <com.google.android.material.chip.ChipGroup
             android:id="@+id/chipGroupDates"
@@ -81,9 +80,8 @@
             app:chipSpacing="8dp"
             app:layout_constraintTop_toBottomOf="@id/text_select_date"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- HORARIOS -->
         <TextView
             android:id="@+id/text_select_time"
             android:layout_width="wrap_content"
@@ -93,7 +91,7 @@
             android:textSize="16sp"
             android:layout_marginTop="16dp"
             app:layout_constraintTop_toBottomOf="@id/chipGroupDates"
-            app:layout_constraintStart_toStartOf="parent"/>
+            app:layout_constraintStart_toStartOf="parent" />
 
         <com.google.android.material.chip.ChipGroup
             android:id="@+id/chipGroupTimes"
@@ -104,17 +102,18 @@
             app:chipSpacing="8dp"
             app:layout_constraintTop_toBottomOf="@id/text_select_time"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- Quantity Selection -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/layout_slots_input"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:hint="Cantidad de personas"
-            app:layout_constraintTop_toBottomOf="@id/chipGroupTimes">
+            app:layout_constraintTop_toBottomOf="@id/chipGroupTimes"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/edit_slots"
@@ -158,17 +157,63 @@
             app:layout_constraintEnd_toEndOf="parent"
             tools:text="$50.00" />
 
+        <TextView
+            android:id="@+id/text_meeting_point_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
+            android:text="Punto de encuentro"
+            android:textColor="@android:color/black"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@id/text_total_label"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <TextView
+            android:id="@+id/text_meeting_point"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="Dirección del punto de encuentro"
+            android:textColor="#444444"
+            android:textSize="14sp"
+            app:layout_constraintTop_toBottomOf="@id/text_meeting_point_title"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <com.google.android.gms.maps.MapView
+            android:id="@+id/map_view"
+            android:layout_width="0dp"
+            android:layout_height="220dp"
+            android:layout_marginTop="12dp"
+            app:layout_constraintTop_toBottomOf="@id/text_meeting_point"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <Button
+            android:id="@+id/btn_how_to_get_there"
+            android:layout_width="0dp"
+            android:layout_height="45dp"
+            android:layout_marginTop="10dp"
+            android:text="Cómo llegar"
+            android:textAllCaps="false"
+            app:layout_constraintTop_toBottomOf="@id/map_view"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
         <Button
             android:id="@+id/button_confirm_reservation"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="48dp"
+            android:layout_marginTop="32dp"
             android:layout_marginBottom="16dp"
             android:padding="12dp"
             android:text="Confirmar reserva"
+            app:layout_constraintTop_toBottomOf="@id/btn_how_to_get_there"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/text_total_label"
-            app:layout_constraintVertical_bias="1.0" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>
