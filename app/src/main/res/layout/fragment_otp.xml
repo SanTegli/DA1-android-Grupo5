@@ -1,71 +1,92 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center"
-    android:padding="24dp">
+    android:background="@color/surface_container_lowest">
 
-    <!-- Title -->
+    <View
+        android:id="@+id/headerBg"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:background="@color/surface_container"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <TextView
+        android:id="@+id/tvTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/verify_identity"
+        android:layout_marginTop="48dp"
+        android:fontFamily="@font/plus_jakarta_sans_bold"
+        android:text="Verificá tu identidad"
+        android:textColor="@color/on_surface"
         android:textSize="28sp"
-        android:textStyle="bold"
-        android:fontFamily="sans-serif-medium"
-        android:layout_marginBottom="12dp"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/headerBg" />
 
-    <!-- Subtitle -->
     <TextView
-        android:id="@+id/subtitleText"
-        android:layout_width="wrap_content"
+        android:id="@+id/tvSubtitle"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="@string/otp_sent_message"
-        android:textSize="14sp"
-        android:textColor="#888888"
+        android:layout_marginHorizontal="40dp"
+        android:layout_marginTop="12dp"
+        android:fontFamily="@font/plus_jakarta_sans_regular"
         android:gravity="center"
-        android:layout_marginBottom="40dp"/>
+        android:text="Ingresá el código de 6 dígitos que enviamos a tu email"
+        android:textColor="@color/on_surface_variant"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvTitle" />
 
-    <!-- OTP field -->
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/otpLayout"
+        android:id="@+id/tilOtp"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="24dp"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginTop="40dp"
+        app:boxCornerRadiusBottomEnd="12dp"
+        app:boxCornerRadiusBottomStart="12dp"
+        app:boxCornerRadiusTopEnd="12dp"
+        app:boxCornerRadiusTopStart="12dp"
+        app:layout_constraintTop_toBottomOf="@id/tvSubtitle">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/otpEditText"
+            android:id="@+id/etOtp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/otp_hint"
-            android:inputType="number"
-            android:maxLength="6"
-            android:letterSpacing="0.5"
+            android:fontFamily="@font/plus_jakarta_sans_bold"
             android:gravity="center"
-            android:textSize="20sp"/>
-
+            android:hint="0 0 0 0 0 0"
+            android:inputType="number"
+            android:letterSpacing="0.2"
+            android:maxLength="6"
+            android:textSize="24sp" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- Verify button -->
-    <Button
-        android:id="@+id/verifyButton"
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnVerify"
+        style="@style/Widget.AdventurousTourism.Button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/verify"
-        android:textSize="16sp"/>
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginTop="24dp"
+        android:fontFamily="@font/plus_jakarta_sans_bold"
+        android:text="Verificar código"
+        app:layout_constraintTop_toBottomOf="@id/tilOtp" />
 
-    <!-- Resend code -->
-    <TextView
-        android:id="@+id/resendText"
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnResend"
+        style="@style/Widget.AdventurousTourism.Button.TextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/resend_question"
-        android:textColor="@color/purple_500"
-        android:layout_marginTop="16dp"
-        android:clickable="true"
-        android:focusable="true"/>
+        android:layout_marginTop="8dp"
+        android:fontFamily="@font/plus_jakarta_sans_regular"
+        android:text="No recibí el código. Reenviar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnVerify" />
 
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
