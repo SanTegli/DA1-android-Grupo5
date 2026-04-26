@@ -98,7 +98,10 @@ public class HomeFragment extends Fragment {
                 adapter.clearActivities();
                 loadActivities();
 
-                if (filterCategory != null || filterDestination != null || filterMaxPrice != null || (filterSearch != null && !filterSearch.isEmpty())) {
+                if (filterCategory != null
+                        || filterDestination != null
+                        || filterMaxPrice != null
+                        || (filterSearch != null && !filterSearch.isEmpty())) {
                     binding.layoutFeatured.setVisibility(View.GONE);
                 } else {
                     binding.layoutFeatured.setVisibility(View.VISIBLE);
@@ -108,44 +111,27 @@ public class HomeFragment extends Fragment {
             bottomSheet.show(getParentFragmentManager(), "FilterBottomSheet");
         });
 
-        // Scroll infinito
+        // ✅ Scroll infinito (CORRECTO)
         binding.recyclerActivities.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
                 if (dy <= 0) return;
-        /*
-        // Scroll infinito
-            binding.recyclerActivities.addOnScrollListener(new RecyclerView.OnScrollListener() {
-                @Override
-                public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                    super.onScrolled(recyclerView, dx, dy);
 
-                    if (dy <= 0) return;
+                LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                if (layoutManager == null || isLoading || isLastPage) return;
 
-                    LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
-                    if (layoutManager == null || isLoading || isLastPage) return;
+                int visibleItemCount = layoutManager.getChildCount();
+                int totalItemCount = layoutManager.getItemCount();
+                int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
 
-                    int visibleItemCount = layoutManager.getChildCount();
-                    int totalItemCount = layoutManager.getItemCount();
-                    int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
-
-                    if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount
-                            && firstVisibleItemPosition >= 0
-                            && totalItemCount >= PAGE_SIZE) {
-                        loadActivities();
-                    }
+                if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount
+                        && firstVisibleItemPosition >= 0
+                        && totalItemCount >= PAGE_SIZE) {
+                    loadActivities();
                 }
             }
-            });*/
-
-        binding.btnMyReservations.setOnClickListener(v -> {
-            Navigation.findNavController(v)
-                    .navigate(R.id.action_FirstFragment_to_MyReservationsFragment);
-        });
-
-        binding.textSeeAllActivities.setOnClickListener(clickedView -> {
-            Navigation.findNavController(clickedView)
-                    .navigate(R.id.action_FirstFragment_to_ExploreActivitiesFragment);
         });
     }
 
@@ -175,6 +161,7 @@ public class HomeFragment extends Fragment {
 
                         if (response.isSuccessful() && response.body() != null) {
                             List<Activity> activities = response.body().getContent();
+
                             if (activities != null && !activities.isEmpty()) {
                                 featuredAdapter.setActivities(activities);
                                 binding.layoutFeatured.setVisibility(View.VISIBLE);
@@ -204,66 +191,73 @@ public class HomeFragment extends Fragment {
             binding.progressBar.setVisibility(View.VISIBLE);
         }
 
-        apiService.getActivities(currentPage, PAGE_SIZE, filterCategory, filterDestination, filterMaxPrice, filterDuration, null)
-                .enqueue(new Callback<PaginatedResponse<Activity>>() {
+        apiService.getActivities(
+                currentPage,
+                PAGE_SIZE,
+                filterCategory,
+                filterDestination,
+                filterMaxPrice,
+                filterDuration,
+                null
+        ).enqueue(new Callback<PaginatedResponse<Activity>>() {
 
-                    @Override
-                    public void onResponse(@NonNull Call<PaginatedResponse<Activity>> call,
-                                           @NonNull Response<PaginatedResponse<Activity>> response) {
+            @Override
+            public void onResponse(@NonNull Call<PaginatedResponse<Activity>> call,
+                                   @NonNull Response<PaginatedResponse<Activity>> response) {
 
-                        isLoading = false;
+                isLoading = false;
 
-                        if (!isAdded() || binding == null) return;
+                if (!isAdded() || binding == null) return;
 
-                        binding.progressBar.setVisibility(View.GONE);
+                binding.progressBar.setVisibility(View.GONE);
 
-                        if (response.isSuccessful() && response.body() != null) {
+                if (response.isSuccessful() && response.body() != null) {
 
-                            List<Activity> activities = response.body().getContent();
+                    List<Activity> activities = response.body().getContent();
 
-                            if (activities != null && !activities.isEmpty()) {
+                    if (activities != null && !activities.isEmpty()) {
 
-                                adapter.addActivities(activities);
+                        adapter.addActivities(activities);
 
-                                if (currentPage >= response.body().getTotalPages() - 1) {
-                                    isLastPage = true;
-                                } else {
-                                    currentPage++;
-                                }
-
-                            } else {
-                                if (currentPage == 0) {
-                                    Toast.makeText(requireContext(),
-                                            "No se encontraron actividades",
-                                            Toast.LENGTH_SHORT).show();
-                                }
-                                isLastPage = true;
-                            }
-
+                        if (currentPage >= response.body().getTotalPages() - 1) {
+                            isLastPage = true;
                         } else {
+                            currentPage++;
+                        }
+
+                    } else {
+                        if (currentPage == 0) {
                             Toast.makeText(requireContext(),
-                                    "Error al obtener actividades",
+                                    "No se encontraron actividades",
                                     Toast.LENGTH_SHORT).show();
                         }
+                        isLastPage = true;
                     }
 
-                    @Override
-                    public void onFailure(@NonNull Call<PaginatedResponse<Activity>> call,
-                                          @NonNull Throwable t) {
+                } else {
+                    Toast.makeText(requireContext(),
+                            "Error al obtener actividades",
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
 
-                        isLoading = false;
+            @Override
+            public void onFailure(@NonNull Call<PaginatedResponse<Activity>> call,
+                                  @NonNull Throwable t) {
 
-                        if (!isAdded() || binding == null) return;
+                isLoading = false;
 
-                        binding.progressBar.setVisibility(View.GONE);
+                if (!isAdded() || binding == null) return;
 
-                        Log.e("HomeFragment", "Error: " + t.getMessage());
+                binding.progressBar.setVisibility(View.GONE);
 
-                        Toast.makeText(requireContext(),
-                                "Error de conexión",
-                                Toast.LENGTH_SHORT).show();
-                    }
-                });
+                Log.e("HomeFragment", "Error: " + t.getMessage());
+
+                Toast.makeText(requireContext(),
+                        "Error de conexión",
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override
