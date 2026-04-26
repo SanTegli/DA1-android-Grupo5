@@ -9,10 +9,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -20,6 +20,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.bumptech.glide.Glide;
 import com.example.androidnativegrupo5.R;
@@ -50,12 +51,11 @@ public class ProfileFragment extends Fragment {
     TokenManager tokenManager;
 
     private TextInputEditText usernameEditText, emailEditText, phoneEditText;
-    private Spinner categorySpinner, destinationSpinner, durationSpinner;
+    private AutoCompleteTextView categorySpinner, destinationSpinner, durationSpinner;
     private Slider budgetSlider;
     private Button saveButton;
     private ProgressBar progressBar;
     private ImageView profileImageView;
-    private String token;
     private Uri selectedImageUri;
 
     private final List<String> categories = Arrays.asList("Aventura", "Cultura", "Gastronomía", "Bienestar", "Naturaleza");
@@ -82,24 +82,18 @@ public class ProfileFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        token = getAuthToken();
-
         usernameEditText = view.findViewById(R.id.usernameEditText);
         emailEditText = view.findViewById(R.id.emailEditText);
         phoneEditText = view.findViewById(R.id.phoneEditText);
         profileImageView = view.findViewById(R.id.profileImage);
+        Button btnMyReservations = view.findViewById(R.id.btnMyReservations);
+        Button btnHistory = view.findViewById(R.id.btnMyHistory);
 
         // Bloquear edición de email
         if (emailEditText != null) {
             emailEditText.setFocusable(false);
             emailEditText.setClickable(false);
             emailEditText.setEnabled(false);
-        }
-
-        // Ocultamos el campo de URL si existe, ya que ahora usamos selección de imagen
-        View imageUrlLayout = view.findViewById(R.id.imageUrlLayout);
-        if (imageUrlLayout != null) {
-            imageUrlLayout.setVisibility(View.GONE);
         }
 
         categorySpinner = view.findViewById(R.id.categorySpinner);
@@ -112,12 +106,6 @@ public class ProfileFragment extends Fragment {
 
         setupSpinners();
 
-        if (token == null) {
-            Toast.makeText(getContext(), "Sesión no encontrada. Por favor inicie sesión.", Toast.LENGTH_LONG).show();
-            // Evitar crash si el token es null pero no salimos del fragmento inmediatamente
-            return;
-        }
-
         loadProfile();
 
         saveButton.setOnClickListener(v -> saveProfile());
@@ -127,32 +115,26 @@ public class ProfileFragment extends Fragment {
             intent.setType("image/*");
             pickImageLauncher.launch(intent);
         });
+
+        btnMyReservations.setOnClickListener(v ->
+                NavHostFragment.findNavController(this).navigate(R.id.action_ProfileFragment_to_MyReservationsFragment));
+
+        btnHistory.setOnClickListener(v ->
+                NavHostFragment.findNavController(this).navigate(R.id.action_ProfileFragment_to_HistoryFragment));
     }
 
     private void setupSpinners() {
-        ArrayAdapter<String> catAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, categories);
-        catAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        ArrayAdapter<String> catAdapter = new ArrayAdapter<>(requireContext(), R.layout.dropdown_item, categories);
         categorySpinner.setAdapter(catAdapter);
 
-        ArrayAdapter<String> destAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, destinations);
-        destAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        ArrayAdapter<String> destAdapter = new ArrayAdapter<>(requireContext(), R.layout.dropdown_item, destinations);
         destinationSpinner.setAdapter(destAdapter);
 
-        ArrayAdapter<String> durAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, durations);
-        durAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        ArrayAdapter<String> durAdapter = new ArrayAdapter<>(requireContext(), R.layout.dropdown_item, durations);
         durationSpinner.setAdapter(durAdapter);
     }
 
-    private String getAuthToken() {
-        String savedToken = tokenManager.getToken();
-        if (savedToken != null && !savedToken.startsWith("Bearer ")) {
-            return "Bearer " + savedToken;
-        }
-        return savedToken;
-    }
-
     private void loadProfile() {
-        if (token == null) return;
         setLoading(true);
         apiService.getMyProfile().enqueue(new Callback<UserResponse>() {
             @Override
@@ -195,16 +177,13 @@ public class ProfileFragment extends Fragment {
         UserPreferences prefs = user.getPreferences();
         if (prefs != null) {
             if (prefs.getPreferredCategory() != null) {
-                int index = categories.indexOf(prefs.getPreferredCategory());
-                if (index >= 0) categorySpinner.setSelection(index);
+                categorySpinner.setText(prefs.getPreferredCategory(), false);
             }
             if (prefs.getPreferredDestination() != null) {
-                int index = destinations.indexOf(prefs.getPreferredDestination());
-                if (index >= 0) destinationSpinner.setSelection(index);
+                destinationSpinner.setText(prefs.getPreferredDestination(), false);
             }
             if (prefs.getActivityDuration() != null) {
-                int index = durations.indexOf(prefs.getActivityDuration());
-                if (index >= 0) durationSpinner.setSelection(index);
+                durationSpinner.setText(prefs.getActivityDuration(), false);
             }
             if (prefs.getMaxPrice() != null) {
                 budgetSlider.setValue(prefs.getMaxPrice().floatValue());
@@ -213,17 +192,16 @@ public class ProfileFragment extends Fragment {
     }
 
     private void saveProfile() {
-        if (token == null) return;
         String username = usernameEditText.getText().toString().trim();
         String phone = phoneEditText.getText().toString().trim();
         String email = emailEditText.getText().toString().trim();
         String imageUrl = selectedImageUri != null ? selectedImageUri.toString() : null;
 
         UserPreferences prefs = new UserPreferences(
-                categorySpinner.getSelectedItem().toString(),
+                categorySpinner.getText().toString(),
                 (int) budgetSlider.getValue(),
-                destinationSpinner.getSelectedItem().toString(),
-                durationSpinner.getSelectedItem().toString()
+                destinationSpinner.getText().toString(),
+                durationSpinner.getText().toString()
         );
 
         UserResponse updateRequest = new UserResponse();
@@ -236,7 +214,7 @@ public class ProfileFragment extends Fragment {
         }
 
         setLoading(true);
-        apiService.updateProfile(updateRequest).enqueue(new Callback<UserResponse>() {
+        apiService.updateProfile(updateRequest).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
                 setLoading(false);

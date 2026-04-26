@@ -119,7 +119,17 @@
         android:id="@+id/ProfileFragment"
         android:name="com.example.androidnativegrupo5.ui.profile.ProfileFragment"
         android:label="Perfil del Viajero"
-        tools:layout="@layout/fragment_profile" />
+        tools:layout="@layout/fragment_profile">
+
+        <action
+            android:id="@+id/action_ProfileFragment_to_MyReservationsFragment"
+            app:destination="@id/MyReservationsFragment" />
+
+        <action
+            android:id="@+id/action_ProfileFragment_to_HistoryFragment"
+            app:destination="@id/HistoryFragment" />
+
+    </fragment>
 
     <fragment
         android:id="@+id/HistoryFragment"
