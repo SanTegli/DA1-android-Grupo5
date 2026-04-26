@@ -6,4 +6,17 @@
     <color name="colorSecondary">#FF03DAC5</color>
     <color name="colorAccent">#FF6200EE</color>
     <color name="priceColor">#FF2E7D32</color>
+    <color name="primary">#570001</color> <color name="primary_container">#7F0303</color>
+    <color name="on_primary">#FFFFFF</color>
+    <color name="background">#FFF8F1</color>
+    <color name="surface_container_lowest">#FFFFFF</color>
+    <color name="surface_container">#F4EDE4</color>
+    <color name="on_surface">#1E1B16</color>
+    <color name="on_surface_variant">#59413D</color>
+    <color name="secondary">#38656E</color>
+    <color name="outline">#8D706C</color>
+    <color name="surface_container_low">#FAF3E9</color>
+    <color name="surface_container_highest">#E8E1D9</color>
+    <color name="outline_variant">#E1BFB9</color>
+    <color name="on_secondary_container">#3D6973</color>
 </resources>

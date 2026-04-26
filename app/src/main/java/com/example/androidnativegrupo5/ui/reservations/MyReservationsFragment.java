@@ -97,8 +97,7 @@ public class MyReservationsFragment extends Fragment implements ReservationAdapt
         }
 
         binding.btnGoHistory.setOnClickListener(v ->
-                NavHostFragment.findNavController(this).navigate(R.id.HistoryFragment)
-        );
+                NavHostFragment.findNavController(this).navigate(R.id.action_MyReservationsFragment_to_HistoryFragment));
     }
 
     private void loadReservations() {

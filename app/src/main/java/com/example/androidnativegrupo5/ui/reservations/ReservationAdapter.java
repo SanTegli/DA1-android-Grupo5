@@ -34,7 +34,7 @@ public class ReservationAdapter extends RecyclerView.Adapter<ReservationAdapter.
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView name, date, time, slots, status, totalPrice;
-        ImageView image;
+        //ImageView image;
         Button btnCancel, btnRate, btnReschedule;
 
         public ViewHolder(View view) {

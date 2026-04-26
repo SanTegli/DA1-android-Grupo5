@@ -28,51 +28,37 @@ import dagger.hilt.android.AndroidEntryPoint;
 @AndroidEntryPoint
 public class MainActivity extends AppCompatActivity {
 
-    @Inject
-    TokenManager tokenManager;
-
-    @Inject
-    ReservaDao reservaDao;
-
-    private final ExecutorService executor = Executors.newSingleThreadExecutor();
+    @Inject TokenManager tokenManager;
+    @Inject ReservaDao reservaDao;
 
     private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
+    private NavController navController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Inflate the layout using View Binding
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
-        // Setup the toolbar
         setSupportActionBar(binding.toolbar);
 
-        // Setup Navigation Component
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
+        androidx.navigation.fragment.NavHostFragment navHostFragment =
+                (androidx.navigation.fragment.NavHostFragment) getSupportFragmentManager()
+                        .findFragmentById(R.id.nav_host_fragment_content_main);
 
-        if (tokenManager.getToken() != null) {
-            navController.navigate(R.id.MyReservationsFragment);
+        if (navHostFragment != null) {
+            navController = navHostFragment.getNavController();
+
+            appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
+            NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         }
 
-        appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
-        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
-
-        // Action for the Floating Action Button
-        binding.fab.setOnClickListener(view -> 
-            Snackbar.make(view, R.string.custom_action, Snackbar.LENGTH_LONG)
-                    .setAnchorView(R.id.fab)
-                    .setAction(R.string.close, null).show()
+        binding.fab.setOnClickListener(view ->
+                Snackbar.make(view, R.string.custom_action, Snackbar.LENGTH_LONG)
+                        .setAnchorView(R.id.fab)
+                        .setAction(R.string.close, null).show()
         );
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
     }
 
     @Override
@@ -80,16 +66,11 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         if (id == R.id.action_dark_mode) {
-            item.setChecked(!item.isChecked());
-            if (item.isChecked()) {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-            } else {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-            }
             return true;
         } else if (id == R.id.action_profile) {
-            NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
-            navController.navigate(R.id.ProfileFragment);
+            if (navController != null) {
+                navController.navigate(R.id.ProfileFragment);
+            }
             return true;
         }
 
@@ -98,9 +79,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onSupportNavigateUp() {
-        // Handles the Up button navigation in the action bar
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
-        return NavigationUI.navigateUp(navController, appBarConfiguration)
+        return (navController != null && NavigationUI.navigateUp(navController, appBarConfiguration))
                 || super.onSupportNavigateUp();
     }
 }

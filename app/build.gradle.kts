@@ -52,7 +52,8 @@ dependencies {
     androidTestImplementation(libs.espresso.core)
     implementation(libs.hilt.android)
     annotationProcessor(libs.hilt.compiler)
-    implementation("androidx.room:room-runtime:2.6.1")
-    annotationProcessor("androidx.room:room-compiler:2.6.1")
-    implementation("com.google.android.gms:play-services-maps:18.2.0")
+    implementation(libs.room.runtime)
+    annotationProcessor(libs.room.compiler)
+    implementation(libs.play.services.maps)
+    implementation(libs.biometric)
 }

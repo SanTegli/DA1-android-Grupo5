@@ -26,4 +26,12 @@ public class TokenManager {
     public void saveToken(String token) {
         prefs.edit().putString(KEY_TOKEN, token).apply();
     }
+
+    public void setBiometricEnabled(boolean enabled) {
+        prefs.edit().putBoolean("biometric_enabled", enabled).apply();
+    }
+
+    public boolean isBiometricEnabled() {
+        return prefs.getBoolean("biometric_enabled", false);
+    }
 }
