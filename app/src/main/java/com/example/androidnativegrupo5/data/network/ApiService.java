@@ -6,6 +6,7 @@ import com.example.androidnativegrupo5.data.model.AuthResponse;
 import com.example.androidnativegrupo5.data.model.AvailabilitySlotResponse;
 import com.example.androidnativegrupo5.data.model.LoginRequest;
 import com.example.androidnativegrupo5.data.model.MessageResponse;
+import com.example.androidnativegrupo5.data.model.NewsItem;
 import com.example.androidnativegrupo5.data.model.OtpRequest;
 import com.example.androidnativegrupo5.data.model.OtpVerifyRequest;
 import com.example.androidnativegrupo5.data.model.PaginatedResponse;
@@ -115,4 +116,7 @@ public interface ApiService {
             @Path("id") Long id,
             @Body RescheduleReservationRequest request
     );
+
+    @GET("/api/v1/news")
+    Call<List<NewsItem>> getNews();
 }

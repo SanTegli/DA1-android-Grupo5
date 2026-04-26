@@ -17,12 +17,8 @@
             android:layout_height="wrap_content"
             android:text="Where to next,"
             android:textSize="22sp"
-            android:textStyle="bold"/>
-            android:layout_weight="1"
-            android:text="Inicio"
-            android:textColor="@color/black"
-            android:textSize="24sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:textColor="@color/app_text"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -30,7 +26,7 @@
             android:text="Adventurer?"
             android:textSize="22sp"
             android:textStyle="bold"
-            android:textColor="#7F0303"/>
+            android:textColor="@color/app_primary"/>
 
         <!-- SEARCH + FILTER -->
         <LinearLayout
@@ -44,7 +40,7 @@
                 android:layout_height="48dp"
                 android:layout_weight="1"
                 android:hint="Search experiences..."
-                android:background="#F4EDE4"
+                android:background="@color/app_surface"
                 android:paddingStart="16dp"/>
 
             <ImageButton
@@ -52,8 +48,9 @@
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:layout_marginStart="8dp"
-                android:background="#B9E7F2"
-                android:src="@drawable/ic_tune"/>
+                android:background="@color/app_accent"
+                android:src="@drawable/ic_tune"
+                android:contentDescription="Filters" />
         </LinearLayout>
 
         <!-- FEATURED -->
@@ -67,9 +64,10 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Featured Experiences"
+                android:text="Tus próximos imperdibles"
                 android:textSize="18sp"
-                android:textStyle="bold"/>
+                android:textStyle="bold"
+                android:textColor="@color/app_text"/>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerFeatured"
@@ -78,19 +76,46 @@
                 android:layout_marginTop="12dp"/>
         </LinearLayout>
 
+        <!-- NEWS SECTION (ABAJO DE FEATURED) -->
+        <LinearLayout
+            android:id="@+id/layoutNews"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Novedades y beneficios"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/app_text"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerNews"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:clipToPadding="false" />
+        </LinearLayout>
+
         <!-- POPULAR -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Popular Near You"
+            android:text="Lo mejor a la redonda"
             android:textSize="18sp"
             android:textStyle="bold"
-            android:layout_marginTop="24dp"/>
+            android:layout_marginTop="24dp"
+            android:textColor="@color/app_text"/>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerActivities"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:nestedScrollingEnabled="false"/>
 
         <!-- LOADING -->
         <ProgressBar
