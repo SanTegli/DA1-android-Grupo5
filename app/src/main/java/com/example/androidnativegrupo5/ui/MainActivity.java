@@ -70,6 +70,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        binding.navFavorites.setOnClickListener(v -> {
+            if (navController.getCurrentDestination() != null &&
+                    navController.getCurrentDestination().getId() != R.id.FavoritesFragment) {
+                navController.navigate(R.id.FavoritesFragment);
+            }
+        });
+
         binding.navProfile.setOnClickListener(v -> {
             if (navController.getCurrentDestination() != null &&
                     navController.getCurrentDestination().getId() != R.id.ProfileFragment) {
@@ -109,6 +116,10 @@ public class MainActivity extends AppCompatActivity {
                 binding.txtHeaderTitle.setText("Mis Reservas");
                 updateFooterSelection(R.id.btnMyReservations);
 
+            } else if (destination.getId() == R.id.FavoritesFragment) {
+                binding.txtHeaderTitle.setText("Favoritos");
+                updateFooterSelection(R.id.navFavorites);
+
             } else if (destination.getId() == R.id.ProfileFragment) {
                 binding.txtHeaderTitle.setText("Mi Perfil");
                 updateFooterSelection(R.id.navProfile);
@@ -133,6 +144,9 @@ public class MainActivity extends AppCompatActivity {
         binding.iconBookings.setColorFilter(inactiveColor);
         binding.textBookings.setTextColor(inactiveColor);
 
+        binding.iconFavorites.setColorFilter(inactiveColor);
+        binding.textFavorites.setTextColor(inactiveColor);
+
         binding.iconProfile.setColorFilter(inactiveColor);
         binding.textProfile.setTextColor(inactiveColor);
 
@@ -147,6 +161,10 @@ public class MainActivity extends AppCompatActivity {
         } else if (selectedId == R.id.btnMyReservations) {
             binding.iconBookings.setColorFilter(activeColor);
             binding.textBookings.setTextColor(activeColor);
+
+        } else if (selectedId == R.id.navFavorites) {
+            binding.iconFavorites.setColorFilter(activeColor);
+            binding.textFavorites.setTextColor(activeColor);
 
         } else if (selectedId == R.id.navProfile) {
             binding.iconProfile.setColorFilter(activeColor);
@@ -165,6 +183,9 @@ public class MainActivity extends AppCompatActivity {
 
         binding.iconBookings.setColorFilter(inactiveColor);
         binding.textBookings.setTextColor(inactiveColor);
+
+        binding.iconFavorites.setColorFilter(inactiveColor);
+        binding.textFavorites.setTextColor(inactiveColor);
 
         binding.iconProfile.setColorFilter(inactiveColor);
         binding.textProfile.setTextColor(inactiveColor);

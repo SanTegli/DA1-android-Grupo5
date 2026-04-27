@@ -60,4 +60,5 @@ dependencies {
     implementation(libs.play.services.maps)
     implementation(libs.biometric)
     implementation("androidx.core:core-splashscreen:1.0.1")
+    implementation("androidx.work:work-runtime:2.9.0")
 }

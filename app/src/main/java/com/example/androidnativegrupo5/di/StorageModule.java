@@ -5,6 +5,7 @@ import android.content.Context;
 import androidx.room.Room;
 
 import com.example.androidnativegrupo5.data.local.db.AppDatabase;
+import com.example.androidnativegrupo5.data.local.db.FavoriteDao;
 import com.example.androidnativegrupo5.data.local.db.ReservaDao;
 
 import javax.inject.Singleton;
@@ -27,6 +28,11 @@ public class StorageModule {
     @Provides @Singleton
     public ReservaDao provideReservaDao(AppDatabase database) {
         return database.reservaDao();
+    }
+
+    @Provides @Singleton
+    public FavoriteDao provideFavoriteDao(AppDatabase database) {
+        return database.favoriteDao();
     }
 
 }

@@ -182,4 +182,14 @@
             app:destination="@id/DetailFragment" />
     </fragment>
 
+    <fragment
+        android:id="@+id/FavoritesFragment"
+        android:name="com.example.androidnativegrupo5.ui.favorites.FavoritesFragment"
+        android:label="Favoritos"
+        tools:layout="@layout/fragment_favorites">
+        <action
+            android:id="@+id/action_FavoritesFragment_to_DetailFragment"
+            app:destination="@id/DetailFragment" />
+    </fragment>
+
 </navigation>

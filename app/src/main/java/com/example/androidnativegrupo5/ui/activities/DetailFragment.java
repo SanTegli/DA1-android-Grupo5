@@ -21,6 +21,9 @@ import com.example.androidnativegrupo5.data.model.Activity;
 import com.example.androidnativegrupo5.data.model.AvailabilitySlotResponse;
 import com.example.androidnativegrupo5.data.model.Rating;
 import com.example.androidnativegrupo5.data.network.ApiService;
+import com.example.androidnativegrupo5.ui.favorites.FavoriteViewModel;
+import androidx.lifecycle.ViewModelProvider;
+import dagger.hilt.android.AndroidEntryPoint;
 import com.example.androidnativegrupo5.databinding.FragmentDetailBinding;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -49,6 +52,7 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
     @Inject
     ApiService apiService;
 
+    private FavoriteViewModel favoriteViewModel;
     private FragmentDetailBinding binding;
     private Activity activity;
     private CommentAdapter commentAdapter;
@@ -61,6 +65,7 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
             Bundle savedInstanceState
     ) {
         binding = FragmentDetailBinding.inflate(inflater, container, false);
+        favoriteViewModel = new ViewModelProvider(this).get(FavoriteViewModel.class);
         return binding.getRoot();
     }
 
@@ -91,6 +96,23 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
         loadActivityDetail(activityId);
         loadAvailability(activityId);
         loadComments(activityId);
+        favoriteViewModel.checkFavoriteStatus(activityId);
+
+        binding.btnFavorite.setOnClickListener(v -> {
+            if (activity != null) {
+                favoriteViewModel.toggleFavorite(activity.getId(), activity);
+            }
+        });
+
+        favoriteViewModel.getIsFavorite().observe(getViewLifecycleOwner(), isFav -> {
+            if (isFav) {
+                binding.btnFavorite.setImageResource(com.example.androidnativegrupo5.R.drawable.ic_favorite_filled);
+                binding.btnFavorite.setColorFilter(null);
+            } else {
+                binding.btnFavorite.setImageResource(com.example.androidnativegrupo5.R.drawable.ic_favorite_border);
+                binding.btnFavorite.setColorFilter(getResources().getColor(android.R.color.white));
+            }
+        });
     }
 
     private void setupCommentsRecyclerView() {

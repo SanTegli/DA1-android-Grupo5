@@ -5,6 +5,8 @@ import com.example.androidnativegrupo5.data.model.ActivityHistoryItem;
 import com.example.androidnativegrupo5.data.model.AuthResponse;
 import com.example.androidnativegrupo5.data.model.AvailabilitySlotResponse;
 import com.example.androidnativegrupo5.data.model.LoginRequest;
+import com.example.androidnativegrupo5.data.model.CheckFavoriteResponse;
+import com.example.androidnativegrupo5.data.model.FavoriteResponse;
 import com.example.androidnativegrupo5.data.model.MessageResponse;
 import com.example.androidnativegrupo5.data.model.OtpRequest;
 import com.example.androidnativegrupo5.data.model.OtpVerifyRequest;
@@ -115,4 +117,19 @@ public interface ApiService {
             @Path("id") Long id,
             @Body RescheduleReservationRequest request
     );
+
+    @POST("/api/v1/favorites/{activityId}")
+    Call<FavoriteResponse> addToFavorites(@Path("activityId") Long activityId);
+
+    @DELETE("/api/v1/favorites/{activityId}")
+    Call<Void> removeFromFavorites(@Path("activityId") Long activityId);
+
+    @GET("/api/v1/favorites")
+    Call<List<FavoriteResponse>> getMyFavorites();
+
+    @GET("/api/v1/favorites/{activityId}/check")
+    Call<CheckFavoriteResponse> checkFavoriteStatus(@Path("activityId") Long activityId);
+
+    @PATCH("/api/v1/favorites/{favoriteId}/clear-indicators")
+    Call<Void> clearChangeIndicators(@Path("favoriteId") Long favoriteId);
 }
