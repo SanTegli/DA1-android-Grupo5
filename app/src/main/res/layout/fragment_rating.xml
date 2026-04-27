@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/app_background"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <TextView
+            android:id="@+id/text_activity_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/plus_jakarta_sans_bold"
+            android:textAlignment="center"
+            android:textColor="@color/app_text"
+            android:textSize="24sp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="32dp"
+            android:text="Nombre de la Actividad" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/plus_jakarta_sans_regular"
+            android:text="¿Qué te pareció la actividad?"
+            android:textColor="@color/app_text_secondary"
+            android:textSize="16sp"
+            android:layout_marginBottom="12dp" />
+
+        <RatingBar
+            android:id="@+id/rating_activity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:numStars="5"
+            android:stepSize="1"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="24dp"
+            android:progressTint="@color/app_primary"
+            android:secondaryProgressTint="@color/app_primary"
+            android:progressBackgroundTint="@color/app_footer_inactive"
+            style="?android:attr/ratingBarStyle" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/plus_jakarta_sans_regular"
+            android:text="¿Qué te pareció el guía?"
+            android:textColor="@color/app_text_secondary"
+            android:textSize="16sp"
+            android:layout_marginBottom="12dp" />
+
+        <RatingBar
+            android:id="@+id/rating_guide"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:numStars="5"
+            android:stepSize="1"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="24dp"
+            android:progressTint="@color/app_primary"
+            android:secondaryProgressTint="@color/app_primary"
+            android:progressBackgroundTint="@color/app_footer_inactive"
+            style="?android:attr/ratingBarStyle" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Cuéntanos más de tu experiencia"
+            app:counterEnabled="true"
+            app:counterMaxLength="300"
+            app:boxStrokeColor="@color/app_primary"
+            app:hintTextColor="@color/app_primary"
+            app:boxCornerRadiusTopStart="16dp"
+            app:boxCornerRadiusTopEnd="16dp"
+            app:boxCornerRadiusBottomStart="16dp"
+            app:boxCornerRadiusBottomEnd="16dp"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_comment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="top"
+                android:inputType="textMultiLine"
+                android:minLines="4"
+                android:maxLength="300"
+                android:textColor="@color/app_text"
+                android:fontFamily="@font/plus_jakarta_sans_regular" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_submit_rating"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="32dp"
+            android:text="Enviar Calificación"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/app_primary"
+            android:fontFamily="@font/plus_jakarta_sans_bold"
+            app:cornerRadius="16dp" />
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

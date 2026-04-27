@@ -26,6 +26,17 @@
     </fragment>
 
     <fragment
+        android:id="@+id/ManageReservationFragment"
+        android:name="com.example.androidnativegrupo5.ui.reservations.DetailReservationFragment"
+        tools:layout="@layout/fragment_manage_reservation">
+
+        <action
+            android:id="@+id/action_ManageReservationFragment_to_RatingFragment"
+            app:destination="@id/RatingFragment" />
+
+    </fragment>
+
+    <fragment
         android:id="@+id/LoginFragment"
         android:name="com.example.androidnativegrupo5.ui.auth.LoginFragment"
         android:label="@string/iniciar_sesion"
@@ -103,6 +114,9 @@
         <action
             android:id="@+id/action_MyReservationsFragment_to_HistoryFragment"
             app:destination="@id/HistoryFragment" />
+        <action
+            android:id="@+id/action_MyReservationsFragment_to_RatingFragment"
+            app:destination="@id/RatingFragment" />
     </fragment>
 
     <fragment
@@ -119,7 +133,17 @@
         android:id="@+id/ProfileFragment"
         android:name="com.example.androidnativegrupo5.ui.profile.ProfileFragment"
         android:label="Perfil del Viajero"
-        tools:layout="@layout/fragment_profile" />
+        tools:layout="@layout/fragment_profile">
+
+        <action
+            android:id="@+id/action_ProfileFragment_to_MyReservationsFragment"
+            app:destination="@id/MyReservationsFragment" />
+
+        <action
+            android:id="@+id/action_ProfileFragment_to_HistoryFragment"
+            app:destination="@id/HistoryFragment" />
+
+    </fragment>
 
     <fragment
         android:id="@+id/HistoryFragment"
@@ -130,6 +154,22 @@
         <action
             android:id="@+id/action_HistoryFragment_to_DetailFragment"
             app:destination="@id/DetailFragment" />
+        <action
+            android:id="@+id/action_HistoryFragment_to_RatingFragment"
+            app:destination="@id/RatingFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/RatingFragment"
+        android:name="com.example.androidnativegrupo5.ui.activities.RatingFragment"
+        android:label="Calificar"
+        tools:layout="@layout/fragment_rating">
+        <argument
+            android:name="activityId"
+            app:argType="long" />
+        <argument
+            android:name="activityName"
+            app:argType="string" />
     </fragment>
 
     <fragment

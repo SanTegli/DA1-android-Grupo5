@@ -1,13 +1,14 @@
 package com.example.androidnativegrupo5.ui;
 
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.content.ContextCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.core.splashscreen.SplashScreen;
 
 import com.example.androidnativegrupo5.R;
 import com.example.androidnativegrupo5.data.local.TokenManager;
@@ -29,6 +30,9 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        SplashScreen.installSplashScreen(this);
+
         super.onCreate(savedInstanceState);
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
@@ -45,33 +49,125 @@ public class MainActivity extends AppCompatActivity {
 
         binding.btnBack.setOnClickListener(v -> navController.navigateUp());
 
-        binding.navDiscover.setOnClickListener(v ->
-                navController.navigate(R.id.FirstFragment)
-        );
+        binding.navDiscover.setOnClickListener(v -> {
+            if (navController.getCurrentDestination() != null &&
+                    navController.getCurrentDestination().getId() != R.id.FirstFragment) {
+                navController.navigate(R.id.FirstFragment);
+            }
+        });
 
-        binding.btnMyReservations.setOnClickListener(v ->
-                navController.navigate(R.id.MyReservationsFragment)
-        );
+        binding.navSearch.setOnClickListener(v -> {
+            if (navController.getCurrentDestination() != null &&
+                    navController.getCurrentDestination().getId() != R.id.ExploreActivitiesFragment) {
+                navController.navigate(R.id.ExploreActivitiesFragment);
+            }
+        });
 
-        binding.navProfile.setOnClickListener(v ->
-                navController.navigate(R.id.ProfileFragment)
-        );
+        binding.btnMyReservations.setOnClickListener(v -> {
+            if (navController.getCurrentDestination() != null &&
+                    navController.getCurrentDestination().getId() != R.id.MyReservationsFragment) {
+                navController.navigate(R.id.MyReservationsFragment);
+            }
+        });
+
+        binding.navProfile.setOnClickListener(v -> {
+            if (navController.getCurrentDestination() != null &&
+                    navController.getCurrentDestination().getId() != R.id.ProfileFragment) {
+                navController.navigate(R.id.ProfileFragment);
+            }
+        });
 
         navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
-            boolean hideBars =
+
+            boolean isAuthScreen =
                     destination.getId() == R.id.LoginFragment ||
                             destination.getId() == R.id.RegisterFragment ||
                             destination.getId() == R.id.WelcomeFragment;
 
-            binding.header.setVisibility(hideBars ? View.GONE : View.VISIBLE);
-            binding.footer.setVisibility(hideBars ? View.GONE : View.VISIBLE);
+            binding.header.setVisibility(isAuthScreen ? View.GONE : View.VISIBLE);
+            binding.footer.setVisibility(isAuthScreen ? View.GONE : View.VISIBLE);
 
-            if (destination.getId() == R.id.FirstFragment || hideBars) {
+            if (destination.getId() == R.id.FirstFragment || isAuthScreen) {
                 binding.btnBack.setVisibility(View.GONE);
             } else {
                 binding.btnBack.setVisibility(View.VISIBLE);
             }
+
+            if (destination.getId() == R.id.RatingFragment) {
+                binding.txtHeaderTitle.setText("Calificar");
+                clearFooterSelection();
+
+            } else if (destination.getId() == R.id.FirstFragment) {
+                binding.txtHeaderTitle.setText("Explora");
+                updateFooterSelection(R.id.navDiscover);
+
+            } else if (destination.getId() == R.id.ExploreActivitiesFragment) {
+                binding.txtHeaderTitle.setText("Buscar");
+                updateFooterSelection(R.id.navSearch);
+
+            } else if (destination.getId() == R.id.MyReservationsFragment) {
+                binding.txtHeaderTitle.setText("Mis Reservas");
+                updateFooterSelection(R.id.btnMyReservations);
+
+            } else if (destination.getId() == R.id.ProfileFragment) {
+                binding.txtHeaderTitle.setText("Mi Perfil");
+                updateFooterSelection(R.id.navProfile);
+
+            } else {
+                binding.txtHeaderTitle.setText("");
+                clearFooterSelection();
+            }
         });
+    }
+
+    private void updateFooterSelection(int selectedId) {
+        int inactiveColor = ContextCompat.getColor(this, R.color.footer_inactive);
+        int activeColor = ContextCompat.getColor(this, R.color.footer_active);
+
+        binding.iconDiscover.setColorFilter(inactiveColor);
+        binding.textDiscover.setTextColor(inactiveColor);
+
+        binding.iconSearch.setColorFilter(inactiveColor);
+        binding.textSearch.setTextColor(inactiveColor);
+
+        binding.iconBookings.setColorFilter(inactiveColor);
+        binding.textBookings.setTextColor(inactiveColor);
+
+        binding.iconProfile.setColorFilter(inactiveColor);
+        binding.textProfile.setTextColor(inactiveColor);
+
+        if (selectedId == R.id.navDiscover) {
+            binding.iconDiscover.setColorFilter(activeColor);
+            binding.textDiscover.setTextColor(activeColor);
+
+        } else if (selectedId == R.id.navSearch) {
+            binding.iconSearch.setColorFilter(activeColor);
+            binding.textSearch.setTextColor(activeColor);
+
+        } else if (selectedId == R.id.btnMyReservations) {
+            binding.iconBookings.setColorFilter(activeColor);
+            binding.textBookings.setTextColor(activeColor);
+
+        } else if (selectedId == R.id.navProfile) {
+            binding.iconProfile.setColorFilter(activeColor);
+            binding.textProfile.setTextColor(activeColor);
+        }
+    }
+
+    private void clearFooterSelection() {
+        int inactiveColor = ContextCompat.getColor(this, R.color.footer_inactive);
+
+        binding.iconDiscover.setColorFilter(inactiveColor);
+        binding.textDiscover.setTextColor(inactiveColor);
+
+        binding.iconSearch.setColorFilter(inactiveColor);
+        binding.textSearch.setTextColor(inactiveColor);
+
+        binding.iconBookings.setColorFilter(inactiveColor);
+        binding.textBookings.setTextColor(inactiveColor);
+
+        binding.iconProfile.setColorFilter(inactiveColor);
+        binding.textProfile.setTextColor(inactiveColor);
     }
 
     @Override

@@ -83,8 +83,13 @@ public class HomeFragment extends Fragment {
         setupFeaturedCarousel(navController);
         loadActivities();
 
+        binding.btnViewAllActivities.setOnClickListener(v ->
+                navController.navigate(R.id.ExploreActivitiesFragment)
+        );
+
         binding.btnFilter.setOnClickListener(v -> {
             FilterBottomSheetDialogFragment bottomSheet = new FilterBottomSheetDialogFragment();
+
             bottomSheet.setOnFiltersAppliedListener((search, category, destination, minPrice, maxPrice) -> {
 
                 filterSearch = search;
@@ -111,7 +116,6 @@ public class HomeFragment extends Fragment {
             bottomSheet.show(getParentFragmentManager(), "FilterBottomSheet");
         });
 
-        // ✅ Scroll infinito (CORRECTO)
         binding.recyclerActivities.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
@@ -119,7 +123,9 @@ public class HomeFragment extends Fragment {
 
                 if (dy <= 0) return;
 
-                LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                LinearLayoutManager layoutManager =
+                        (LinearLayoutManager) recyclerView.getLayoutManager();
+
                 if (layoutManager == null || isLoading || isLastPage) return;
 
                 int visibleItemCount = layoutManager.getChildCount();
@@ -134,6 +140,7 @@ public class HomeFragment extends Fragment {
             }
         });
     }
+
 
     private void setupFeaturedCarousel(NavController navController) {
         featuredAdapter = new FeaturedActivityAdapter(activity -> {

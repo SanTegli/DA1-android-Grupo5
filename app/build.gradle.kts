@@ -59,4 +59,5 @@ dependencies {
     annotationProcessor(libs.room.compiler)
     implementation(libs.play.services.maps)
     implementation(libs.biometric)
+    implementation("androidx.core:core-splashscreen:1.0.1")
 }

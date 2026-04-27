@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFF8F1">
+    android:background="#F5F5F5">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -15,7 +15,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Where to next,"
+            android:text="Donde se encuentra tu proxima"
             android:textSize="22sp"
             android:textStyle="bold"/>
             android:layout_weight="1"
@@ -27,7 +27,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Adventurer?"
+            android:text="Aventura?"
             android:textSize="22sp"
             android:textStyle="bold"
             android:textColor="#7F0303"/>
@@ -43,8 +43,8 @@
                 android:layout_width="0dp"
                 android:layout_height="48dp"
                 android:layout_weight="1"
-                android:hint="Search experiences..."
-                android:background="#F4EDE4"
+                android:hint="Busca experiencias..."
+                android:background="@drawable/bg_search"
                 android:paddingStart="16dp"/>
 
             <ImageButton
@@ -52,8 +52,8 @@
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:layout_marginStart="8dp"
-                android:background="#B9E7F2"
-                android:src="@drawable/ic_tune"/>
+                android:src="@drawable/ic_tune"
+                android:background="@drawable/bg_circle1"/>
         </LinearLayout>
 
         <!-- FEATURED -->
@@ -67,7 +67,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Featured Experiences"
+                android:text="Experiencias Recomendadas"
                 android:textSize="18sp"
                 android:textStyle="bold"/>
 
@@ -78,14 +78,40 @@
                 android:layout_marginTop="12dp"/>
         </LinearLayout>
 
-        <!-- POPULAR -->
-        <TextView
-            android:layout_width="wrap_content"
+        <!-- ACTIVIDADES CERCA TUYO + VER TODAS -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Popular Near You"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:layout_marginTop="24dp"/>
+            android:layout_marginTop="24dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Actividades Cerca Tuyo"
+                android:textColor="@color/black"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/btnViewAllActivities"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_view_all_button"
+                android:clickable="true"
+                android:focusable="true"
+                android:paddingStart="12dp"
+                android:paddingTop="6dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="6dp"
+                android:text="Ver Todas"
+                android:textColor="#7F0303"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+        </LinearLayout>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerActivities"

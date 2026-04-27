@@ -8,7 +8,7 @@
     <color name="app_text_secondary">#6F625C</color>
     <color name="app_primary">#7F0303</color>
     <color name="app_accent">#38656E</color>
-    <color name="app_input">#FAF3E9</color>
+    <color name="app_input">#EAEAEA</color>
     <color name="app_input_border">#E1BFB9</color>
     <color name="app_footer_inactive">#888888</color>
 
@@ -33,5 +33,8 @@
     <color name="surface_container">#F4EDE4</color>
 
     <color name="surface_container_highest">#E8E1D9</color>
+
+    <color name="footer_inactive">#888888</color>
+    <color name="footer_active">#7F0303</color>
 
 </resources>
