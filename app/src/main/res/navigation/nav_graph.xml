@@ -26,6 +26,17 @@
     </fragment>
 
     <fragment
+        android:id="@+id/ManageReservationFragment"
+        android:name="com.example.androidnativegrupo5.ui.reservations.DetailReservationFragment"
+        tools:layout="@layout/fragment_manage_reservation">
+
+        <action
+            android:id="@+id/action_ManageReservationFragment_to_RatingFragment"
+            app:destination="@id/RatingFragment" />
+
+    </fragment>
+
+    <fragment
         android:id="@+id/LoginFragment"
         android:name="com.example.androidnativegrupo5.ui.auth.LoginFragment"
         android:label="@string/iniciar_sesion"

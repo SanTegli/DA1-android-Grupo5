@@ -141,7 +141,7 @@
                     android:minWidth="0dp"
                     android:minHeight="0dp"
                     android:padding="0dp"
-                    android:text="Book"
+                    android:text="Reservar"
                     android:textAllCaps="false"
                     android:textColor="@android:color/white"
                     android:textSize="11sp"
