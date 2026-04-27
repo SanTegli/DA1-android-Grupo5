@@ -17,6 +17,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.bumptech.glide.Glide;
 import com.example.androidnativegrupo5.R;
+import com.example.androidnativegrupo5.data.local.db.FavoriteActivity;
+import com.example.androidnativegrupo5.data.local.db.FavoriteDao;
 import com.example.androidnativegrupo5.data.model.Activity;
 import com.example.androidnativegrupo5.data.model.AvailabilitySlotResponse;
 import com.example.androidnativegrupo5.data.model.Rating;
@@ -35,6 +37,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.inject.Inject;
 
@@ -49,17 +53,17 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
     @Inject
     ApiService apiService;
 
+    @Inject
+    FavoriteDao favoriteDao;
+
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private FragmentDetailBinding binding;
     private Activity activity;
     private CommentAdapter commentAdapter;
     private GoogleMap googleMap;
 
     @Override
-    public View onCreateView(
-            @NonNull LayoutInflater inflater,
-            ViewGroup container,
-            Bundle savedInstanceState
-    ) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentDetailBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
@@ -68,21 +72,14 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        long activityId = getArguments() != null
-                ? getArguments().getLong("activityId", -1)
-                : -1;
-
+        long activityId = getArguments() != null ? getArguments().getLong("activityId", -1) : -1;
         if (activityId == -1) {
             Toast.makeText(getContext(), "Error al cargar actividad", Toast.LENGTH_SHORT).show();
             return;
         }
 
         setupCommentsRecyclerView();
-
-        try {
-            MapsInitializer.initialize(requireContext());
-        } catch (Exception ignored) {
-        }
+        try { MapsInitializer.initialize(requireContext()); } catch (Exception ignored) {}
 
         binding.mapView.onCreate(savedInstanceState);
         binding.mapView.onResume();
@@ -91,6 +88,38 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
         loadActivityDetail(activityId);
         loadAvailability(activityId);
         loadComments(activityId);
+        checkFavoriteStatus(activityId);
+    }
+
+    private void checkFavoriteStatus(long activityId) {
+        executor.execute(() -> {
+            boolean isFav = favoriteDao.isFavorite(activityId);
+            if (isAdded()) {
+                requireActivity().runOnUiThread(() -> {
+                    binding.btnFavoriteDetail.setImageResource(isFav ? R.drawable.ic_heart_filled : R.drawable.ic_heart_outline);
+                });
+            }
+        });
+
+        binding.btnFavoriteDetail.setOnClickListener(v -> {
+            executor.execute(() -> {
+                boolean isFav = favoriteDao.isFavorite(activityId);
+                if (isFav) {
+                    favoriteDao.delete(favoriteDao.getFavoriteById(activityId));
+                } else if (activity != null) {
+                    favoriteDao.insert(new FavoriteActivity(
+                            activity.getId(), activity.getName(), activity.getDestination(),
+                            activity.getPrice(), activity.getAvailableSlots(), activity.getImageUrl()
+                    ));
+                }
+                if (isAdded()) {
+                    requireActivity().runOnUiThread(() -> {
+                        binding.btnFavoriteDetail.setImageResource(!isFav ? R.drawable.ic_heart_filled : R.drawable.ic_heart_outline);
+                        Toast.makeText(getContext(), !isFav ? "Añadido a favoritos" : "Eliminado de favoritos", Toast.LENGTH_SHORT).show();
+                    });
+                }
+            });
+        });
     }
 
     private void setupCommentsRecyclerView() {
@@ -103,13 +132,9 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
         apiService.getActivityById(id).enqueue(new Callback<Activity>() {
             @Override
             public void onResponse(@NonNull Call<Activity> call, @NonNull Response<Activity> response) {
-
                 if (!isAdded() || binding == null) return;
-
                 if (response.isSuccessful() && response.body() != null) {
-
                     activity = response.body();
-
                     binding.textTitle.setText(safe(activity.getName()));
                     binding.textDestination.setText("Destino: " + safe(activity.getDestination()));
                     binding.textGuide.setText("Guía: " + safe(activity.getGuideName()));
@@ -124,12 +149,7 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
                         binding.textPrice.setText(String.format(Locale.getDefault(), "$%.2f", activity.getPrice()));
                     }
 
-                    Glide.with(requireContext())
-                            .load(activity.getImageUrl())
-                            .placeholder(android.R.drawable.ic_menu_gallery)
-                            .error(android.R.drawable.ic_menu_report_image)
-                            .into(binding.imageDetail);
-
+                    Glide.with(requireContext()).load(activity.getImageUrl()).placeholder(android.R.drawable.ic_menu_gallery).into(binding.imageDetail);
                     setupMeetingPoint();
 
                     binding.btnReserve.setOnClickListener(v -> {
@@ -137,37 +157,21 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
                         bundle.putLong("activityId", activity.getId());
                         bundle.putString("activityName", activity.getName());
                         bundle.putFloat("activityPrice", (float) activity.getPrice());
-
-                        Navigation.findNavController(v)
-                                .navigate(R.id.action_DetailFragment_to_ReservationFragment, bundle);
+                        Navigation.findNavController(v).navigate(R.id.action_DetailFragment_to_ReservationFragment, bundle);
                     });
-
-                } else {
-                    Toast.makeText(getContext(), "Error al cargar detalle", Toast.LENGTH_SHORT).show();
                 }
             }
-
-            @Override
-            public void onFailure(@NonNull Call<Activity> call, @NonNull Throwable t) {
-                if (!isAdded() || binding == null) return;
-                Toast.makeText(getContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
-            }
+            @Override public void onFailure(@NonNull Call<Activity> call, @NonNull Throwable t) {}
         });
     }
 
     private void setupMeetingPoint() {
         if (activity == null || binding == null) return;
-
         String address = activity.getMeetingPointAddress();
         Double lat = activity.getMeetingPointLat();
         Double lng = activity.getMeetingPointLng();
 
-        if (address == null || address.trim().isEmpty()) {
-            binding.textMeetingPoint.setText("Punto de encuentro no disponible");
-        } else {
-            binding.textMeetingPoint.setText(address);
-        }
-
+        binding.textMeetingPoint.setText(address == null || address.isEmpty() ? "No disponible" : address);
         if (lat == null || lng == null) {
             binding.mapView.setVisibility(View.GONE);
             binding.btnHowToGetThere.setVisibility(View.GONE);
@@ -176,19 +180,12 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
 
         binding.mapView.setVisibility(View.VISIBLE);
         binding.btnHowToGetThere.setVisibility(View.VISIBLE);
-
         LatLng meetingPoint = new LatLng(lat, lng);
 
         if (googleMap != null) {
             googleMap.clear();
-
-            googleMap.addMarker(new MarkerOptions()
-                    .position(meetingPoint)
-                    .title("Punto de encuentro"));
-
-            binding.mapView.post(() ->
-                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(meetingPoint, 15f))
-            );
+            googleMap.addMarker(new MarkerOptions().position(meetingPoint).title("Punto de encuentro"));
+            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(meetingPoint, 15f));
         }
 
         binding.btnHowToGetThere.setOnClickListener(v -> openNavigation(lat, lng));
@@ -198,94 +195,48 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
         Uri navigationUri = Uri.parse("google.navigation:q=" + lat + "," + lng);
         Intent navigationIntent = new Intent(Intent.ACTION_VIEW, navigationUri);
         navigationIntent.setPackage("com.google.android.apps.maps");
-
         if (navigationIntent.resolveActivity(requireActivity().getPackageManager()) != null) {
             startActivity(navigationIntent);
         } else {
-            Uri browserUri = Uri.parse(
-                    "https://www.google.com/maps/dir/?api=1&destination=" + lat + "," + lng
-            );
-            Intent browserIntent = new Intent(Intent.ACTION_VIEW, browserUri);
-            startActivity(browserIntent);
+            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com/maps/dir/?api=1&destination=" + lat + "," + lng)));
         }
     }
 
-    @Override
-    public void onMapReady(@NonNull GoogleMap map) {
+    @Override public void onMapReady(@NonNull GoogleMap map) {
         googleMap = map;
-
         googleMap.getUiSettings().setZoomControlsEnabled(true);
-        googleMap.getUiSettings().setMapToolbarEnabled(true);
-        googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-
-        if (activity != null) {
-            setupMeetingPoint();
-        }
+        if (activity != null) setupMeetingPoint();
     }
 
     private void loadComments(Long activityId) {
         apiService.getRatingsByActivity(activityId).enqueue(new Callback<List<Rating>>() {
             @Override
             public void onResponse(@NonNull Call<List<Rating>> call, @NonNull Response<List<Rating>> response) {
-                if (!isAdded() || binding == null) return;
-
                 if (response.isSuccessful() && response.body() != null) {
-                    List<Rating> comments = response.body();
-                    commentAdapter.setComments(comments);
-
-                    if (comments.isEmpty()) {
-                        binding.textNoComments.setVisibility(View.VISIBLE);
-                        binding.recyclerComments.setVisibility(View.GONE);
-                    } else {
-                        binding.textNoComments.setVisibility(View.GONE);
-                        binding.recyclerComments.setVisibility(View.VISIBLE);
-                        binding.textCommentsHeader.setText("Comentarios (" + comments.size() + ")");
-                    }
+                    commentAdapter.setComments(response.body());
+                    binding.textNoComments.setVisibility(response.body().isEmpty() ? View.VISIBLE : View.GONE);
+                    binding.textCommentsHeader.setText("Comentarios (" + response.body().size() + ")");
                 }
             }
-
-            @Override
-            public void onFailure(@NonNull Call<List<Rating>> call, @NonNull Throwable t) {
-            }
+            @Override public void onFailure(@NonNull Call<List<Rating>> call, @NonNull Throwable t) {}
         });
     }
 
     private void loadAvailability(Long activityId) {
         apiService.getAvailability(activityId).enqueue(new Callback<List<AvailabilitySlotResponse>>() {
             @Override
-            public void onResponse(@NonNull Call<List<AvailabilitySlotResponse>> call,
-                                   @NonNull Response<List<AvailabilitySlotResponse>> response) {
-
-                if (!isAdded() || binding == null) return;
-
-                if (response.isSuccessful() && response.body() != null) {
-                    List<AvailabilitySlotResponse> availabilityList = response.body();
-                    renderAvailableDays(availabilityList);
-                    renderAvailableSchedules(availabilityList);
-                } else {
-                    binding.textSchedules.setText("No hay horarios disponibles.");
-                }
+            public void onResponse(@NonNull Call<List<AvailabilitySlotResponse>> call, @NonNull Response<List<AvailabilitySlotResponse>> response) {
+                if (response.isSuccessful() && response.body() != null) renderAvailableDays(response.body());
             }
-
-            @Override
-            public void onFailure(@NonNull Call<List<AvailabilitySlotResponse>> call, @NonNull Throwable t) {
-                if (!isAdded() || binding == null) return;
-                binding.textSchedules.setText("No se pudo cargar la disponibilidad.");
-            }
+            @Override public void onFailure(@NonNull Call<List<AvailabilitySlotResponse>> call, @NonNull Throwable t) {}
         });
     }
 
     private void renderAvailableDays(List<AvailabilitySlotResponse> availabilityList) {
         Set<DayOfWeek> availableDays = new HashSet<>();
-
         for (AvailabilitySlotResponse item : availabilityList) {
-            try {
-                LocalDate date = LocalDate.parse(item.getDate());
-                availableDays.add(date.getDayOfWeek());
-            } catch (Exception ignored) {
-            }
+            try { availableDays.add(LocalDate.parse(item.getDate()).getDayOfWeek()); } catch (Exception ignored) {}
         }
-
         setDayStyle(binding.dayMon, availableDays.contains(DayOfWeek.MONDAY));
         setDayStyle(binding.dayTue, availableDays.contains(DayOfWeek.TUESDAY));
         setDayStyle(binding.dayWed, availableDays.contains(DayOfWeek.WEDNESDAY));
@@ -295,76 +246,13 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
         setDayStyle(binding.daySun, availableDays.contains(DayOfWeek.SUNDAY));
     }
 
-    private void renderAvailableSchedules(List<AvailabilitySlotResponse> availabilityList) {
-        if (availabilityList.isEmpty()) {
-            binding.textSchedules.setText("No hay horarios disponibles.");
-            return;
-        }
-
-        StringBuilder builder = new StringBuilder();
-
-        int limit = Math.min(availabilityList.size(), 6);
-        for (int i = 0; i < limit; i++) {
-            AvailabilitySlotResponse item = availabilityList.get(i);
-            builder.append("• ")
-                    .append(item.getDate())
-                    .append(" - ")
-                    .append(item.getTime())
-                    .append(" | Cupos: ")
-                    .append(item.getAvailableSlots());
-
-            if (i < limit - 1) {
-                builder.append("\n");
-            }
-        }
-
-        binding.textSchedules.setText(builder.toString());
-    }
-
     private void setDayStyle(TextView textView, boolean available) {
-        if (available) {
-            textView.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.black));
-            textView.setBackgroundResource(R.drawable.bg_day_available);
-        } else {
-            textView.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.darker_gray));
-            textView.setBackgroundResource(R.drawable.bg_day_unavailable);
-        }
+        textView.setTextColor(ContextCompat.getColor(requireContext(), available ? android.R.color.black : android.R.color.darker_gray));
+        textView.setBackgroundResource(available ? R.drawable.bg_day_available : R.drawable.bg_day_unavailable);
     }
 
-    private String safe(String value) {
-        return value != null ? value : "-";
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (binding != null) {
-            binding.mapView.onResume();
-        }
-    }
-
-    @Override
-    public void onPause() {
-        if (binding != null) {
-            binding.mapView.onPause();
-        }
-        super.onPause();
-    }
-
-    @Override
-    public void onLowMemory() {
-        super.onLowMemory();
-        if (binding != null) {
-            binding.mapView.onLowMemory();
-        }
-    }
-
-    @Override
-    public void onDestroyView() {
-        if (binding != null) {
-            binding.mapView.onDestroy();
-        }
-        super.onDestroyView();
-        binding = null;
-    }
+    private String safe(String value) { return value != null ? value : "-"; }
+    @Override public void onResume() { super.onResume(); if (binding != null) binding.mapView.onResume(); }
+    @Override public void onPause() { if (binding != null) binding.mapView.onPause(); super.onPause(); }
+    @Override public void onDestroyView() { if (binding != null) binding.mapView.onDestroy(); super.onDestroyView(); binding = null; }
 }

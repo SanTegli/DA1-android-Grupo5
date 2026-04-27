@@ -36,41 +36,52 @@
             android:layout_weight="1"
             android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/text_name"
+            <RelativeLayout
                 android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/text_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_toStartOf="@+id/btn_favorite"
+                    android:fontFamily="@font/plus_jakarta_sans_bold"
+                    android:text="Sunset Yacht Cruise"
+                    android:textColor="@color/app_text"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+
+                <ImageButton
+                    android:id="@+id/btn_favorite"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_heart_outline"
+                    app:tint="@color/app_primary" />
+            </RelativeLayout>
+
+            <!-- Hidden fields required by ActivityAdapter to avoid NPE -->
+            <TextView android:id="@+id/text_description" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+            <TextView android:id="@+id/text_destination" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+            <TextView android:id="@+id/text_duration" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+            <TextView android:id="@+id/text_slots" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/indicator_update"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/plus_jakarta_sans_bold"
-                android:text="Sunset Yacht Cruise"
-                android:textColor="@color/app_text"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:maxLines="1"
-                android:ellipsize="end" />
-
-            <TextView
-                android:id="@+id/text_description"
-                android:layout_width="1dp"
-                android:layout_height="1dp"
-                android:visibility="gone" />
-
-            <TextView
-                android:id="@+id/text_destination"
-                android:layout_width="1dp"
-                android:layout_height="1dp"
-                android:visibility="gone" />
-
-            <TextView
-                android:id="@+id/text_duration"
-                android:layout_width="1dp"
-                android:layout_height="1dp"
-                android:visibility="gone" />
-
-            <TextView
-                android:id="@+id/text_slots"
-                android:layout_width="1dp"
-                android:layout_height="1dp"
-                android:visibility="gone" />
+                android:background="@drawable/bg_indicator_update"
+                android:paddingHorizontal="6dp"
+                android:paddingVertical="2dp"
+                android:text="¡Nuevo precio!"
+                android:textColor="@android:color/white"
+                android:textSize="10sp"
+                android:visibility="gone"
+                android:fontFamily="@font/plus_jakarta_sans_bold" />
 
             <LinearLayout
                 android:layout_width="match_parent"

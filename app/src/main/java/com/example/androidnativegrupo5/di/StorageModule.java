@@ -5,6 +5,7 @@ import android.content.Context;
 import androidx.room.Room;
 
 import com.example.androidnativegrupo5.data.local.db.AppDatabase;
+import com.example.androidnativegrupo5.data.local.db.FavoriteDao;
 import com.example.androidnativegrupo5.data.local.db.ReservaDao;
 
 import javax.inject.Singleton;
@@ -21,7 +22,9 @@ public class StorageModule {
 
     @Provides @Singleton
     public AppDatabase provideDatabase(@ApplicationContext Context context) {
-        return Room.databaseBuilder(context, AppDatabase.class, "reservas_db").build();
+        return Room.databaseBuilder(context, AppDatabase.class, "reservas_db")
+                .fallbackToDestructiveMigration()
+                .build();
     }
 
     @Provides @Singleton
@@ -29,4 +32,8 @@ public class StorageModule {
         return database.reservaDao();
     }
 
+    @Provides @Singleton
+    public FavoriteDao provideFavoriteDao(AppDatabase database) {
+        return database.favoriteDao();
+    }
 }
