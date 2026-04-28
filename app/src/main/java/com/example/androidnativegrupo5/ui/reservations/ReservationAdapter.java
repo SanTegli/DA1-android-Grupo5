@@ -5,7 +5,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -21,10 +20,7 @@ public class ReservationAdapter extends RecyclerView.Adapter<ReservationAdapter.
     private final OnReservationActionListener actionListener;
 
     public interface OnReservationActionListener {
-        void onCancelClick(ReservationResponse reservation);
-        void onRateClick(ReservationResponse reservation);
         void onDetailClick(ReservationResponse reservation);
-        void onRescheduleClick(ReservationResponse reservation);
     }
 
     public ReservationAdapter(List<ReservationResponse> list, OnReservationActionListener listener) {
@@ -34,20 +30,19 @@ public class ReservationAdapter extends RecyclerView.Adapter<ReservationAdapter.
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView name, date, time, slots, status, totalPrice;
-        //ImageView image;
-        Button btnCancel, btnRate, btnReschedule;
+        Button btnManageReservation;
 
-        public ViewHolder(View view) {
+        public ViewHolder(@NonNull View view) {
             super(view);
+
             name = view.findViewById(R.id.text_name);
             date = view.findViewById(R.id.text_date);
             time = view.findViewById(R.id.text_time);
             slots = view.findViewById(R.id.text_slots);
             status = view.findViewById(R.id.text_status);
             totalPrice = view.findViewById(R.id.text_total_price);
-            btnCancel = view.findViewById(R.id.btn_cancel_reservation);
-            btnRate = view.findViewById(R.id.btn_rate_reservation);
-            btnReschedule = view.findViewById(R.id.btn_reschedule_reservation);
+
+            btnManageReservation = view.findViewById(R.id.btn_manage_reservation);
         }
     }
 
@@ -56,6 +51,7 @@ public class ReservationAdapter extends RecyclerView.Adapter<ReservationAdapter.
     public ReservationAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_reservation, parent, false);
+
         return new ViewHolder(v);
     }
 
@@ -68,49 +64,18 @@ public class ReservationAdapter extends RecyclerView.Adapter<ReservationAdapter.
         holder.time.setText("Hora: " + r.getTime());
         holder.slots.setText("Personas: " + (r.getParticipants() != null ? r.getParticipants() : 1));
         holder.status.setText("Estado: " + r.getStatus());
+
         holder.totalPrice.setText("$" + String.format("%.2f", r.getTotalPrice()));
 
-        holder.itemView.setOnClickListener(v -> {
+        View.OnClickListener openDetailListener = v -> {
             if (actionListener != null) {
                 actionListener.onDetailClick(r);
             }
-        });
+        };
 
-        holder.btnCancel.setOnClickListener(v -> {
-            if (actionListener != null) {
-                actionListener.onCancelClick(r);
-            }
-        });
-
-        holder.btnRate.setOnClickListener(v -> {
-            if (actionListener != null) {
-                actionListener.onRateClick(r);
-            }
-        });
-
-        holder.btnReschedule.setOnClickListener(v -> {
-            if (actionListener != null) {
-                actionListener.onRescheduleClick(r);
-            }
-        });
-
-        if ("CANCELLED".equalsIgnoreCase(r.getStatus())) {
-            holder.btnCancel.setVisibility(View.VISIBLE);
-            holder.btnCancel.setEnabled(false);
-            holder.btnCancel.setAlpha(0.5f);
-            holder.btnRate.setVisibility(View.GONE);
-            holder.btnReschedule.setVisibility(View.GONE);
-        } else if ("COMPLETED".equalsIgnoreCase(r.getStatus())) {
-            holder.btnCancel.setVisibility(View.GONE);
-            holder.btnRate.setVisibility(View.VISIBLE);
-            holder.btnReschedule.setVisibility(View.GONE);
-        } else {
-            holder.btnCancel.setVisibility(View.VISIBLE);
-            holder.btnCancel.setEnabled(true);
-            holder.btnCancel.setAlpha(1.0f);
-            holder.btnRate.setVisibility(View.GONE);
-            holder.btnReschedule.setVisibility(View.VISIBLE);
-        }
+        holder.itemView.setOnClickListener(openDetailListener);
+        holder.btnManageReservation.setOnClickListener(openDetailListener);
+        holder.btnManageReservation.setVisibility(View.VISIBLE);
     }
 
     @Override

@@ -59,10 +59,21 @@ public class HistoryFragment extends Fragment {
 
         NavController navController = Navigation.findNavController(view);
 
-        adapter = new HistoryAdapter(item -> {
-            Bundle bundle = new Bundle();
-            bundle.putLong("activityId", item.getActivityId());
-            navController.navigate(R.id.action_HistoryFragment_to_DetailFragment, bundle);
+        adapter = new HistoryAdapter(new HistoryAdapter.OnHistoryClickListener() {
+            @Override
+            public void onHistoryClick(ActivityHistoryItem item) {
+                Bundle bundle = new Bundle();
+                bundle.putLong("activityId", item.getActivityId());
+                navController.navigate(R.id.action_HistoryFragment_to_DetailFragment, bundle);
+            }
+
+            @Override
+            public void onRateClick(ActivityHistoryItem item) {
+                Bundle bundle = new Bundle();
+                bundle.putLong("activityId", item.getActivityId());
+                bundle.putString("activityName", item.getActivityName());
+                navController.navigate(R.id.action_HistoryFragment_to_RatingFragment, bundle);
+            }
         });
 
         binding.recyclerHistory.setLayoutManager(new LinearLayoutManager(requireContext()));
@@ -87,18 +98,10 @@ public class HistoryFragment extends Fragment {
 
     private void showDatePicker(boolean isFromDate) {
         Calendar calendar = Calendar.getInstance();
-
         DatePickerDialog datePickerDialog = new DatePickerDialog(
                 requireContext(),
                 (datePicker, year, month, dayOfMonth) -> {
-                    String selectedDate = String.format(
-                            Locale.getDefault(),
-                            "%04d-%02d-%02d",
-                            year,
-                            month + 1,
-                            dayOfMonth
-                    );
-
+                    String selectedDate = String.format(Locale.getDefault(), "%04d-%02d-%02d", year, month + 1, dayOfMonth);
                     if (isFromDate) {
                         fromDate = selectedDate;
                         binding.inputFromDate.setText(selectedDate);
@@ -107,72 +110,33 @@ public class HistoryFragment extends Fragment {
                         binding.inputToDate.setText(selectedDate);
                     }
                 },
-                calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH),
-                calendar.get(Calendar.DAY_OF_MONTH)
+                calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)
         );
-
         datePickerDialog.show();
     }
 
     private void loadHistory() {
         if (binding == null) return;
-
         String token = tokenManager.getToken();
-        if (token == null) {
-            Toast.makeText(requireContext(), "Inicie sesión para ver su historial", Toast.LENGTH_SHORT).show();
-            return;
-        }
+        if (token == null) return;
 
         binding.progressBarHistory.setVisibility(View.VISIBLE);
-        binding.textEmptyHistory.setVisibility(View.GONE);
-
-        String destination = binding.inputDestination.getText() != null
-                ? binding.inputDestination.getText().toString().trim()
-                : null;
-
-        if (TextUtils.isEmpty(destination)) {
-            destination = null;
-        }
-
-        String authHeader = token.startsWith("Bearer ") ? token : "Bearer " + token;
+        String destination = binding.inputDestination.getText() != null ? binding.inputDestination.getText().toString().trim() : null;
+        if (TextUtils.isEmpty(destination)) destination = null;
 
         apiService.getHistory(fromDate, toDate, destination).enqueue(new Callback<List<ActivityHistoryItem>>() {
             @Override
-            public void onResponse(@NonNull Call<List<ActivityHistoryItem>> call,
-                                   @NonNull Response<List<ActivityHistoryItem>> response) {
-
+            public void onResponse(@NonNull Call<List<ActivityHistoryItem>> call, @NonNull Response<List<ActivityHistoryItem>> response) {
                 if (!isAdded() || binding == null) return;
-
                 binding.progressBarHistory.setVisibility(View.GONE);
-
                 if (response.isSuccessful() && response.body() != null) {
-                    List<ActivityHistoryItem> items = response.body();
-                    adapter.setItems(items);
-
-                    if (items.isEmpty()) {
-                        binding.textEmptyHistory.setVisibility(View.VISIBLE);
-                        binding.recyclerHistory.setVisibility(View.GONE);
-                    } else {
-                        binding.textEmptyHistory.setVisibility(View.GONE);
-                        binding.recyclerHistory.setVisibility(View.VISIBLE);
-                    }
-                } else {
-                    binding.textEmptyHistory.setVisibility(View.VISIBLE);
-                    binding.recyclerHistory.setVisibility(View.GONE);
-                    Toast.makeText(requireContext(), "Error al cargar historial", Toast.LENGTH_SHORT).show();
+                    adapter.setItems(response.body());
+                    binding.textEmptyHistory.setVisibility(response.body().isEmpty() ? View.VISIBLE : View.GONE);
                 }
             }
-
             @Override
             public void onFailure(@NonNull Call<List<ActivityHistoryItem>> call, @NonNull Throwable t) {
-                if (!isAdded() || binding == null) return;
-
-                binding.progressBarHistory.setVisibility(View.GONE);
-                binding.textEmptyHistory.setVisibility(View.VISIBLE);
-                binding.recyclerHistory.setVisibility(View.GONE);
-
-                Toast.makeText(requireContext(), "Error de conexión con el servidor", Toast.LENGTH_SHORT).show();
+                if (binding != null) binding.progressBarHistory.setVisibility(View.GONE);
             }
         });
     }

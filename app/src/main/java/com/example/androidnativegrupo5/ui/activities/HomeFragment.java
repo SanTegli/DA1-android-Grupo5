@@ -1,5 +1,7 @@
 package com.example.androidnativegrupo5.ui.activities;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.androidnativegrupo5.R;
 import com.example.androidnativegrupo5.data.model.Activity;
+import com.example.androidnativegrupo5.data.model.NewsItem;
 import com.example.androidnativegrupo5.data.model.PaginatedResponse;
 import com.example.androidnativegrupo5.data.network.ApiService;
 import com.example.androidnativegrupo5.databinding.FragmentFirstBinding;
@@ -37,6 +40,7 @@ public class HomeFragment extends Fragment {
     private FragmentFirstBinding binding;
     private ActivityAdapter adapter;
     private FeaturedActivityAdapter featuredAdapter;
+    private NewsAdapter newsAdapter;
 
     @Inject
     ApiService apiService;
@@ -72,13 +76,19 @@ public class HomeFragment extends Fragment {
         binding.recyclerActivities.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.recyclerActivities.setAdapter(adapter);
 
+        setupNewsSection();
         setupFeaturedCarousel(navController);
         
         // No reset filters here to keep user selection if they navigate back
         loadActivities();
 
+        binding.btnViewAllActivities.setOnClickListener(v ->
+                navController.navigate(R.id.ExploreActivitiesFragment)
+        );
+
         binding.btnFilter.setOnClickListener(v -> {
             FilterBottomSheetDialogFragment bottomSheet = new FilterBottomSheetDialogFragment();
+
             bottomSheet.setOnFiltersAppliedListener((search, category, destination, minPrice, maxPrice) -> {
                 filterSearch = (search != null && !search.isEmpty()) ? search : null;
                 filterCategory = ("Todas".equalsIgnoreCase(category)) ? null : category;
@@ -92,8 +102,91 @@ public class HomeFragment extends Fragment {
                 isLastPage = false;
                 adapter.clearActivities();
                 loadActivities();
+
+                if (filterCategory != null
+                        || filterDestination != null
+                        || filterMaxPrice != null
+                        || (filterSearch != null && !filterSearch.isEmpty())) {
+                    binding.layoutFeatured.setVisibility(View.GONE);
+                    binding.layoutNews.setVisibility(View.GONE);
+                } else {
+                    binding.layoutFeatured.setVisibility(View.VISIBLE);
+                    loadNews(); 
+                }
             });
             bottomSheet.show(getParentFragmentManager(), "FilterBottomSheet");
+        });
+
+        binding.recyclerActivities.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+                if (dy <= 0) return;
+
+                LinearLayoutManager layoutManager =
+                        (LinearLayoutManager) recyclerView.getLayoutManager();
+
+                if (layoutManager == null || isLoading || isLastPage) return;
+
+                int visibleItemCount = layoutManager.getChildCount();
+                int totalItemCount = layoutManager.getItemCount();
+                int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
+
+                if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount
+                        && firstVisibleItemPosition >= 0
+                        && totalItemCount >= PAGE_SIZE) {
+                    loadActivities();
+                }
+            }
+        });
+    }
+
+    private void setupNewsSection() {
+        newsAdapter = new NewsAdapter(news -> {
+            if (news.getLinkUrl() != null && !news.getLinkUrl().isEmpty()) {
+                try {
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(news.getLinkUrl()));
+                    startActivity(intent);
+                } catch (Exception e) {
+                    Toast.makeText(requireContext(), "No se pudo abrir el enlace", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        binding.recyclerNews.setLayoutManager(
+                new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        );
+        binding.recyclerNews.setAdapter(newsAdapter);
+        loadNews();
+    }
+
+    private void loadNews() {
+        apiService.getNews().enqueue(new Callback<List<NewsItem>>() {
+            @Override
+            public void onResponse(@NonNull Call<List<NewsItem>> call, @NonNull Response<List<NewsItem>> response) {
+                if (!isAdded() || binding == null) return;
+                
+                if (response.isSuccessful() && response.body() != null) {
+                    Log.d("API_NEWS", "Noticias recibidas: " + response.body().size());
+                    if (!response.body().isEmpty()) {
+                        newsAdapter.setNewsList(response.body());
+                        binding.layoutNews.setVisibility(View.VISIBLE);
+                    } else {
+                        binding.layoutNews.setVisibility(View.GONE);
+                    }
+                } else {
+                    Log.e("API_NEWS", "Error en respuesta: " + response.code());
+                    binding.layoutNews.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<List<NewsItem>> call, @NonNull Throwable t) {
+                if (!isAdded() || binding == null) return;
+                Log.e("API_NEWS", "Fallo total: " + t.getMessage());
+                binding.layoutNews.setVisibility(View.GONE);
+            }
         });
     }
 
@@ -181,5 +274,11 @@ public class HomeFragment extends Fragment {
                 Toast.makeText(requireContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
     }
 }

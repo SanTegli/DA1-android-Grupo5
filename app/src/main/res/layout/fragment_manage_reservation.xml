@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F5F5F5">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardBackgroundColor="#FFFFFF"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/image_reservation_detail"
+                    android:layout_width="match_parent"
+                    android:layout_height="190dp"
+                    android:scaleType="centerCrop"
+                    android:src="@android:drawable/ic_menu_gallery" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:id="@+id/text_manage_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Nombre de la actividad"
+                        android:textColor="#000000"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/text_manage_date_time"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:text="Fecha y horario"
+                        android:textColor="#777777"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:id="@+id/text_manage_people"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:text="Personas"
+                        android:textColor="#777777"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:id="@+id/text_manage_status"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:background="@drawable/bg_status_confirmed"
+                        android:paddingStart="12dp"
+                        android:paddingTop="5dp"
+                        android:paddingEnd="12dp"
+                        android:paddingBottom="5dp"
+                        android:text="Confirmada"
+                        android:textColor="#38656E"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/text_manage_total_price"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        android:text="Total: $0"
+                        android:textColor="#7F0303"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <Button
+            android:id="@+id/btn_reschedule_reservation"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="18dp"
+            android:background="@drawable/bg_detail_button"
+            android:text="Reprogramar reserva"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            app:backgroundTint="@null" />
+
+        <Button
+            android:id="@+id/btn_cancel_reservation"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/bg_cancel_button"
+            android:text="Cancelar reserva"
+            android:textAllCaps="false"
+            android:textColor="#7F0303"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            app:backgroundTint="@null" />
+
+        <Button
+            android:id="@+id/btn_rate_reservation"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/bg_outline_button"
+            android:text="Calificar experiencia"
+            android:textAllCaps="false"
+            android:textColor="#333333"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            app:backgroundTint="@null" />
+
+    </LinearLayout>
+
+</androidx.core.widget.NestedScrollView>

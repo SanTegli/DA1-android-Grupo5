@@ -4,21 +4,22 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white">
+    android:background="#FFFFFF">
 
-    <ScrollView
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/bottom_bar">
+        android:layout_above="@id/bottom_bar"
+        android:fillViewport="true">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <RelativeLayout
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="250dp">
+                android:layout_height="300dp">
 
                 <ImageView
                     android:id="@+id/image_detail"
@@ -39,80 +40,135 @@
                     android:src="@drawable/ic_heart_outline"
                     app:tint="@color/app_primary" />
             </RelativeLayout>
+                    android:layout_height="240dp"
+                    android:scaleType="centerCrop"
+                    android:src="@android:drawable/ic_menu_gallery" />
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginEnd="20dp"
+                    android:layout_marginBottom="10dp"
+                    app:cardBackgroundColor="#FFFFFF"
+                    app:cardCornerRadius="18dp"
+                    app:cardElevation="2dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:id="@+id/text_title"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:fontFamily="@font/plus_jakarta_sans_bold"
+                            android:text="City Tour Buenos Aires"
+                            android:textColor="#111111"
+                            android:textSize="22sp" />
+
+                        <TextView
+                            android:id="@+id/text_category"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="#D8F3F5"
+                            android:fontFamily="@font/plus_jakarta_sans_bold"
+                            android:paddingStart="14dp"
+                            android:paddingTop="5dp"
+                            android:paddingEnd="14dp"
+                            android:paddingBottom="5dp"
+                            android:text="Categoría"
+                            android:textColor="#547177"
+                            android:textSize="12sp" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/text_duration"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:fontFamily="@font/plus_jakarta_sans_regular"
+                                android:text="Duración"
+                                android:textColor="#6E5A54"
+                                android:textSize="14sp" />
+
+                            <TextView
+                                android:id="@+id/text_destination"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:fontFamily="@font/plus_jakarta_sans_regular"
+                                android:textColor="#6E5A54"
+                                android:textSize="14sp" />
+
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/text_slots"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:fontFamily="@font/plus_jakarta_sans_regular"
+                            android:text="Cupos generales"
+                            android:textColor="#777777"
+                            android:textSize="13sp" />
+
+                    </LinearLayout>
+
+                </androidx.cardview.widget.CardView>
+
+            </FrameLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:paddingStart="22dp"
+                android:paddingTop="8dp"
+                android:paddingEnd="22dp"
+                android:paddingBottom="22dp">
 
                 <TextView
-                    android:id="@+id/text_title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Nombre actividad"
-                    android:textColor="@android:color/black"
-                    android:textSize="24sp"
-                    android:textStyle="bold" />
+                    android:fontFamily="@font/plus_jakarta_sans_bold"
+                    android:text="Descripción"
+                    android:textColor="#171717"
+                    android:textSize="22sp" />
 
                 <TextView
-                    android:id="@+id/text_destination"
-                    android:layout_width="wrap_content"
+                    android:id="@+id/text_description"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
-                    android:text="Destino"
-                    android:textColor="#444444"
-                    android:textSize="14sp" />
-
-                <TextView
-                    android:id="@+id/text_guide"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="Guía"
-                    android:textColor="#444444"
-                    android:textSize="14sp" />
-
-                <TextView
-                    android:id="@+id/text_category"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="Categoría"
-                    android:textColor="#666666"
-                    android:textSize="13sp" />
-
-                <TextView
-                    android:id="@+id/text_duration"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="Duración"
-                    android:textColor="#666666"
-                    android:textSize="13sp" />
-
-                <TextView
-                    android:id="@+id/text_slots"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="Cupos"
-                    android:textColor="#666666"
-                    android:textSize="13sp" />
+                    android:fontFamily="@font/plus_jakarta_sans_regular"
+                    android:lineSpacingExtra="4dp"
+                    android:text="Descripción"
+                    android:textColor="#5E4A45"
+                    android:textSize="15sp" />
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="18dp"
+                    android:layout_marginTop="26dp"
+                    android:fontFamily="@font/plus_jakarta_sans_bold"
                     android:text="Días disponibles"
-                    android:textColor="@android:color/black"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
+                    android:textColor="#171717"
+                    android:textSize="18sp" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
+                    android:layout_marginTop="12dp"
                     android:gravity="center"
                     android:orientation="horizontal">
 
@@ -122,11 +178,11 @@
                         android:layout_height="36dp"
                         android:layout_marginEnd="6dp"
                         android:background="@drawable/bg_day_unavailable"
+                        android:fontFamily="@font/plus_jakarta_sans_bold"
                         android:gravity="center"
                         android:text="L"
                         android:textColor="@android:color/darker_gray"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
+                        android:textSize="14sp" />
 
                     <TextView
                         android:id="@+id/day_tue"
@@ -134,11 +190,11 @@
                         android:layout_height="36dp"
                         android:layout_marginEnd="6dp"
                         android:background="@drawable/bg_day_unavailable"
+                        android:fontFamily="@font/plus_jakarta_sans_bold"
                         android:gravity="center"
                         android:text="M"
                         android:textColor="@android:color/darker_gray"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
+                        android:textSize="14sp" />
 
                     <TextView
                         android:id="@+id/day_wed"
@@ -146,11 +202,11 @@
                         android:layout_height="36dp"
                         android:layout_marginEnd="6dp"
                         android:background="@drawable/bg_day_unavailable"
+                        android:fontFamily="@font/plus_jakarta_sans_bold"
                         android:gravity="center"
                         android:text="X"
                         android:textColor="@android:color/darker_gray"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
+                        android:textSize="14sp" />
 
                     <TextView
                         android:id="@+id/day_thu"
@@ -158,11 +214,11 @@
                         android:layout_height="36dp"
                         android:layout_marginEnd="6dp"
                         android:background="@drawable/bg_day_unavailable"
+                        android:fontFamily="@font/plus_jakarta_sans_bold"
                         android:gravity="center"
                         android:text="J"
                         android:textColor="@android:color/darker_gray"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
+                        android:textSize="14sp" />
 
                     <TextView
                         android:id="@+id/day_fri"
@@ -170,11 +226,11 @@
                         android:layout_height="36dp"
                         android:layout_marginEnd="6dp"
                         android:background="@drawable/bg_day_unavailable"
+                        android:fontFamily="@font/plus_jakarta_sans_bold"
                         android:gravity="center"
                         android:text="V"
                         android:textColor="@android:color/darker_gray"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
+                        android:textSize="14sp" />
 
                     <TextView
                         android:id="@+id/day_sat"
@@ -182,110 +238,136 @@
                         android:layout_height="36dp"
                         android:layout_marginEnd="6dp"
                         android:background="@drawable/bg_day_unavailable"
+                        android:fontFamily="@font/plus_jakarta_sans_bold"
                         android:gravity="center"
                         android:text="S"
                         android:textColor="@android:color/darker_gray"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
+                        android:textSize="14sp" />
 
                     <TextView
                         android:id="@+id/day_sun"
                         android:layout_width="36dp"
                         android:layout_height="36dp"
                         android:background="@drawable/bg_day_unavailable"
+                        android:fontFamily="@font/plus_jakarta_sans_bold"
                         android:gravity="center"
                         android:text="D"
                         android:textColor="@android:color/darker_gray"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
+                        android:textSize="14sp" />
+
                 </LinearLayout>
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="18dp"
+                    android:layout_marginTop="24dp"
+                    android:fontFamily="@font/plus_jakarta_sans_bold"
                     android:text="Próximos horarios"
-                    android:textColor="@android:color/black"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
+                    android:textColor="#171717"
+                    android:textSize="18sp" />
 
                 <TextView
                     android:id="@+id/text_schedules"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:lineSpacingExtra="2dp"
-                    android:text="Horarios"
-                    android:textColor="#444444"
+                    android:fontFamily="@font/plus_jakarta_sans_regular"
+                    android:textColor="#5E4A45"
                     android:textSize="14sp" />
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="18dp"
-                    android:text="Descripción"
-                    android:textColor="@android:color/black"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
+                    android:layout_marginTop="26dp"
+                    android:fontFamily="@font/plus_jakarta_sans_bold"
+                    android:text="Tu guía"
+                    android:textColor="#171717"
+                    android:textSize="18sp" />
 
-                <TextView
-                    android:id="@+id/text_description"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:lineSpacingExtra="2dp"
-                    android:text="Descripción larga..."
-                    android:textSize="14sp" />
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/bg_guide_card"
+                    android:orientation="horizontal"
+                    android:padding="16dp"
+                    android:gravity="center_vertical"
+                    android:elevation="3dp">
 
-                <!-- MAPA Y PUNTO DE ENCUENTRO -->
+                    <!-- INFO -->
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/text_guide_name"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/plus_jakarta_sans_bold"
+                            android:text="Nombre Guía"
+                            android:textColor="#1C1C1C"
+                            android:textSize="16sp" />
+
+                        <TextView
+                            android:id="@+id/text_guide_rating"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:fontFamily="@font/plus_jakarta_sans_regular"
+                            android:text="★ 4.8 (120 reviews)"
+                            android:textColor="#7A5C55"
+                            android:textSize="13sp" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="18dp"
+                    android:layout_marginTop="26dp"
+                    android:fontFamily="@font/plus_jakarta_sans_bold"
                     android:text="Punto de encuentro"
-                    android:textColor="@android:color/black"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
+                    android:textColor="#171717"
+                    android:textSize="18sp" />
 
                 <TextView
                     android:id="@+id/text_meeting_point"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:text="Dirección del punto de encuentro"
-                    android:textColor="#444444"
+                    android:layout_marginTop="8dp"
+                    android:fontFamily="@font/plus_jakarta_sans_regular"
+                    android:textColor="#5E4A45"
                     android:textSize="14sp" />
 
                 <com.google.android.gms.maps.MapView
                     android:id="@+id/map_view"
                     android:layout_width="match_parent"
-                    android:layout_height="220dp"
+                    android:layout_height="200dp"
                     android:layout_marginTop="12dp" />
 
                 <Button
                     android:id="@+id/btn_how_to_get_there"
                     android:layout_width="match_parent"
-                    android:layout_height="45dp"
+                    android:layout_height="44dp"
                     android:layout_marginTop="10dp"
+                    android:background="@drawable/bg_outline_button"
+                    android:fontFamily="@font/plus_jakarta_sans_bold"
                     android:text="Cómo llegar"
-                    android:textAllCaps="false" />
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="24dp"
-                    android:background="#EEEEEE" />
+                    android:textAllCaps="false"
+                    android:textColor="#333333"
+                    app:backgroundTint="@null" />
 
                 <TextView
                     android:id="@+id/text_comments_header"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="24dp"
+                    android:layout_marginTop="26dp"
+                    android:fontFamily="@font/plus_jakarta_sans_bold"
                     android:text="Comentarios"
-                    android:textColor="@android:color/black"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
+                    android:textColor="#171717"
+                    android:textSize="18sp" />
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/recycler_comments"
@@ -299,23 +381,25 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
+                    android:fontFamily="@font/plus_jakarta_sans_regular"
                     android:gravity="center"
-                    android:text="Aún no hay comentarios para esta actividad."
+                    android:text="Aún no hay comentarios."
                     android:textColor="#999999"
                     android:textSize="14sp"
                     android:visibility="gone" />
 
             </LinearLayout>
+
         </LinearLayout>
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 
     <LinearLayout
         android:id="@+id/bottom_bar"
         android:layout_width="match_parent"
-        android:layout_height="70dp"
+        android:layout_height="72dp"
         android:layout_alignParentBottom="true"
-        android:background="@android:color/white"
-        android:elevation="8dp"
+        android:background="#FFFFFF"
+        android:elevation="6dp"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:padding="12dp">
@@ -325,20 +409,23 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="$120.000"
-            android:textColor="@color/colorPrimary"
-            android:textSize="20sp"
-            android:textStyle="bold" />
+            android:fontFamily="@font/plus_jakarta_sans_bold"
+            android:text="$25000.00"
+            android:textColor="#7F0303"
+            android:textSize="20sp" />
 
         <Button
             android:id="@+id/btn_reserve"
             android:layout_width="wrap_content"
-            android:layout_height="45dp"
+            android:layout_height="46dp"
             android:background="@drawable/bg_detail_button"
-            android:paddingHorizontal="20dp"
+            android:fontFamily="@font/plus_jakarta_sans_bold"
+            android:paddingHorizontal="22dp"
             android:text="Reservar"
             android:textAllCaps="false"
-            android:textColor="@android:color/white" />
+            android:textColor="#FFFFFF"
+            app:backgroundTint="@null" />
+
     </LinearLayout>
 
 </RelativeLayout>

@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -55,7 +56,7 @@ public class ProfileFragment extends Fragment {
     TokenManager tokenManager;
 
     private TextInputEditText usernameEditText, emailEditText, phoneEditText;
-    private Spinner categorySpinner, destinationSpinner, durationSpinner;
+    private AutoCompleteTextView categorySpinner, destinationSpinner, durationSpinner;
     private Slider budgetSlider;
     private Button saveButton, logoutButton;
     private ProgressBar progressBar;
@@ -148,16 +149,13 @@ public class ProfileFragment extends Fragment {
     }
 
     private void setupSpinners() {
-        ArrayAdapter<String> catAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, categories);
-        catAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        ArrayAdapter<String> catAdapter = new ArrayAdapter<>(requireContext(), R.layout.dropdown_item, categories);
         categorySpinner.setAdapter(catAdapter);
 
-        ArrayAdapter<String> destAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, destinations);
-        destAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        ArrayAdapter<String> destAdapter = new ArrayAdapter<>(requireContext(), R.layout.dropdown_item, destinations);
         destinationSpinner.setAdapter(destAdapter);
 
-        ArrayAdapter<String> durAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, durations);
-        durAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        ArrayAdapter<String> durAdapter = new ArrayAdapter<>(requireContext(), R.layout.dropdown_item, durations);
         durationSpinner.setAdapter(durAdapter);
     }
 
@@ -194,16 +192,13 @@ public class ProfileFragment extends Fragment {
         UserPreferences prefs = user.getPreferences();
         if (prefs != null) {
             if (prefs.getPreferredCategory() != null) {
-                int index = categories.indexOf(prefs.getPreferredCategory());
-                if (index >= 0) categorySpinner.setSelection(index);
+                categorySpinner.setText(prefs.getPreferredCategory(), false);
             }
             if (prefs.getPreferredDestination() != null) {
-                int index = destinations.indexOf(prefs.getPreferredDestination());
-                if (index >= 0) destinationSpinner.setSelection(index);
+                destinationSpinner.setText(prefs.getPreferredDestination(), false);
             }
             if (prefs.getActivityDuration() != null) {
-                int index = durations.indexOf(prefs.getActivityDuration());
-                if (index >= 0) durationSpinner.setSelection(index);
+                durationSpinner.setText(prefs.getActivityDuration(), false);
             }
             if (prefs.getMaxPrice() != null) {
                 budgetSlider.setValue(prefs.getMaxPrice().floatValue());
@@ -212,11 +207,16 @@ public class ProfileFragment extends Fragment {
     }
 
     private void saveProfile() {
+        String username = usernameEditText.getText().toString().trim();
+        String phone = phoneEditText.getText().toString().trim();
+        String email = emailEditText.getText().toString().trim();
+        String imageUrl = selectedImageUri != null ? selectedImageUri.toString() : null;
+
         UserPreferences prefs = new UserPreferences(
-                categorySpinner.getSelectedItem().toString(),
+                categorySpinner.getText().toString(),
                 (int) budgetSlider.getValue(),
-                destinationSpinner.getSelectedItem().toString(),
-                durationSpinner.getSelectedItem().toString()
+                destinationSpinner.getText().toString(),
+                durationSpinner.getText().toString()
         );
 
         UserResponse updateRequest = new UserResponse();
@@ -227,7 +227,7 @@ public class ProfileFragment extends Fragment {
         if (selectedImageUri != null) updateRequest.setProfileImageUrl(selectedImageUri.toString());
 
         setLoading(true);
-        apiService.updateProfile(updateRequest).enqueue(new Callback<UserResponse>() {
+        apiService.updateProfile(updateRequest).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
                 setLoading(false);

@@ -137,8 +137,7 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
                     activity = response.body();
                     binding.textTitle.setText(safe(activity.getName()));
                     binding.textDestination.setText("Destino: " + safe(activity.getDestination()));
-                    binding.textGuide.setText("Guía: " + safe(activity.getGuideName()));
-                    binding.textCategory.setText("Categoría: " + safe(activity.getCategory()));
+                    binding.textGuideName.setText(safe(activity.getGuideName()));                    binding.textCategory.setText("Categoría: " + safe(activity.getCategory()));
                     binding.textDuration.setText("Duración: " + safe(activity.getDuration()));
                     binding.textSlots.setText("Cupos generales: " + activity.getAvailableSlots());
                     binding.textDescription.setText(safe(activity.getDescription()));
