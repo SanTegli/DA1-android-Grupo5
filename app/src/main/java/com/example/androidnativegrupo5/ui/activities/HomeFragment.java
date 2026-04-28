@@ -88,8 +88,13 @@ public class HomeFragment extends Fragment {
         setupFeaturedCarousel(navController);
         loadActivities();
 
+        binding.btnViewAllActivities.setOnClickListener(v ->
+                navController.navigate(R.id.ExploreActivitiesFragment)
+        );
+
         binding.btnFilter.setOnClickListener(v -> {
             FilterBottomSheetDialogFragment bottomSheet = new FilterBottomSheetDialogFragment();
+
             bottomSheet.setOnFiltersAppliedListener((search, category, destination, minPrice, maxPrice) -> {
 
                 filterSearch = search;
@@ -125,7 +130,9 @@ public class HomeFragment extends Fragment {
 
                 if (dy <= 0) return;
 
-                LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                LinearLayoutManager layoutManager =
+                        (LinearLayoutManager) recyclerView.getLayoutManager();
+
                 if (layoutManager == null || isLoading || isLastPage) return;
 
                 int visibleItemCount = layoutManager.getChildCount();

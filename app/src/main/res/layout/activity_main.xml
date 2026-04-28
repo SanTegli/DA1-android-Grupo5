@@ -4,21 +4,22 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFF8F1">
+    android:background="#F5F5F5">
 
     <!-- HEADER -->
     <LinearLayout
         android:id="@+id/header"
         android:layout_width="0dp"
         android:layout_height="70dp"
-        android:background="#EFE8DF"
+        android:background="#F5F5F5"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingStart="16dp"
         android:paddingEnd="20dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintEnd_toEndOf="parent"
+        android:elevation="8dp">
 
         <ImageButton
             android:id="@+id/btnBack"
@@ -44,11 +45,10 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Explora"
+            android:text="XploreNow"
             android:textColor="#7F0303"
             android:textSize="24sp"
             android:textStyle="bold" />
-
     </LinearLayout>
 
     <FrameLayout
@@ -61,7 +61,6 @@
         app:layout_constraintEnd_toEndOf="parent">
 
         <include layout="@layout/content_main" />
-
     </FrameLayout>
 
     <!-- FOOTER -->
@@ -69,19 +68,22 @@
         android:id="@+id/footer"
         android:layout_width="0dp"
         android:layout_height="76dp"
-        android:background="#EFE8DF"
+        android:background="#F5F5F5"
         android:gravity="center"
         android:orientation="horizontal"
         android:padding="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintEnd_toEndOf="parent"
+        android:elevation="8dp">
 
         <LinearLayout
             android:id="@+id/navDiscover"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
+            android:clickable="true"
+            android:focusable="true"
             android:gravity="center"
             android:orientation="vertical">
 
@@ -106,6 +108,8 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
+            android:clickable="true"
+            android:focusable="true"
             android:gravity="center"
             android:orientation="vertical">
 
@@ -130,6 +134,8 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
+            android:clickable="true"
+            android:focusable="true"
             android:gravity="center"
             android:orientation="vertical">
 
@@ -154,6 +160,8 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
+            android:clickable="true"
+            android:focusable="true"
             android:gravity="center"
             android:orientation="vertical">
 
