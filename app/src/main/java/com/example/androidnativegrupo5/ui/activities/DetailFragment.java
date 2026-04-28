@@ -323,10 +323,10 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
     private void setDayStyle(TextView textView, boolean available) {
         if (available) {
             textView.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.black));
-            textView.setBackgroundResource(R.drawable.bg_day_available);
+            textView.setBackgroundResource(R.drawable.detail_bg_day_available);
         } else {
-            textView.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.darker_gray));
-            textView.setBackgroundResource(R.drawable.bg_day_unavailable);
+            textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.light_grey));
+            textView.setBackgroundResource(R.drawable.detail_bg_day_unavailable);
         }
     }
 

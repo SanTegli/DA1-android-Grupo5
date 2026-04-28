@@ -27,7 +27,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="centerCrop"
-            android:src="@drawable/illustration_welcome_placeholder" />
+            android:src="@drawable/common_illustration_welcome_placeholder" />
     </com.google.android.material.card.MaterialCardView>
 
     <TextView

@@ -24,7 +24,8 @@
             android:text="Todas las actividades"
             android:textColor="@color/black"
             android:textSize="24sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:fontFamily="@font/plus_jakarta_sans_bold" />
 
         <TextView
             android:id="@+id/text_results_count"
@@ -33,7 +34,8 @@
             android:layout_marginTop="4dp"
             android:text="0 actividades encontradas"
             android:textColor="#777777"
-            android:textSize="13sp" />
+            android:textSize="13sp"
+            android:fontFamily="@font/plus_jakarta_sans_regular" />
 
         <!-- SEARCH + FILTER -->
         <LinearLayout
@@ -50,14 +52,15 @@
                 android:layout_height="48dp"
                 android:layout_weight="1"
                 android:hint="Busca experiencias..."
-                android:background="@drawable/bg_search"
+                android:background="@drawable/common_bg_search"
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp"
                 android:textSize="14sp"
                 android:textColor="@color/black"
                 android:textColorHint="#888888"
                 android:singleLine="true"
-                android:gravity="center_vertical" />
+                android:gravity="center_vertical"
+                android:fontFamily="@font/plus_jakarta_sans_regular" />
 
             <!-- FILTER BUTTON -->
             <androidx.cardview.widget.CardView
@@ -75,7 +78,7 @@
                     android:background="@android:color/transparent"
                     android:padding="12dp"
                     android:scaleType="centerInside"
-                    android:src="@drawable/ic_tune"
+                    android:src="@drawable/common_ic_tune"
                     app:tint="#FFFFFF" />
 
             </androidx.cardview.widget.CardView>
@@ -100,7 +103,8 @@
         android:text="No se encontraron actividades"
         android:textColor="#777777"
         android:textSize="14sp"
-        android:visibility="gone" />
+        android:visibility="gone"
+        android:fontFamily="@font/plus_jakarta_sans_regular" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_explore_activities"

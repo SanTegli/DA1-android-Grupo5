@@ -17,12 +17,8 @@
             android:layout_height="wrap_content"
             android:text="¿Donde se encuentra tu proxima"
             android:textSize="22sp"
-            android:textStyle="bold"/>
-            android:layout_weight="1"
-            android:text="Inicio"
-            android:textColor="@color/black"
-            android:textSize="24sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:fontFamily="@font/plus_jakarta_sans_bold" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -30,7 +26,8 @@
             android:text="Aventura?"
             android:textSize="22sp"
             android:textStyle="bold"
-            android:textColor="#7F0303"/>
+            android:textColor="#7F0303"
+            android:fontFamily="@font/plus_jakarta_sans_bold" />
 
         <!-- SEARCH + FILTER -->
         <LinearLayout
@@ -45,16 +42,17 @@
                 android:layout_height="48dp"
                 android:layout_weight="1"
                 android:hint="Busca experiencias..."
-                android:background="@drawable/bg_search"
-                android:paddingStart="16dp"/>
+                android:background="@drawable/common_bg_search"
+                android:paddingStart="16dp"
+                android:fontFamily="@font/plus_jakarta_sans_regular" />
 
             <ImageButton
                 android:id="@+id/btnFilter"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:layout_marginStart="8dp"
-                android:src="@drawable/ic_tune"
-                android:background="@drawable/bg_circle1"/>
+                android:src="@drawable/common_ic_tune"
+                android:background="@drawable/first_bg_circle1"/>
         </LinearLayout>
 
         <!-- FEATURED -->
@@ -70,7 +68,8 @@
                 android:layout_height="wrap_content"
                 android:text="Experiencias Recomendadas"
                 android:textSize="18sp"
-                android:textStyle="bold"/>
+                android:textStyle="bold"
+                android:fontFamily="@font/plus_jakarta_sans_bold" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerFeatured"
@@ -94,13 +93,14 @@
                 android:text="Actividades Cerca Tuyo"
                 android:textColor="@color/black"
                 android:textSize="18sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:fontFamily="@font/plus_jakarta_sans_bold" />
 
             <TextView
                 android:id="@+id/btnViewAllActivities"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/bg_view_all_button"
+                android:background="@drawable/first_bg_view_all_button"
                 android:clickable="true"
                 android:focusable="true"
                 android:paddingStart="12dp"
@@ -110,7 +110,8 @@
                 android:text="Ver Todas"
                 android:textColor="#7F0303"
                 android:textSize="13sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:fontFamily="@font/plus_jakarta_sans_bold" />
 
         </LinearLayout>
 
