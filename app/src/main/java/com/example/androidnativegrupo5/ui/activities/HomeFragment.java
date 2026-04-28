@@ -1,6 +1,8 @@
 package com.example.androidnativegrupo5.ui.activities;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,16 +14,19 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.androidnativegrupo5.R;
-import com.example.androidnativegrupo5.databinding.FragmentFirstBinding;
+import com.example.androidnativegrupo5.data.local.TokenManager;
 import com.example.androidnativegrupo5.data.model.Activity;
 import com.example.androidnativegrupo5.data.model.PaginatedResponse;
 import com.example.androidnativegrupo5.data.network.ApiService;
-import com.example.androidnativegrupo5.data.local.TokenManager;
+import com.example.androidnativegrupo5.databinding.FragmentFirstBinding;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.inject.Inject;
 
@@ -43,22 +48,21 @@ public class HomeFragment extends Fragment {
     private ActivityAdapter adapter;
     private FeaturedActivityAdapter featuredAdapter;
 
-    private int currentPage = 0;
-    private static final int PAGE_SIZE = 3;
+    private final List<Activity> allActivities = new ArrayList<>();
 
-    private boolean isLoading = false;
-    private boolean isLastPage = false;
+    private final List<String> dynamicCategories = new ArrayList<>();
+    private final List<String> dynamicDestinations = new ArrayList<>();
 
+    private String searchText = "";
     private String filterCategory = null;
     private String filterDestination = null;
-    private Integer filterDuration = null;
     private Integer filterMinPrice = null;
     private Integer filterMaxPrice = null;
-    private String filterSearch = null;
 
     @Override
     public View onCreateView(
-            @NonNull LayoutInflater inflater, ViewGroup container,
+            @NonNull LayoutInflater inflater,
+            ViewGroup container,
             Bundle savedInstanceState
     ) {
         binding = FragmentFirstBinding.inflate(inflater, container, false);
@@ -81,7 +85,17 @@ public class HomeFragment extends Fragment {
         binding.recyclerActivities.setAdapter(adapter);
 
         setupFeaturedCarousel(navController);
-        loadActivities();
+
+        binding.editSearchActivities.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                searchText = s != null ? s.toString() : "";
+                applyLocalFilters();
+            }
+        });
 
         binding.btnViewAllActivities.setOnClickListener(v ->
                 navController.navigate(R.id.ExploreActivitiesFragment)
@@ -90,57 +104,35 @@ public class HomeFragment extends Fragment {
         binding.btnFilter.setOnClickListener(v -> {
             FilterBottomSheetDialogFragment bottomSheet = new FilterBottomSheetDialogFragment();
 
-            bottomSheet.setOnFiltersAppliedListener((search, category, destination, minPrice, maxPrice) -> {
+            bottomSheet.setFilterOptions(dynamicCategories, dynamicDestinations);
 
-                filterSearch = search;
+            bottomSheet.setCurrentFilters(
+                    filterCategory,
+                    filterDestination,
+                    filterMinPrice != null ? filterMinPrice.floatValue() : 0f,
+                    filterMaxPrice != null ? filterMaxPrice.floatValue() : 100000f
+            );
+
+            bottomSheet.setOnFiltersAppliedListener((category, destination, minPrice, maxPrice) -> {
                 filterCategory = category;
                 filterDestination = destination;
                 filterMinPrice = minPrice != null ? minPrice.intValue() : null;
                 filterMaxPrice = maxPrice != null ? maxPrice.intValue() : null;
 
-                currentPage = 0;
-                isLastPage = false;
-                adapter.clearActivities();
-                loadActivities();
-
-                if (filterCategory != null
-                        || filterDestination != null
-                        || filterMaxPrice != null
-                        || (filterSearch != null && !filterSearch.isEmpty())) {
-                    binding.layoutFeatured.setVisibility(View.GONE);
-                } else {
-                    binding.layoutFeatured.setVisibility(View.VISIBLE);
+                if (binding != null) {
+                    binding.editSearchActivities.setText(searchText);
+                    binding.editSearchActivities.setSelection(binding.editSearchActivities.getText().length());
                 }
+
+                applyLocalFilters();
+                updateFeaturedVisibility();
             });
 
-            bottomSheet.show(getParentFragmentManager(), "FilterBottomSheet");
+            bottomSheet.show(getParentFragmentManager(), "HomeFilterBottomSheet");
         });
 
-        binding.recyclerActivities.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-
-                if (dy <= 0) return;
-
-                LinearLayoutManager layoutManager =
-                        (LinearLayoutManager) recyclerView.getLayoutManager();
-
-                if (layoutManager == null || isLoading || isLastPage) return;
-
-                int visibleItemCount = layoutManager.getChildCount();
-                int totalItemCount = layoutManager.getItemCount();
-                int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
-
-                if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount
-                        && firstVisibleItemPosition >= 0
-                        && totalItemCount >= PAGE_SIZE) {
-                    loadActivities();
-                }
-            }
-        });
+        loadAllActivities();
     }
-
 
     private void setupFeaturedCarousel(NavController navController) {
         featuredAdapter = new FeaturedActivityAdapter(activity -> {
@@ -154,117 +146,168 @@ public class HomeFragment extends Fragment {
         );
 
         binding.recyclerFeatured.setAdapter(featuredAdapter);
-        loadFeaturedActivities();
     }
 
-    private void loadFeaturedActivities() {
-        apiService.getActivities(0, 5, null, null, null, null, null)
-                .enqueue(new Callback<PaginatedResponse<Activity>>() {
-                    @Override
-                    public void onResponse(@NonNull Call<PaginatedResponse<Activity>> call,
-                                           @NonNull Response<PaginatedResponse<Activity>> response) {
-
-                        if (!isAdded() || binding == null) return;
-
-                        if (response.isSuccessful() && response.body() != null) {
-                            List<Activity> activities = response.body().getContent();
-
-                            if (activities != null && !activities.isEmpty()) {
-                                featuredAdapter.setActivities(activities);
-                                binding.layoutFeatured.setVisibility(View.VISIBLE);
-                            } else {
-                                binding.layoutFeatured.setVisibility(View.GONE);
-                            }
-                        } else {
-                            binding.layoutFeatured.setVisibility(View.GONE);
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(@NonNull Call<PaginatedResponse<Activity>> call,
-                                          @NonNull Throwable t) {
-                        if (!isAdded() || binding == null) return;
-
-                        Log.e("HomeFragment", "Error featured: " + t.getMessage());
-                        binding.layoutFeatured.setVisibility(View.GONE);
-                    }
-                });
-    }
-
-    private void loadActivities() {
-        isLoading = true;
-
+    private void loadAllActivities() {
         if (binding != null) {
             binding.progressBar.setVisibility(View.VISIBLE);
         }
 
-        apiService.getActivities(
-                currentPage,
-                PAGE_SIZE,
-                filterCategory,
-                filterDestination,
-                filterMaxPrice,
-                filterDuration,
-                null
-        ).enqueue(new Callback<PaginatedResponse<Activity>>() {
+        apiService.getActivities(0, 100, null, null, null, null, null)
+                .enqueue(new Callback<PaginatedResponse<Activity>>() {
+                    @Override
+                    public void onResponse(
+                            @NonNull Call<PaginatedResponse<Activity>> call,
+                            @NonNull Response<PaginatedResponse<Activity>> response
+                    ) {
+                        if (!isAdded() || binding == null) return;
 
-            @Override
-            public void onResponse(@NonNull Call<PaginatedResponse<Activity>> call,
-                                   @NonNull Response<PaginatedResponse<Activity>> response) {
+                        binding.progressBar.setVisibility(View.GONE);
 
-                isLoading = false;
+                        if (response.isSuccessful() && response.body() != null) {
+                            List<Activity> activities = response.body().getContent();
 
-                if (!isAdded() || binding == null) return;
+                            allActivities.clear();
 
-                binding.progressBar.setVisibility(View.GONE);
+                            if (activities != null) {
+                                allActivities.addAll(activities);
+                            }
 
-                if (response.isSuccessful() && response.body() != null) {
+                            buildDynamicFilterOptions();
+                            setupFeaturedFromAllActivities();
+                            applyLocalFilters();
 
-                    List<Activity> activities = response.body().getContent();
-
-                    if (activities != null && !activities.isEmpty()) {
-
-                        adapter.addActivities(activities);
-
-                        if (currentPage >= response.body().getTotalPages() - 1) {
-                            isLastPage = true;
                         } else {
-                            currentPage++;
+                            Toast.makeText(requireContext(), "Error al cargar actividades", Toast.LENGTH_SHORT).show();
                         }
-
-                    } else {
-                        if (currentPage == 0) {
-                            Toast.makeText(requireContext(),
-                                    "No se encontraron actividades",
-                                    Toast.LENGTH_SHORT).show();
-                        }
-                        isLastPage = true;
                     }
 
-                } else {
-                    Toast.makeText(requireContext(),
-                            "Error al obtener actividades",
-                            Toast.LENGTH_SHORT).show();
-                }
+                    @Override
+                    public void onFailure(
+                            @NonNull Call<PaginatedResponse<Activity>> call,
+                            @NonNull Throwable t
+                    ) {
+                        if (!isAdded() || binding == null) return;
+
+                        binding.progressBar.setVisibility(View.GONE);
+
+                        Log.e("HomeFragment", "Error: " + t.getMessage());
+                        Toast.makeText(requireContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void setupFeaturedFromAllActivities() {
+        List<Activity> featured = new ArrayList<>();
+
+        for (int i = 0; i < allActivities.size() && i < 5; i++) {
+            featured.add(allActivities.get(i));
+        }
+
+        featuredAdapter.setActivities(featured);
+
+        if (binding != null) {
+            binding.layoutFeatured.setVisibility(featured.isEmpty() ? View.GONE : View.VISIBLE);
+        }
+    }
+
+    private void buildDynamicFilterOptions() {
+        Set<String> categoriesSet = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+        Set<String> destinationsSet = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+
+        for (Activity activity : allActivities) {
+            String category = safe(activity.getCategory()).trim();
+            String destination = safe(activity.getDestination()).trim();
+
+            if (!category.isEmpty()) {
+                categoriesSet.add(category);
             }
 
-            @Override
-            public void onFailure(@NonNull Call<PaginatedResponse<Activity>> call,
-                                  @NonNull Throwable t) {
-
-                isLoading = false;
-
-                if (!isAdded() || binding == null) return;
-
-                binding.progressBar.setVisibility(View.GONE);
-
-                Log.e("HomeFragment", "Error: " + t.getMessage());
-
-                Toast.makeText(requireContext(),
-                        "Error de conexión",
-                        Toast.LENGTH_SHORT).show();
+            if (!destination.isEmpty()) {
+                destinationsSet.add(destination);
             }
-        });
+        }
+
+        dynamicCategories.clear();
+        dynamicCategories.addAll(categoriesSet);
+
+        dynamicDestinations.clear();
+        dynamicDestinations.addAll(destinationsSet);
+    }
+
+    private void applyLocalFilters() {
+        List<Activity> filtered = new ArrayList<>();
+
+        String search = searchText != null
+                ? searchText.toLowerCase(Locale.ROOT).trim()
+                : "";
+
+        for (Activity activity : allActivities) {
+            if (!matchesSearch(activity, search)) continue;
+            if (!matchesCategory(activity)) continue;
+            if (!matchesDestination(activity)) continue;
+            if (!matchesPrice(activity)) continue;
+
+            filtered.add(activity);
+        }
+
+        adapter.setActivities(filtered);
+
+        if (binding != null) {
+            updateFeaturedVisibility();
+        }
+    }
+
+    private boolean matchesSearch(Activity activity, String search) {
+        if (search == null || search.isEmpty()) return true;
+
+        String name = safe(activity.getName()).toLowerCase(Locale.ROOT);
+        String description = safe(activity.getDescription()).toLowerCase(Locale.ROOT);
+        String destination = safe(activity.getDestination()).toLowerCase(Locale.ROOT);
+        String category = safe(activity.getCategory()).toLowerCase(Locale.ROOT);
+        String guide = safe(activity.getGuideName()).toLowerCase(Locale.ROOT);
+
+        return name.contains(search)
+                || description.contains(search)
+                || destination.contains(search)
+                || category.contains(search)
+                || guide.contains(search);
+    }
+
+    private boolean matchesCategory(Activity activity) {
+        if (filterCategory == null || filterCategory.trim().isEmpty()) return true;
+        return safe(activity.getCategory()).equalsIgnoreCase(filterCategory);
+    }
+
+    private boolean matchesDestination(Activity activity) {
+        if (filterDestination == null || filterDestination.trim().isEmpty()) return true;
+        return safe(activity.getDestination()).equalsIgnoreCase(filterDestination);
+    }
+
+    private boolean matchesPrice(Activity activity) {
+        double price = activity.getPrice();
+
+        if (filterMinPrice != null && price < filterMinPrice) return false;
+        if (filterMaxPrice != null && price > filterMaxPrice) return false;
+
+        return true;
+    }
+
+    private void updateFeaturedVisibility() {
+        boolean hasActiveFilters =
+                searchText != null && !searchText.trim().isEmpty()
+                        || filterCategory != null && !filterCategory.trim().isEmpty()
+                        || filterDestination != null && !filterDestination.trim().isEmpty()
+                        || filterMinPrice != null
+                        || filterMaxPrice != null;
+
+        if (binding != null) {
+            binding.layoutFeatured.setVisibility(hasActiveFilters ? View.GONE : View.VISIBLE);
+        }
+    }
+
+    private String safe(String value) {
+        return value != null ? value : "";
     }
 
     @Override
