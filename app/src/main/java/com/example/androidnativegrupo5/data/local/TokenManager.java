@@ -27,6 +27,10 @@ public class TokenManager {
         prefs.edit().putString(KEY_TOKEN, token).apply();
     }
 
+    public void clearToken() {
+        prefs.edit().remove(KEY_TOKEN).apply();
+    }
+
     public void setBiometricEnabled(boolean enabled) {
         prefs.edit().putBoolean("biometric_enabled", enabled).apply();
     }

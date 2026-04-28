@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -17,12 +18,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.androidnativegrupo5.R;
-import com.example.androidnativegrupo5.databinding.FragmentFirstBinding;
 import com.example.androidnativegrupo5.data.model.Activity;
 import com.example.androidnativegrupo5.data.model.NewsItem;
 import com.example.androidnativegrupo5.data.model.PaginatedResponse;
 import com.example.androidnativegrupo5.data.network.ApiService;
-import com.example.androidnativegrupo5.data.local.TokenManager;
+import com.example.androidnativegrupo5.databinding.FragmentFirstBinding;
+import com.google.gson.Gson;
 
 import java.util.List;
 
@@ -36,35 +37,27 @@ import retrofit2.Response;
 @AndroidEntryPoint
 public class HomeFragment extends Fragment {
 
-    @Inject
-    ApiService apiService;
-
-    @Inject
-    TokenManager tokenManager;
-
     private FragmentFirstBinding binding;
     private ActivityAdapter adapter;
     private FeaturedActivityAdapter featuredAdapter;
     private NewsAdapter newsAdapter;
 
-    private int currentPage = 0;
-    private static final int PAGE_SIZE = 3;
+    @Inject
+    ApiService apiService;
 
+    private static final int PAGE_SIZE = 10;
+    private int currentPage = 0;
     private boolean isLoading = false;
     private boolean isLastPage = false;
 
     private String filterCategory = null;
     private String filterDestination = null;
-    private Integer filterDuration = null;
     private Integer filterMinPrice = null;
     private Integer filterMaxPrice = null;
     private String filterSearch = null;
 
     @Override
-    public View onCreateView(
-            @NonNull LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState
-    ) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentFirstBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
@@ -72,7 +65,6 @@ public class HomeFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
         NavController navController = Navigation.findNavController(view);
 
         adapter = new ActivityAdapter(activity -> {
@@ -86,6 +78,8 @@ public class HomeFragment extends Fragment {
 
         setupNewsSection();
         setupFeaturedCarousel(navController);
+        
+        // No reset filters here to keep user selection if they navigate back
         loadActivities();
 
         binding.btnViewAllActivities.setOnClickListener(v ->
@@ -96,12 +90,13 @@ public class HomeFragment extends Fragment {
             FilterBottomSheetDialogFragment bottomSheet = new FilterBottomSheetDialogFragment();
 
             bottomSheet.setOnFiltersAppliedListener((search, category, destination, minPrice, maxPrice) -> {
-
-                filterSearch = search;
-                filterCategory = category;
-                filterDestination = destination;
-                filterMinPrice = minPrice != null ? minPrice.intValue() : null;
-                filterMaxPrice = maxPrice != null ? maxPrice.intValue() : null;
+                filterSearch = (search != null && !search.isEmpty()) ? search : null;
+                filterCategory = ("Todas".equalsIgnoreCase(category)) ? null : category;
+                filterDestination = ("Todos".equalsIgnoreCase(destination)) ? null : destination;
+                
+                // If it was working before, maybe it needs 0 instead of null for minPrice?
+                filterMinPrice = (minPrice != null && minPrice > 0) ? minPrice.intValue() : null;
+                filterMaxPrice = (maxPrice != null && maxPrice < 100000) ? maxPrice.intValue() : null;
 
                 currentPage = 0;
                 isLastPage = false;
@@ -119,7 +114,6 @@ public class HomeFragment extends Fragment {
                     loadNews(); 
                 }
             });
-
             bottomSheet.show(getParentFragmentManager(), "FilterBottomSheet");
         });
 
@@ -202,121 +196,82 @@ public class HomeFragment extends Fragment {
             bundle.putLong("activityId", activity.getId());
             navController.navigate(R.id.action_FirstFragment_to_DetailFragment, bundle);
         });
-
-        binding.recyclerFeatured.setLayoutManager(
-                new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-        );
-
+        binding.recyclerFeatured.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
         binding.recyclerFeatured.setAdapter(featuredAdapter);
         loadFeaturedActivities();
     }
 
     private void loadFeaturedActivities() {
-        apiService.getActivities(0, 5, null, null, null, null, null)
-                .enqueue(new Callback<PaginatedResponse<Activity>>() {
-                    @Override
-                    public void onResponse(@NonNull Call<PaginatedResponse<Activity>> call,
-                                           @NonNull Response<PaginatedResponse<Activity>> response) {
-
-                        if (!isAdded() || binding == null) return;
-
-                        if (response.isSuccessful() && response.body() != null) {
-                            List<Activity> activities = response.body().getContent();
-
-                            if (activities != null && !activities.isEmpty()) {
-                                featuredAdapter.setActivities(activities);
-                                binding.layoutFeatured.setVisibility(View.VISIBLE);
-                            } else {
-                                binding.layoutFeatured.setVisibility(View.GONE);
-                            }
-                        } else {
-                            binding.layoutFeatured.setVisibility(View.GONE);
-                        }
+        // Try calling the recommended endpoint if the standard one is empty
+        apiService.getRecommendedActivities().enqueue(new Callback<PaginatedResponse<Activity>>() {
+            @Override
+            public void onResponse(@NonNull Call<PaginatedResponse<Activity>> call, @NonNull Response<PaginatedResponse<Activity>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().getContent() != null) {
+                    List<Activity> list = response.body().getContent();
+                    if (!list.isEmpty()) {
+                        featuredAdapter.setActivities(list);
+                        if (binding != null) binding.layoutFeatured.setVisibility(View.VISIBLE);
                     }
-
-                    @Override
-                    public void onFailure(@NonNull Call<PaginatedResponse<Activity>> call,
-                                          @NonNull Throwable t) {
-                        if (!isAdded() || binding == null) return;
-
-                        Log.e("HomeFragment", "Error featured: " + t.getMessage());
-                        binding.layoutFeatured.setVisibility(View.GONE);
-                    }
-                });
+                }
+            }
+            @Override
+            public void onFailure(@NonNull Call<PaginatedResponse<Activity>> call, @NonNull Throwable t) {}
+        });
     }
 
     private void loadActivities() {
+        if (isLoading) return;
         isLoading = true;
+        if (binding != null) binding.progressBar.setVisibility(View.VISIBLE);
 
-        if (binding != null) {
-            binding.progressBar.setVisibility(View.VISIBLE);
-        }
+        // Very detailed log to see what exactly is happening
+        Log.e("HOME_DEBUG", "FETCHING: Page=" + currentPage + ", Search=" + filterSearch + ", Cat=" + filterCategory);
 
         apiService.getActivities(
                 currentPage,
                 PAGE_SIZE,
                 filterCategory,
                 filterDestination,
+                filterMinPrice,
                 filterMaxPrice,
-                filterDuration,
-                null
+                filterSearch
         ).enqueue(new Callback<PaginatedResponse<Activity>>() {
-
             @Override
-            public void onResponse(@NonNull Call<PaginatedResponse<Activity>> call,
-                                   @NonNull Response<PaginatedResponse<Activity>> response) {
-
+            public void onResponse(@NonNull Call<PaginatedResponse<Activity>> call, @NonNull Response<PaginatedResponse<Activity>> response) {
                 isLoading = false;
-
                 if (!isAdded() || binding == null) return;
-
                 binding.progressBar.setVisibility(View.GONE);
 
                 if (response.isSuccessful() && response.body() != null) {
-
-                    List<Activity> activities = response.body().getContent();
+                    PaginatedResponse<Activity> body = response.body();
+                    List<Activity> activities = body.getContent();
+                    
+                    Log.e("HOME_DEBUG", "SUCCESS! Items Count: " + (activities != null ? activities.size() : "NULL"));
+                    Log.e("HOME_DEBUG", "FULL JSON: " + new Gson().toJson(body));
 
                     if (activities != null && !activities.isEmpty()) {
-
                         adapter.addActivities(activities);
-
-                        if (currentPage >= response.body().getTotalPages() - 1) {
-                            isLastPage = true;
-                        } else {
-                            currentPage++;
-                        }
-
+                        if (currentPage >= body.getTotalPages() - 1) isLastPage = true;
+                        else currentPage++;
                     } else {
                         if (currentPage == 0) {
-                            Toast.makeText(requireContext(),
-                                    "No se encontraron actividades",
-                                    Toast.LENGTH_SHORT).show();
+                            Toast.makeText(requireContext(), "No se encontraron actividades", Toast.LENGTH_SHORT).show();
                         }
                         isLastPage = true;
                     }
-
                 } else {
-                    Toast.makeText(requireContext(),
-                            "Error al obtener actividades",
-                            Toast.LENGTH_SHORT).show();
+                    Log.e("HOME_DEBUG", "SERVER ERROR: " + response.code() + " - " + response.message());
+                    Toast.makeText(requireContext(), "Error: " + response.code(), Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
-            public void onFailure(@NonNull Call<PaginatedResponse<Activity>> call,
-                                  @NonNull Throwable t) {
-
+            public void onFailure(@NonNull Call<PaginatedResponse<Activity>> call, @NonNull Throwable t) {
                 isLoading = false;
-
                 if (!isAdded() || binding == null) return;
-
                 binding.progressBar.setVisibility(View.GONE);
-
-                Log.e("HomeFragment", "Error: " + t.getMessage());
-
-                Toast.makeText(requireContext(),
-                        "Error de conexión",
-                        Toast.LENGTH_SHORT).show();
+                Log.e("HOME_DEBUG", "NETWORK FAIL: " + t.getMessage());
+                Toast.makeText(requireContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
             }
         });
     }

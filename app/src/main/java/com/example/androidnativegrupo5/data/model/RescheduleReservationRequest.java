@@ -1,9 +1,15 @@
 package com.example.androidnativegrupo5.data.model;
 
+import com.google.gson.annotations.SerializedName;
+
 public class RescheduleReservationRequest {
 
+    @SerializedName("date")
     private String newDate;
+    
+    @SerializedName("time")
     private String newTime;
+
     private int participants;
 
     public RescheduleReservationRequest(String newDate, String newTime, int participants) {

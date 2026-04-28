@@ -99,4 +99,9 @@
     <string name="duration_label">Duración: %1$s</string>
     <string name="slots_label">Cupos: %1$d</string>
     <string name="price_free">Gratis</string>
+
+    <string name="favorites_title">Mis Favoritos</string>
+    <string name="empty_favorites">No tienes actividades favoritas aún</string>
+    <string name="price_changed">¡Precio modificado!</string>
+    <string name="slots_changed">¡Nuevos cupos!</string>
 </resources>
