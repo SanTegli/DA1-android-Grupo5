@@ -24,7 +24,8 @@
             android:text="Todas las actividades"
             android:textColor="@color/black"
             android:textSize="24sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:fontFamily="@font/plus_jakarta_sans_bold" />
 
         <TextView
             android:id="@+id/text_results_count"
@@ -33,79 +34,56 @@
             android:layout_marginTop="4dp"
             android:text="0 actividades encontradas"
             android:textColor="#777777"
-            android:textSize="13sp" />
+            android:textSize="13sp"
+            android:fontFamily="@font/plus_jakarta_sans_regular" />
 
         <!-- SEARCH + FILTER -->
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_marginTop="14dp"
+            android:layout_height="56dp"
+            android:layout_marginTop="12dp"
             android:orientation="horizontal"
             android:gravity="center_vertical">
 
-            <!-- SEARCH CARD -->
-            <androidx.cardview.widget.CardView
+            <!-- SEARCH -->
+            <EditText
+                android:id="@+id/editSearchActivities"
                 android:layout_width="0dp"
                 android:layout_height="48dp"
                 android:layout_weight="1"
-                app:cardBackgroundColor="#FFFFFF"
-                app:cardCornerRadius="24dp"
-                app:cardElevation="4dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:paddingStart="14dp"
-                    android:paddingEnd="12dp">
-
-                    <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:src="@drawable/ic_search"
-                        app:tint="#888888" />
-
-                    <EditText
-                        android:id="@+id/edit_search_activities"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:layout_marginStart="8dp"
-                        android:background="@android:color/transparent"
-                        android:hint="Buscar experiencias..."
-                        android:padding="0dp"
-                        android:singleLine="true"
-                        android:textColor="@color/black"
-                        android:textColorHint="#888888"
-                        android:textSize="14sp" />
-
-                </LinearLayout>
-
-            </androidx.cardview.widget.CardView>
+                android:hint="Busca experiencias..."
+                android:background="@drawable/common_bg_search"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:textSize="14sp"
+                android:textColor="@color/black"
+                android:textColorHint="#888888"
+                android:singleLine="true"
+                android:gravity="center_vertical"
+                android:fontFamily="@font/plus_jakarta_sans_regular" />
 
             <!-- FILTER BUTTON -->
             <androidx.cardview.widget.CardView
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:layout_marginStart="10dp"
-                app:cardBackgroundColor="#FFFFFF"
-                app:cardCornerRadius="16dp"
+                app:cardBackgroundColor="#990000"
+                app:cardCornerRadius="24dp"
                 app:cardElevation="4dp">
 
                 <ImageButton
-                    android:id="@+id/btn_filter_explore"
+                    android:id="@+id/btnFilterExplore"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@android:color/transparent"
                     android:padding="12dp"
-                    android:src="@drawable/ic_tune"
-                    app:tint="#7F0303" />
+                    android:scaleType="centerInside"
+                    android:src="@drawable/common_ic_tune"
+                    app:tint="#FFFFFF" />
 
             </androidx.cardview.widget.CardView>
 
         </LinearLayout>
-
     </LinearLayout>
 
     <ProgressBar
@@ -125,7 +103,8 @@
         android:text="No se encontraron actividades"
         android:textColor="#777777"
         android:textSize="14sp"
-        android:visibility="gone" />
+        android:visibility="gone"
+        android:fontFamily="@font/plus_jakarta_sans_regular" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_explore_activities"

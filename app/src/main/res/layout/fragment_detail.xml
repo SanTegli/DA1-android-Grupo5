@@ -35,11 +35,9 @@
                     android:layout_alignParentEnd="true"
                     android:layout_alignParentTop="true"
                     android:layout_margin="16dp"
-                    android:background="@drawable/bg_circle"
                     android:backgroundTint="#80FFFFFF"
                     android:src="@drawable/ic_heart_outline"
                     app:tint="@color/app_primary" />
-            </RelativeLayout>
                     android:layout_height="240dp"
                     android:scaleType="centerCrop"
                     android:src="@android:drawable/ic_menu_gallery" />
@@ -71,19 +69,28 @@
                             android:textColor="#111111"
                             android:textSize="22sp" />
 
-                        <TextView
-                            android:id="@+id/text_category"
+                        <com.google.android.material.card.MaterialCardView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:background="#D8F3F5"
-                            android:fontFamily="@font/plus_jakarta_sans_bold"
-                            android:paddingStart="14dp"
-                            android:paddingTop="5dp"
-                            android:paddingEnd="14dp"
-                            android:paddingBottom="5dp"
-                            android:text="Categoría"
-                            android:textColor="#547177"
-                            android:textSize="12sp" />
+                            android:layout_marginTop="12dp"
+                            app:cardBackgroundColor="#D8F3F5"
+                            app:cardCornerRadius="20dp"
+                            app:cardElevation="0dp">
+
+                            <TextView
+                                android:id="@+id/text_category"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/plus_jakarta_sans_bold"
+                                android:paddingStart="14dp"
+                                android:paddingTop="5dp"
+                                android:paddingEnd="14dp"
+                                android:paddingBottom="5dp"
+                                android:text="Categoría"
+                                android:textColor="#547177"
+                                android:textSize="12sp"/>
+
+                        </com.google.android.material.card.MaterialCardView>
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -177,7 +184,7 @@
                         android:layout_width="36dp"
                         android:layout_height="36dp"
                         android:layout_marginEnd="6dp"
-                        android:background="@drawable/bg_day_unavailable"
+                        android:background="@drawable/detail_bg_day_unavailable"
                         android:fontFamily="@font/plus_jakarta_sans_bold"
                         android:gravity="center"
                         android:text="L"
@@ -189,7 +196,7 @@
                         android:layout_width="36dp"
                         android:layout_height="36dp"
                         android:layout_marginEnd="6dp"
-                        android:background="@drawable/bg_day_unavailable"
+                        android:background="@drawable/detail_bg_day_unavailable"
                         android:fontFamily="@font/plus_jakarta_sans_bold"
                         android:gravity="center"
                         android:text="M"
@@ -201,7 +208,7 @@
                         android:layout_width="36dp"
                         android:layout_height="36dp"
                         android:layout_marginEnd="6dp"
-                        android:background="@drawable/bg_day_unavailable"
+                        android:background="@drawable/detail_bg_day_unavailable"
                         android:fontFamily="@font/plus_jakarta_sans_bold"
                         android:gravity="center"
                         android:text="X"
@@ -213,7 +220,7 @@
                         android:layout_width="36dp"
                         android:layout_height="36dp"
                         android:layout_marginEnd="6dp"
-                        android:background="@drawable/bg_day_unavailable"
+                        android:background="@drawable/detail_bg_day_unavailable"
                         android:fontFamily="@font/plus_jakarta_sans_bold"
                         android:gravity="center"
                         android:text="J"
@@ -225,7 +232,7 @@
                         android:layout_width="36dp"
                         android:layout_height="36dp"
                         android:layout_marginEnd="6dp"
-                        android:background="@drawable/bg_day_unavailable"
+                        android:background="@drawable/detail_bg_day_unavailable"
                         android:fontFamily="@font/plus_jakarta_sans_bold"
                         android:gravity="center"
                         android:text="V"
@@ -237,7 +244,7 @@
                         android:layout_width="36dp"
                         android:layout_height="36dp"
                         android:layout_marginEnd="6dp"
-                        android:background="@drawable/bg_day_unavailable"
+                        android:background="@drawable/detail_bg_day_unavailable"
                         android:fontFamily="@font/plus_jakarta_sans_bold"
                         android:gravity="center"
                         android:text="S"
@@ -248,7 +255,7 @@
                         android:id="@+id/day_sun"
                         android:layout_width="36dp"
                         android:layout_height="36dp"
-                        android:background="@drawable/bg_day_unavailable"
+                        android:background="@drawable/detail_bg_day_unavailable"
                         android:fontFamily="@font/plus_jakarta_sans_bold"
                         android:gravity="center"
                         android:text="D"
@@ -288,7 +295,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
-                    android:background="@drawable/bg_guide_card"
+                    android:background="@drawable/detail_bg_guide_card"
                     android:orientation="horizontal"
                     android:padding="16dp"
                     android:gravity="center_vertical"
@@ -352,7 +359,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="44dp"
                     android:layout_marginTop="10dp"
-                    android:background="@drawable/bg_outline_button"
+                    android:background="@drawable/common_bg_outline_button"
                     android:fontFamily="@font/plus_jakarta_sans_bold"
                     android:text="Cómo llegar"
                     android:textAllCaps="false"
@@ -418,7 +425,7 @@
             android:id="@+id/btn_reserve"
             android:layout_width="wrap_content"
             android:layout_height="46dp"
-            android:background="@drawable/bg_detail_button"
+            android:background="@drawable/common_bg_detail_button"
             android:fontFamily="@font/plus_jakarta_sans_bold"
             android:paddingHorizontal="22dp"
             android:text="Reservar"

@@ -139,7 +139,7 @@ public class ActivityAdapter extends RecyclerView.Adapter<ActivityAdapter.Activi
 
             Glide.with(context)
                     .load(activity.getImageUrl())
-                    .placeholder(R.drawable.illustration_welcome_placeholder)
+                    .placeholder(R.drawable.common_illustration_welcome_placeholder)
                     .into(imageActivity);
 
             // Favoritos con Hilt EntryPoint

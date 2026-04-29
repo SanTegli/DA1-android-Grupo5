@@ -45,7 +45,7 @@
                 <ImageView
                     android:layout_width="18dp"
                     android:layout_height="18dp"
-                    android:src="@drawable/ic_tune"
+                    android:src="@drawable/common_ic_tune"
                     app:tint="#FFFFFF" />
 
                 <TextView
@@ -86,7 +86,7 @@
                 <ImageView
                     android:layout_width="18dp"
                     android:layout_height="18dp"
-                    android:src="@drawable/ic_history"
+                    android:src="@drawable/history_ic_history"
                     app:tint="#7F0303" />
 
                 <TextView

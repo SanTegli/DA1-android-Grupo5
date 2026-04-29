@@ -26,7 +26,7 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:background="@android:color/transparent"
-            android:src="@drawable/ic_arrow_back"
+            android:src="@drawable/main_ic_arrow_back"
             android:visibility="gone"
             app:tint="#7F0303" />
 
@@ -35,9 +35,9 @@
             android:layout_height="38dp"
             android:layout_marginStart="4dp"
             android:layout_marginEnd="10dp"
-            android:background="@drawable/bg_circle"
+            android:background="@drawable/main_bg_circle"
             android:padding="6dp"
-            android:src="@drawable/ic_person"
+            android:src="@drawable/main_ic_person"
             app:tint="#7F0303" />
 
         <TextView
@@ -48,7 +48,8 @@
             android:text="XploreNow"
             android:textColor="#7F0303"
             android:textSize="24sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:fontFamily="@font/plus_jakarta_sans_bold" />
     </LinearLayout>
 
     <FrameLayout
@@ -91,7 +92,7 @@
                 android:id="@+id/iconDiscover"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/ic_explore"
+                android:src="@drawable/main_ic_explore"
                 app:tint="#7F0303" />
 
             <TextView
@@ -100,7 +101,8 @@
                 android:layout_height="wrap_content"
                 android:text="Discover"
                 android:textColor="#7F0303"
-                android:textSize="11sp" />
+                android:textSize="11sp"
+                android:fontFamily="@font/plus_jakarta_sans_medium" />
         </LinearLayout>
 
         <LinearLayout
@@ -117,7 +119,7 @@
                 android:id="@+id/iconSearch"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/ic_search"
+                android:src="@drawable/main_ic_search"
                 app:tint="#888888" />
 
             <TextView
@@ -126,7 +128,8 @@
                 android:layout_height="wrap_content"
                 android:text="Search"
                 android:textColor="#888888"
-                android:textSize="11sp" />
+                android:textSize="11sp"
+                android:fontFamily="@font/plus_jakarta_sans_medium" />
         </LinearLayout>
 
         <LinearLayout
@@ -143,7 +146,7 @@
                 android:id="@+id/iconBookings"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/ic_confirmation_number"
+                android:src="@drawable/main_ic_confirmation_number"
                 app:tint="#888888" />
 
             <TextView
@@ -152,7 +155,8 @@
                 android:layout_height="wrap_content"
                 android:text="Bookings"
                 android:textColor="#888888"
-                android:textSize="11sp" />
+                android:textSize="11sp"
+                android:fontFamily="@font/plus_jakarta_sans_medium" />
         </LinearLayout>
 
         <LinearLayout
@@ -169,7 +173,7 @@
                 android:id="@+id/iconProfile"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/ic_person"
+                android:src="@drawable/main_ic_person"
                 app:tint="#888888" />
 
             <TextView
@@ -178,7 +182,8 @@
                 android:layout_height="wrap_content"
                 android:text="Profile"
                 android:textColor="#888888"
-                android:textSize="11sp" />
+                android:textSize="11sp"
+                android:fontFamily="@font/plus_jakarta_sans_medium" />
         </LinearLayout>
 
     </LinearLayout>

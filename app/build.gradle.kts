@@ -35,6 +35,29 @@ android {
     buildFeatures {
         viewBinding = true
     }
+
+    sourceSets {
+        getByName("main") {
+            res.srcDirs(
+                "src/main/res",
+                "src/main/res-common",
+                "src/main/res-main",
+                "src/main/res-detail",
+                "src/main/res-filter",
+                "src/main/res-first",
+                "src/main/res-manage",
+                "src/main/res-history",
+                "src/main/res-profile",
+                "src/main/res-welcome"
+            )
+        }
+    }
+}
+
+tasks.register("fixDuplicate") {
+    doLast {
+        delete(file("src/main/res/drawable/common_ic_login.xml"))
+    }
 }
 
 dependencies {

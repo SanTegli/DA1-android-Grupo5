@@ -1,115 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/surface_container_lowest">
+    android:orientation="vertical"
+    android:background="#FFFFFF"
+    android:padding="24dp"
+    android:gravity="center">
 
-    <View
-        android:id="@+id/headerBg"
-        android:layout_width="match_parent"
-        android:layout_height="64dp"
-        android:background="@color/surface_container"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cardIllustration"
-        android:layout_width="0dp"
-        android:layout_height="160dp"
-        android:layout_margin="24dp"
-        app:cardCornerRadius="24dp"
-        app:cardElevation="0dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/headerBg">
-
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="centerCrop"
-            android:src="@drawable/illustration_welcome_placeholder" />
-    </com.google.android.material.card.MaterialCardView>
+    <!-- WELCOME ILLUSTRATION -->
+    <ImageView
+        android:id="@+id/imgWelcome"
+        android:layout_width="220dp"
+        android:layout_height="220dp"
+        android:layout_marginBottom="32dp"
+        android:src="@drawable/common_illustration_welcome_placeholder" />
 
     <TextView
-        android:id="@+id/tvTitle"
-        android:layout_width="366dp"
-        android:layout_height="80dp"
-        android:layout_marginTop="28dp"
-        android:fontFamily="@font/plus_jakarta_sans_bold"
-        android:text="Hola! Te damos la bienvenida"
-        android:textAlignment="center"
-        android:textColor="@color/on_surface"
-        android:textSize="28sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.489"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/cardIllustration" />
-
-    <TextView
-        android:id="@+id/tvSubtitle"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:fontFamily="@font/plus_jakarta_sans_regular"
-        android:text="Elegí cómo querés ingresar a la App"
-        android:textAlignment="center"
-        android:textColor="@color/on_surface_variant"
-        android:textSize="16sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvTitle" />
-
-    <com.google.android.material.button.MaterialButton
-        android:fontFamily="@font/plus_jakarta_sans_regular"
-        android:id="@+id/btnBiometric"
-        style="@style/Widget.AdventurousTourism.Button"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="24dp"
-        android:layout_marginTop="40dp"
-        android:text="Ingresar con huella"
-        app:icon="@drawable/ic_fingerprint"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvSubtitle" />
-
-    <com.google.android.material.button.MaterialButton
-        android:fontFamily="@font/plus_jakarta_sans_regular"
-        android:id="@+id/btnClassicLogin"
-        style="@style/Widget.AdventurousTourism.Button.TextButton"
+        android:id="@+id/txtWelcomeTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Ingresar con usuario y contraseña"
-        app:icon="@drawable/ic_login"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnBiometric" />
+        android:text="¡Bienvenido a XploreNow!"
+        android:textColor="#1A1A1A"
+        android:textSize="28sp"
+        android:fontFamily="@font/plus_jakarta_sans_bold"
+        android:gravity="center"
+        android:layout_marginBottom="12dp" />
 
-    <View
-        android:id="@+id/divider"
-        android:layout_width="0dp"
-        android:layout_height="1dp"
-        android:layout_marginHorizontal="24dp"
-        android:layout_marginTop="32dp"
-        android:background="@color/surface_container_highest"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnClassicLogin" />
+    <TextView
+        android:id="@+id/txtWelcomeSubtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Descubre las mejores experiencias, tours y actividades cerca de ti. Tu aventura comienza aquí."
+        android:textColor="#666666"
+        android:textSize="16sp"
+        android:fontFamily="@font/plus_jakarta_sans_regular"
+        android:gravity="center"
+        android:layout_marginBottom="48dp" />
 
+    <!-- BIOMETRIC BUTTON -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnBiometric"
+        style="@style/Widget.Material3.Button.TonalButton"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginBottom="16dp"
+        android:text="Acceder con Biometría"
+        android:textColor="#7F0303"
+        app:backgroundTint="#FDF2F2"
+        app:cornerRadius="16dp"
+        app:icon="@drawable/common_ic_fingerprint"
+        app:iconGravity="textStart"
+        app:iconTint="#7F0303"
+        android:fontFamily="@font/plus_jakarta_sans_bold" />
+
+    <!-- LOGIN BUTTON -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnClassicLogin"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="Iniciar Sesión con Usuario"
+        android:textColor="#FFFFFF"
+        app:backgroundTint="#7F0303"
+        app:cornerRadius="16dp"
+        app:icon="@drawable/common_ic_login"
+        app:iconGravity="textStart"
+        app:iconTint="#FFFFFF"
+        android:fontFamily="@font/plus_jakarta_sans_bold" />
+
+    <!-- REGISTER TEXT -->
     <TextView
         android:id="@+id/tvRegisterWelcome"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="32dp"
-        android:padding="12dp"
-        android:text="¿No tenés una cuenta? Registrate"
-        android:textColor="@color/primary"
+        android:layout_marginTop="24dp"
+        android:text="¿No tienes cuenta? Regístrate"
+        android:textColor="#7F0303"
+        android:textSize="14sp"
         android:fontFamily="@font/plus_jakarta_sans_bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        android:clickable="true"
+        android:focusable="true" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

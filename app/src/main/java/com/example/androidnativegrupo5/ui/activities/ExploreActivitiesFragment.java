@@ -1,8 +1,6 @@
 package com.example.androidnativegrupo5.ui.activities;
 
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,7 +19,6 @@ import com.example.androidnativegrupo5.databinding.FragmentExploreActivitiesBind
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -46,7 +43,6 @@ public class ExploreActivitiesFragment extends Fragment {
     private final List<String> dynamicCategories = new ArrayList<>();
     private final List<String> dynamicDestinations = new ArrayList<>();
 
-    private String searchText = "";
     private String filterCategory = null;
     private String filterDestination = null;
     private Integer filterMinPrice = null;
@@ -77,42 +73,23 @@ public class ExploreActivitiesFragment extends Fragment {
         binding.recyclerExploreActivities.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.recyclerExploreActivities.setAdapter(adapter);
 
-        binding.editSearchActivities.addTextChangedListener(new TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                searchText = s != null ? s.toString() : "";
-                applyLocalFilters();
-            }
-        });
-
         binding.btnFilterExplore.setOnClickListener(clickedView -> {
             FilterBottomSheetDialogFragment bottomSheet = new FilterBottomSheetDialogFragment();
 
             bottomSheet.setFilterOptions(dynamicCategories, dynamicDestinations);
 
             bottomSheet.setCurrentFilters(
-                    searchText,
                     filterCategory,
                     filterDestination,
                     filterMinPrice != null ? filterMinPrice.floatValue() : 0f,
                     filterMaxPrice != null ? filterMaxPrice.floatValue() : 100000f
             );
 
-            bottomSheet.setOnFiltersAppliedListener((search, category, destination, minPrice, maxPrice) -> {
+            bottomSheet.setOnFiltersAppliedListener((category, destination, minPrice, maxPrice) -> {
                 filterCategory = category;
                 filterDestination = destination;
                 filterMinPrice = minPrice != null ? minPrice.intValue() : null;
                 filterMaxPrice = maxPrice != null ? maxPrice.intValue() : null;
-
-                searchText = search != null ? search : "";
-
-                if (binding != null) {
-                    binding.editSearchActivities.setText(searchText);
-                    binding.editSearchActivities.setSelection(binding.editSearchActivities.getText().length());
-                }
 
                 applyLocalFilters();
             });
@@ -129,9 +106,10 @@ public class ExploreActivitiesFragment extends Fragment {
         apiService.getActivities(0, 100, null, null, null, null, null)
                 .enqueue(new Callback<PaginatedResponse<Activity>>() {
                     @Override
-                    public void onResponse(@NonNull Call<PaginatedResponse<Activity>> call,
-                                           @NonNull Response<PaginatedResponse<Activity>> response) {
-
+                    public void onResponse(
+                            @NonNull Call<PaginatedResponse<Activity>> call,
+                            @NonNull Response<PaginatedResponse<Activity>> response
+                    ) {
                         if (!isAdded() || binding == null) return;
 
                         binding.progressExplore.setVisibility(View.GONE);
@@ -154,9 +132,10 @@ public class ExploreActivitiesFragment extends Fragment {
                     }
 
                     @Override
-                    public void onFailure(@NonNull Call<PaginatedResponse<Activity>> call,
-                                          @NonNull Throwable t) {
-
+                    public void onFailure(
+                            @NonNull Call<PaginatedResponse<Activity>> call,
+                            @NonNull Throwable t
+                    ) {
                         if (!isAdded() || binding == null) return;
 
                         binding.progressExplore.setVisibility(View.GONE);
@@ -192,12 +171,7 @@ public class ExploreActivitiesFragment extends Fragment {
     private void applyLocalFilters() {
         List<Activity> filtered = new ArrayList<>();
 
-        String search = searchText != null
-                ? searchText.toLowerCase(Locale.ROOT).trim()
-                : "";
-
         for (Activity activity : allActivities) {
-            if (!matchesSearch(activity, search)) continue;
             if (!matchesCategory(activity)) continue;
             if (!matchesDestination(activity)) continue;
             if (!matchesPrice(activity)) continue;
@@ -213,22 +187,6 @@ public class ExploreActivitiesFragment extends Fragment {
         }
     }
 
-    private boolean matchesSearch(Activity activity, String search) {
-        if (search == null || search.isEmpty()) return true;
-
-        String name = safe(activity.getName()).toLowerCase(Locale.ROOT);
-        String description = safe(activity.getDescription()).toLowerCase(Locale.ROOT);
-        String destination = safe(activity.getDestination()).toLowerCase(Locale.ROOT);
-        String category = safe(activity.getCategory()).toLowerCase(Locale.ROOT);
-        String guide = safe(activity.getGuideName()).toLowerCase(Locale.ROOT);
-
-        return name.contains(search)
-                || description.contains(search)
-                || destination.contains(search)
-                || category.contains(search)
-                || guide.contains(search);
-    }
-
     private boolean matchesCategory(Activity activity) {
         if (filterCategory == null || filterCategory.trim().isEmpty()) return true;
         return safe(activity.getCategory()).equalsIgnoreCase(filterCategory);
@@ -237,16 +195,6 @@ public class ExploreActivitiesFragment extends Fragment {
     private boolean matchesDestination(Activity activity) {
         if (filterDestination == null || filterDestination.trim().isEmpty()) return true;
         return safe(activity.getDestination()).equalsIgnoreCase(filterDestination);
-    }
-
-    private String getCity(Activity activity) {
-        String destination = safe(activity.getDestination());
-
-        if (destination.contains("-")) {
-            return destination.split("-")[0].trim();
-        }
-
-        return destination.trim();
     }
 
     private boolean matchesPrice(Activity activity) {

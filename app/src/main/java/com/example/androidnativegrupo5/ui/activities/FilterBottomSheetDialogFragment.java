@@ -9,6 +9,7 @@ import android.widget.ArrayAdapter;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.example.androidnativegrupo5.R;
 import com.example.androidnativegrupo5.databinding.BottomSheetFiltersBinding;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
@@ -23,15 +24,13 @@ public class FilterBottomSheetDialogFragment extends BottomSheetDialogFragment {
 
     private List<String> categories = new ArrayList<>();
     private List<String> destinations = new ArrayList<>();
-
-    private String currentSearch = "";
     private String currentCategory = null;
     private String currentDestination = null;
     private Float currentMinPrice = 0f;
     private Float currentMaxPrice = 100000f;
 
     public interface OnFiltersAppliedListener {
-        void onFiltersApplied(String search, String category, String destination, Float minPrice, Float maxPrice);
+        void onFiltersApplied(String category, String destination, Float minPrice, Float maxPrice);
     }
 
     public void setOnFiltersAppliedListener(OnFiltersAppliedListener listener) {
@@ -43,8 +42,7 @@ public class FilterBottomSheetDialogFragment extends BottomSheetDialogFragment {
         this.destinations = destinations != null ? destinations : new ArrayList<>();
     }
 
-    public void setCurrentFilters(String search, String category, String destination, Float minPrice, Float maxPrice) {
-        this.currentSearch = search != null ? search : "";
+    public void setCurrentFilters(String category, String destination, Float minPrice, Float maxPrice) {
         this.currentCategory = category;
         this.currentDestination = destination;
         this.currentMinPrice = minPrice != null ? minPrice : 0f;
@@ -82,10 +80,6 @@ public class FilterBottomSheetDialogFragment extends BottomSheetDialogFragment {
 
         binding.btnApplyFilters.setOnClickListener(v -> {
             if (listener != null) {
-                String search = binding.editSearch.getText() != null
-                        ? binding.editSearch.getText().toString().trim()
-                        : "";
-
                 String category = binding.spinnerCategory.getSelectedItem() != null
                         ? binding.spinnerCategory.getSelectedItem().toString()
                         : null;
@@ -101,7 +95,7 @@ public class FilterBottomSheetDialogFragment extends BottomSheetDialogFragment {
                 Float minPrice = priceValues.get(0);
                 Float maxPrice = priceValues.get(1);
 
-                listener.onFiltersApplied(search, category, destination, minPrice, maxPrice);
+                listener.onFiltersApplied(category, destination, minPrice, maxPrice);
             }
 
             dismiss();
@@ -109,7 +103,7 @@ public class FilterBottomSheetDialogFragment extends BottomSheetDialogFragment {
 
         binding.btnClearFilters.setOnClickListener(v -> {
             if (listener != null) {
-                listener.onFiltersApplied("", null, null, 0f, 100000f);
+                listener.onFiltersApplied(null, null, 0f, 100000f);
             }
             dismiss();
         });
@@ -122,10 +116,10 @@ public class FilterBottomSheetDialogFragment extends BottomSheetDialogFragment {
 
         ArrayAdapter<String> categoryAdapter = new ArrayAdapter<>(
                 requireContext(),
-                android.R.layout.simple_spinner_item,
+                R.layout.item_filter_spinner_selected,
                 categoryOptions
         );
-        categoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        categoryAdapter.setDropDownViewResource(R.layout.item_filter_spinner_dropdown);
         binding.spinnerCategory.setAdapter(categoryAdapter);
 
         List<String> destinationOptions = new ArrayList<>();
@@ -134,15 +128,15 @@ public class FilterBottomSheetDialogFragment extends BottomSheetDialogFragment {
 
         ArrayAdapter<String> destinationAdapter = new ArrayAdapter<>(
                 requireContext(),
-                android.R.layout.simple_spinner_item,
+                R.layout.item_filter_spinner_selected,
                 destinationOptions
         );
+        destinationAdapter.setDropDownViewResource(R.layout.item_filter_spinner_dropdown);
         destinationAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         binding.spinnerDestination.setAdapter(destinationAdapter);
     }
 
     private void setupInitialValues() {
-        binding.editSearch.setText(currentSearch);
 
         setSpinnerSelection(binding.spinnerCategory, currentCategory, "Todas");
         setSpinnerSelection(binding.spinnerDestination, currentDestination, "Todos");
