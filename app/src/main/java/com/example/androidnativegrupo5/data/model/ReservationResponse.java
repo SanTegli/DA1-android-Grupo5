@@ -3,12 +3,19 @@ package com.example.androidnativegrupo5.data.model;
 import com.google.gson.annotations.SerializedName;
 
 public class ReservationResponse {
+
     private Long id;
 
     @SerializedName("activityId")
     private Long activityId;
 
     private String activityName;
+
+    private String destination;
+
+    @SerializedName(value = "imageUrl", alternate = {"image_url"})
+    private String imageUrl;
+
     private Integer participants;
     private String date;
     private String time;
@@ -23,6 +30,12 @@ public class ReservationResponse {
 
     public String getActivityName() { return activityName; }
     public void setActivityName(String activityName) { this.activityName = activityName; }
+
+    public String getDestination() { return destination; }
+    public void setDestination(String destination) { this.destination = destination; }
+
+    public String getImageUrl() { return imageUrl; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 
     public Integer getParticipants() { return participants; }
     public void setParticipants(Integer participants) { this.participants = participants; }

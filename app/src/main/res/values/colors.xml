@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <color name="app_background">#FFF8F1</color>
+    <color name="app_background">#FFFFFF</color>
     <color name="app_surface">#EFE8DF</color>
     <color name="app_card">#D8BA98</color>
     <color name="app_text">#1E1B16</color>

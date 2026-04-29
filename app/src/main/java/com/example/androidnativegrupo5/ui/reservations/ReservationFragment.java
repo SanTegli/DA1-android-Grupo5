@@ -255,6 +255,7 @@ public class ReservationFragment extends Fragment {
             Chip chip = new Chip(requireContext());
             chip.setText(date);
             chip.setCheckable(true);
+            chip.setCheckedIconVisible(false);
 
             chip.setChipBackgroundColorResource(R.color.chip_selector_bg);
             chip.setTextColor(ContextCompat.getColorStateList(requireContext(), R.color.chip_selector));
@@ -288,6 +289,7 @@ public class ReservationFragment extends Fragment {
 
                     chip.setText(time);
                     chip.setCheckable(true);
+                    chip.setCheckedIconVisible(false);
 
                     chip.setChipBackgroundColorResource(R.color.chip_selector_bg);
                     chip.setTextColor(ContextCompat.getColorStateList(requireContext(), R.color.chip_selector));

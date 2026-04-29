@@ -6,7 +6,9 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
+import android.content.DialogInterface;
+import android.graphics.Color;
+import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -98,10 +100,20 @@ public class HistoryFragment extends Fragment {
 
     private void showDatePicker(boolean isFromDate) {
         Calendar calendar = Calendar.getInstance();
+
         DatePickerDialog datePickerDialog = new DatePickerDialog(
                 requireContext(),
+                R.style.CustomDatePickerTheme,
                 (datePicker, year, month, dayOfMonth) -> {
-                    String selectedDate = String.format(Locale.getDefault(), "%04d-%02d-%02d", year, month + 1, dayOfMonth);
+
+                    String selectedDate = String.format(
+                            Locale.getDefault(),
+                            "%04d-%02d-%02d",
+                            year,
+                            month + 1,
+                            dayOfMonth
+                    );
+
                     if (isFromDate) {
                         fromDate = selectedDate;
                         binding.inputFromDate.setText(selectedDate);
@@ -110,8 +122,27 @@ public class HistoryFragment extends Fragment {
                         binding.inputToDate.setText(selectedDate);
                     }
                 },
-                calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
         );
+
+        // No permitir fechas futuras
+        datePickerDialog.getDatePicker().setMaxDate(System.currentTimeMillis());
+
+        datePickerDialog.setOnShowListener(dialog -> {
+            Button btnOk = datePickerDialog.getButton(DialogInterface.BUTTON_POSITIVE);
+            Button btnCancel = datePickerDialog.getButton(DialogInterface.BUTTON_NEGATIVE);
+
+            if (btnOk != null) {
+                btnOk.setTextColor(Color.parseColor("#7F0303"));
+            }
+
+            if (btnCancel != null) {
+                btnCancel.setTextColor(Color.parseColor("#7F0303"));
+            }
+        });
+
         datePickerDialog.show();
     }
 
