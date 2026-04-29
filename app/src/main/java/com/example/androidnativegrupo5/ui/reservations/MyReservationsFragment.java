@@ -1,5 +1,6 @@
 package com.example.androidnativegrupo5.ui.reservations;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -21,6 +22,11 @@ import com.example.androidnativegrupo5.data.model.ReservationResponse;
 import com.example.androidnativegrupo5.data.network.ApiService;
 import com.example.androidnativegrupo5.databinding.FragmentMyReservationsBinding;
 import com.example.androidnativegrupo5.utils.NetworkUtils;
+
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
+
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,6 +57,9 @@ public class MyReservationsFragment extends Fragment implements ReservationAdapt
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
+    private final List<ReservationResponse> allReservations = new ArrayList<>();
+    private String selectedStatusFilter = null;
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container,
@@ -69,6 +78,13 @@ public class MyReservationsFragment extends Fragment implements ReservationAdapt
         adapter = new ReservationAdapter(new ArrayList<>(), this);
         binding.recyclerReservations.setAdapter(adapter);
 
+        binding.btnFilterReservations.setOnClickListener(v -> showStatusFilterDialog());
+
+        binding.btnGoHistory.setOnClickListener(v ->
+                NavHostFragment.findNavController(this)
+                        .navigate(R.id.action_MyReservationsFragment_to_HistoryFragment)
+        );
+
         if (!NetworkUtils.isOnline(requireContext())) {
             binding.layoutOfflineWarning.setVisibility(View.VISIBLE);
             binding.layoutOfflineWarning.setText("Estás sin conexión!");
@@ -77,11 +93,120 @@ public class MyReservationsFragment extends Fragment implements ReservationAdapt
             binding.layoutOfflineWarning.setVisibility(View.GONE);
             loadReservations();
         }
+    }
 
-        binding.btnGoHistory.setOnClickListener(v ->
-                NavHostFragment.findNavController(this)
-                        .navigate(R.id.action_MyReservationsFragment_to_HistoryFragment)
+    private void applyStatusFilter() {
+        if (adapter == null) return;
+
+        // Si no hay filtro → mostrar todo
+        if (selectedStatusFilter == null) {
+            adapter.updateData(new ArrayList<>(allReservations));
+            return;
+        }
+
+        List<ReservationResponse> filteredList = new ArrayList<>();
+
+        for (ReservationResponse reservation : allReservations) {
+
+            if (reservation == null) continue;
+
+            // ⚠️ IMPORTANTE: este getter puede variar según tu modelo
+            String rawStatus = reservation.getStatus(); // <-- SI ERROR, cambiar esto
+
+            if (rawStatus == null) continue;
+
+            String normalized = normalizeStatus(rawStatus);
+
+            if (selectedStatusFilter.equals(normalized)) {
+                filteredList.add(reservation);
+            }
+        }
+
+        adapter.updateData(filteredList);
+    }
+    private void showStatusFilterDialog() {
+        BottomSheetDialog dialog = new BottomSheetDialog(requireContext());
+        View sheetView = getLayoutInflater().inflate(R.layout.bottom_sheet_reservation_filters, null);
+
+        Spinner spinnerStatus = sheetView.findViewById(R.id.spinnerReservationStatus);
+        View btnCloseFilters = sheetView.findViewById(R.id.btnCloseFilters);
+        View btnClearFilters = sheetView.findViewById(R.id.btnClearFilters);
+        View btnApplyFilters = sheetView.findViewById(R.id.btnApplyFilters);
+
+        String[] options = {
+                "Todas",
+                "Confirmadas",
+                "Finalizadas",
+                "Canceladas"
+        };
+
+        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(
+                requireContext(),
+                android.R.layout.simple_spinner_item,
+                options
         );
+
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerStatus.setAdapter(spinnerAdapter);
+
+        if ("CONFIRMED".equals(selectedStatusFilter)) {
+            spinnerStatus.setSelection(1);
+        } else if ("FINISHED".equals(selectedStatusFilter)) {
+            spinnerStatus.setSelection(2);
+        } else if ("CANCELLED".equals(selectedStatusFilter)) {
+            spinnerStatus.setSelection(3);
+        } else {
+            spinnerStatus.setSelection(0);
+        }
+
+        btnCloseFilters.setOnClickListener(v -> dialog.dismiss());
+
+        btnClearFilters.setOnClickListener(v -> {
+            selectedStatusFilter = null;
+            spinnerStatus.setSelection(0);
+            applyStatusFilter();
+            dialog.dismiss();
+        });
+
+        btnApplyFilters.setOnClickListener(v -> {
+            int selectedPosition = spinnerStatus.getSelectedItemPosition();
+
+            if (selectedPosition == 0) {
+                selectedStatusFilter = null;
+            } else if (selectedPosition == 1) {
+                selectedStatusFilter = "CONFIRMED";
+            } else if (selectedPosition == 2) {
+                selectedStatusFilter = "FINISHED";
+            } else if (selectedPosition == 3) {
+                selectedStatusFilter = "CANCELLED";
+            }
+
+            applyStatusFilter();
+            dialog.dismiss();
+        });
+
+        dialog.setContentView(sheetView);
+        dialog.show();
+    }
+
+    private String normalizeStatus(String status) {
+        if (status == null) return "";
+
+        String value = status.trim().toUpperCase();
+
+        if (value.equals("CONFIRMED") || value.equals("CONFIRMADO") || value.equals("CONFIRMADA")) {
+            return "CONFIRMED";
+        }
+
+        if (value.equals("FINISHED") || value.equals("FINALIZADO") || value.equals("FINALIZADA")) {
+            return "FINISHED";
+        }
+
+        if (value.equals("CANCELLED") || value.equals("CANCELED") || value.equals("CANCELADO") || value.equals("CANCELADA")) {
+            return "CANCELLED";
+        }
+
+        return value;
     }
 
     private void loadReservations() {
@@ -103,7 +228,11 @@ public class MyReservationsFragment extends Fragment implements ReservationAdapt
 
                 if (response.isSuccessful() && response.body() != null) {
                     syncLocalDatabase(response.body());
-                    adapter.updateData(response.body());
+
+                    allReservations.clear();
+                    allReservations.addAll(response.body());
+
+                    applyStatusFilter();
                 } else {
                     Toast.makeText(getContext(), "Error al cargar reservas", Toast.LENGTH_SHORT).show();
                 }
@@ -138,7 +267,11 @@ public class MyReservationsFragment extends Fragment implements ReservationAdapt
                 if (!isAdded() || binding == null) return;
 
                 binding.layoutOfflineWarning.setVisibility(View.VISIBLE);
-                adapter.updateData(uiList);
+
+                allReservations.clear();
+                allReservations.addAll(uiList);
+
+                applyStatusFilter();
             });
         });
     }

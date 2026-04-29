@@ -1,75 +1,157 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F5F5F5">
+    android:background="#FFFFFF">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp"
-        android:background="@android:color/white">
+        android:paddingStart="24dp"
+        android:paddingTop="24dp"
+        android:paddingEnd="24dp"
+        android:paddingBottom="22dp"
+        android:background="#FFFFFF">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/plus_jakarta_sans_bold"
             android:text="Historial de actividades"
-            android:textStyle="bold"
-            android:textSize="22sp"
-            android:textColor="@android:color/black" />
+            android:textColor="#1E1B16"
+            android:textSize="24sp" />
 
-        <EditText
-            android:id="@+id/input_destination"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:hint="Destino"
-            android:inputType="textCapWords" />
-
-        <EditText
-            android:id="@+id/input_from_date"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:hint="Fecha desde"
-            android:focusable="false"
-            android:clickable="true" />
-
-        <EditText
-            android:id="@+id/input_to_date"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:hint="Fecha hasta"
-            android:focusable="false"
-            android:clickable="true" />
-
+        <!-- DESTINO -->
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="60dp"
+            android:layout_marginTop="18dp"
+            android:background="@drawable/filter_bg_filter_card_white"
+            android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:layout_marginTop="12dp">
+            android:paddingStart="18dp"
+            android:paddingEnd="18dp">
 
-            <Button
-                android:id="@+id/btn_apply_filters"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Aplicar filtros"
-                android:textAllCaps="false" />
+            <ImageView
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:src="@drawable/ic_location"
+                app:tint="#7F0303" />
 
-            <Button
-                android:id="@+id/btn_clear_filters"
+            <EditText
+                android:id="@+id/input_destination"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="12dp"
                 android:layout_weight="1"
-                android:layout_marginStart="10dp"
-                android:text="Limpiar"
-                android:textAllCaps="false" />
+                android:background="@android:color/transparent"
+                android:fontFamily="@font/plus_jakarta_sans_regular"
+                android:hint="Todos los destinos"
+                android:inputType="textCapWords"
+                android:singleLine="true"
+                android:textColor="#1E1B16"
+                android:textColorHint="#6F747C"
+                android:textSize="18sp" />
+
         </LinearLayout>
+
+        <!-- FECHAS + BOTÓN FILTRO -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginTop="18dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/filter_bg_filter_card_white"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="18dp"
+                android:paddingEnd="14dp">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_calendar"
+                    app:tint="#7F0303" />
+
+                <EditText
+                    android:id="@+id/input_from_date"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="12dp"
+                    android:layout_weight="1"
+                    android:background="@android:color/transparent"
+                    android:clickable="true"
+                    android:focusable="false"
+                    android:fontFamily="@font/plus_jakarta_sans_regular"
+                    android:hint="Desde"
+                    android:singleLine="true"
+                    android:textColor="#1E1B16"
+                    android:textColorHint="#6F747C"
+                    android:textSize="15sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="4dp"
+                    android:paddingEnd="4dp"
+                    android:text="-"
+                    android:textColor="#6F747C"
+                    android:textSize="16sp" />
+
+                <EditText
+                    android:id="@+id/input_to_date"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@android:color/transparent"
+                    android:clickable="true"
+                    android:focusable="false"
+                    android:fontFamily="@font/plus_jakarta_sans_regular"
+                    android:hint="Hasta"
+                    android:singleLine="true"
+                    android:textColor="#1E1B16"
+                    android:textColorHint="#6F747C"
+                    android:textSize="15sp" />
+
+            </LinearLayout>
+
+            <ImageButton
+                android:id="@+id/btn_apply_filters"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_marginStart="14dp"
+                android:background="@drawable/first_bg_circle1"
+                android:contentDescription="Aplicar filtros"
+                android:padding="18dp"
+                android:scaleType="center"
+                android:src="@drawable/main_ic_search_white"
+                app:tint="#FFFFFF" />
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btn_clear_filters"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/common_bg_detail_button"
+            android:fontFamily="@font/plus_jakarta_sans_bold"
+            android:text="Limpiar filtros"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
+            app:backgroundTint="@null" />
+
     </LinearLayout>
 
     <ProgressBar
@@ -85,6 +167,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
+        android:fontFamily="@font/plus_jakarta_sans_regular"
         android:text="No hay actividades finalizadas para mostrar"
         android:textAlignment="center"
         android:textColor="#666666"
@@ -95,8 +178,10 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+        android:clipToPadding="false"
+        android:paddingTop="10dp"
+        android:paddingBottom="12dp"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        android:src="@drawable/history_ic_history" />
 
 </LinearLayout>

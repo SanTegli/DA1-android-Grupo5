@@ -1,17 +1,18 @@
 package com.example.androidnativegrupo5.ui.reservations;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+import android.graphics.Color;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.bumptech.glide.Glide;
 import com.example.androidnativegrupo5.R;
 import com.example.androidnativegrupo5.data.local.TokenManager;
 import com.example.androidnativegrupo5.data.model.AvailabilitySlotResponse;
@@ -23,7 +24,6 @@ import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
-import java.lang.reflect.Method;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -38,11 +38,8 @@ import retrofit2.Response;
 @AndroidEntryPoint
 public class DetailReservationFragment extends Fragment {
 
-    @Inject
-    ApiService apiService;
-
-    @Inject
-    TokenManager tokenManager;
+    @Inject ApiService apiService;
+    @Inject TokenManager tokenManager;
 
     private FragmentManageReservationBinding binding;
 
@@ -63,18 +60,9 @@ public class DetailReservationFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         Bundle args = getArguments();
-
         if (args != null) {
             reservationId = args.getLong("reservationId");
-            if (args.containsKey("activityId")) {
-                activityId = args.getLong("activityId");
-            }
-        }
-
-        if (reservationId == null || reservationId == 0) {
-            Toast.makeText(getContext(), "No se pudo abrir la reserva", Toast.LENGTH_SHORT).show();
-            NavHostFragment.findNavController(this).popBackStack();
-            return;
+            activityId = args.getLong("activityId", 0);
         }
 
         loadReservation();
@@ -98,165 +86,98 @@ public class DetailReservationFragment extends Fragment {
         });
     }
 
+    // =========================
+    // CARGAR RESERVA
+    // =========================
+
     private void loadReservation() {
         apiService.getMyReservations().enqueue(new Callback<List<ReservationResponse>>() {
             @Override
             public void onResponse(@NonNull Call<List<ReservationResponse>> call,
                                    @NonNull Response<List<ReservationResponse>> response) {
 
-                if (!isAdded() || binding == null) return;
-
                 if (response.isSuccessful() && response.body() != null) {
-                    for (ReservationResponse reservation : response.body()) {
-                        if (reservation.getId() != null && reservation.getId().equals(reservationId)) {
-                            currentReservation = reservation;
-                            bindReservation(reservation);
+                    for (ReservationResponse r : response.body()) {
+                        if (r.getId().equals(reservationId)) {
+                            currentReservation = r;
+                            bindReservation(r);
                             return;
                         }
                     }
-
-                    Toast.makeText(getContext(), "Reserva no encontrada", Toast.LENGTH_SHORT).show();
-                    NavHostFragment.findNavController(DetailReservationFragment.this).popBackStack();
-
-                } else {
-                    Toast.makeText(getContext(), "Error al cargar la reserva", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
-            public void onFailure(@NonNull Call<List<ReservationResponse>> call,
-                                  @NonNull Throwable t) {
-                if (!isAdded()) return;
-                Toast.makeText(getContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
+            public void onFailure(@NonNull Call<List<ReservationResponse>> call, @NonNull Throwable t) {
+                Toast.makeText(getContext(), "Error de red", Toast.LENGTH_SHORT).show();
             }
         });
     }
+
+    // =========================
+    // BIND UI
+    // =========================
 
     private void bindReservation(ReservationResponse reservation) {
-        binding.textManageName.setText(safeText(reservation.getActivityName(), "Actividad"));
 
-        String date = getStringValue(reservation,
-                "getDate",
-                "getReservationDate",
-                "getAvailabilityDate",
-                "getActivityDate");
+        Glide.with(requireContext())
+                .load(reservation.getImageUrl())
+                .placeholder(R.drawable.common_illustration_welcome_placeholder)
+                .error(R.drawable.common_illustration_welcome_placeholder)
+                .into(binding.imageReservationDetail);
 
-        String time = getStringValue(reservation,
-                "getTime",
-                "getReservationTime",
-                "getAvailabilityTime",
-                "getActivityTime");
-
-        if (!date.isEmpty() && !time.isEmpty()) {
-            binding.textManageDateTime.setText(date + " - " + time);
-        } else if (!date.isEmpty()) {
-            binding.textManageDateTime.setText(date);
-        } else {
-            binding.textManageDateTime.setText("Fecha y horario no disponible");
-        }
-
+        binding.textManageName.setText(reservation.getActivityName());
+        binding.textManageDateTime.setText(reservation.getDate() + " - " + reservation.getTime());
         binding.textManagePeople.setText("Personas: " + reservation.getParticipants());
 
-        String status = getStringValue(reservation,
-                "getStatus",
-                "getReservationStatus");
-
-        if (status.isEmpty()) {
-            status = "Confirmada";
-        }
+        String status = reservation.getStatus();
+        String normalized = status != null ? status.trim().toUpperCase() : "";
 
         binding.textManageStatus.setText(formatStatus(status));
+        applyStatusStyle(status);
+        binding.textManageTotalPrice.setText("Total: $" + reservation.getTotalPrice());
 
-        String totalPrice = getStringValue(reservation,
-                "getTotalPrice",
-                "getTotal",
-                "getPrice");
+        boolean isCancelled = normalized.equals("CANCELLED") ||
+                normalized.equals("CANCELED") ||
+                normalized.equals("CANCELADO") ||
+                normalized.equals("CANCELADA");
 
-        if (!totalPrice.isEmpty()) {
-            binding.textManageTotalPrice.setText("Total: $" + totalPrice);
-        } else {
-            binding.textManageTotalPrice.setText("Total no disponible");
-        }
+        boolean isFinished = normalized.equals("FINISHED") ||
+                normalized.equals("FINALIZADO") ||
+                normalized.equals("FINALIZADA");
 
-        boolean isCancelled = status.equalsIgnoreCase("CANCELLED")
-                || status.equalsIgnoreCase("CANCELADA");
-
-        binding.btnCancelReservation.setVisibility(isCancelled ? View.GONE : View.VISIBLE);
-        binding.btnRescheduleReservation.setVisibility(isCancelled ? View.GONE : View.VISIBLE);
+        binding.btnCancelReservation.setVisibility((isCancelled || isFinished) ? View.GONE : View.VISIBLE);
+        binding.btnRescheduleReservation.setVisibility((isCancelled || isFinished) ? View.GONE : View.VISIBLE);
+        binding.btnRateReservation.setVisibility(isFinished ? View.VISIBLE : View.GONE);
     }
 
-    private void confirmCancelReservation() {
-        if (currentReservation == null || currentReservation.getId() == null) return;
-
-        new MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Cancelar reserva")
-                .setMessage("¿Seguro que querés cancelar esta reserva?")
-                .setPositiveButton("Sí, cancelar", (dialog, which) -> cancelReservation())
-                .setNegativeButton("No", null)
-                .show();
-    }
-
-    private void cancelReservation() {
-        if (currentReservation == null || currentReservation.getId() == null) return;
-
-        String token = tokenManager.getToken();
-
-        if (token == null) {
-            Toast.makeText(getContext(), "Error de autenticación", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        apiService.cancelReservation(currentReservation.getId()).enqueue(new Callback<Void>() {
-            @Override
-            public void onResponse(@NonNull Call<Void> call,
-                                   @NonNull Response<Void> response) {
-
-                if (!isAdded()) return;
-
-                if (response.isSuccessful()) {
-                    Toast.makeText(getContext(), "Reserva cancelada con éxito", Toast.LENGTH_SHORT).show();
-                    NavHostFragment.findNavController(DetailReservationFragment.this).popBackStack();
-                } else {
-                    Toast.makeText(getContext(), "Error al cancelar la reserva", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(@NonNull Call<Void> call,
-                                  @NonNull Throwable t) {
-                if (!isAdded()) return;
-                Toast.makeText(getContext(), "Fallo la conexión con el servidor", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
+    // =========================
+    // RESCHEDULE
+    // =========================
 
     private void showRescheduleDialog(ReservationResponse reservation) {
-        if (reservation.getActivityId() == null) {
-            Toast.makeText(getContext(), "No se pudo obtener la actividad", Toast.LENGTH_SHORT).show();
-            return;
-        }
 
-        apiService.getAvailability(reservation.getActivityId()).enqueue(new Callback<List<AvailabilitySlotResponse>>() {
-            @Override
-            public void onResponse(@NonNull Call<List<AvailabilitySlotResponse>> call,
-                                   @NonNull Response<List<AvailabilitySlotResponse>> response) {
+        apiService.getAvailability(reservation.getActivityId())
+                .enqueue(new Callback<List<AvailabilitySlotResponse>>() {
 
-                if (!isAdded()) return;
+                    @Override
+                    public void onResponse(@NonNull Call<List<AvailabilitySlotResponse>> call,
+                                           @NonNull Response<List<AvailabilitySlotResponse>> response) {
 
-                if (response.isSuccessful() && response.body() != null) {
-                    renderRescheduleDialog(reservation, response.body());
-                } else {
-                    Toast.makeText(getContext(), "Error al cargar horarios", Toast.LENGTH_SHORT).show();
-                }
-            }
+                        if (!response.isSuccessful() || response.body() == null) {
+                            Toast.makeText(getContext(), "Error al cargar horarios", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
 
-            @Override
-            public void onFailure(@NonNull Call<List<AvailabilitySlotResponse>> call,
-                                  @NonNull Throwable t) {
-                if (!isAdded()) return;
-                Toast.makeText(getContext(), "Error al cargar horarios", Toast.LENGTH_SHORT).show();
-            }
-        });
+                        renderRescheduleDialog(reservation, response.body());
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Call<List<AvailabilitySlotResponse>> call,
+                                          @NonNull Throwable t) {
+                        Toast.makeText(getContext(), "Error de red", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     private void renderRescheduleDialog(ReservationResponse reservation,
@@ -281,10 +202,10 @@ public class DetailReservationFragment extends Fragment {
             Chip chipDate = new Chip(requireContext());
             chipDate.setText(date);
             chipDate.setCheckable(true);
+            chipDate.setCheckedIconVisible(false);
 
             chipDate.setOnClickListener(v -> {
                 selectedDate[0] = date;
-                selectedTime[0] = "";
                 cgTimes.removeAllViews();
 
                 for (AvailabilitySlotResponse slot : slots) {
@@ -292,10 +213,7 @@ public class DetailReservationFragment extends Fragment {
                         Chip chipTime = new Chip(requireContext());
                         chipTime.setText(slot.getTime());
                         chipTime.setCheckable(true);
-
-                        if (slot.getAvailableSlots() < reservation.getParticipants()) {
-                            chipTime.setEnabled(false);
-                        }
+                        chipTime.setCheckedIconVisible(false);
 
                         chipTime.setOnClickListener(vt -> selectedTime[0] = slot.getTime());
 
@@ -310,108 +228,143 @@ public class DetailReservationFragment extends Fragment {
         new MaterialAlertDialogBuilder(requireContext())
                 .setTitle("Reprogramar reserva")
                 .setView(dialogView)
-                .setPositiveButton("Reprogramar", (dialog, which) -> {
+                .setPositiveButton("Confirmar", (dialog, which) -> {
                     if (selectedDate[0].isEmpty() || selectedTime[0].isEmpty()) {
-                        Toast.makeText(getContext(), "Debe seleccionar fecha y hora", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "Seleccioná fecha y hora", Toast.LENGTH_SHORT).show();
                         return;
                     }
 
-                    executeReschedule(
-                            reservation.getId(),
-                            selectedDate[0],
-                            selectedTime[0],
-                            reservation.getParticipants()
-                    );
+                    executeReschedule(reservation.getId(), selectedDate[0], selectedTime[0]);
                 })
                 .setNegativeButton("Cancelar", null)
                 .show();
     }
 
-    private void executeReschedule(Long id, String date, String time, int participants) {
-        String token = tokenManager.getToken();
-
-        if (token == null) {
-            Toast.makeText(getContext(), "Error: Sesión no válida", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
+    private void executeReschedule(Long id, String date, String time) {
         RescheduleReservationRequest request =
-                new RescheduleReservationRequest(date, time, participants);
+                new RescheduleReservationRequest(date, time, currentReservation.getParticipants());
 
-        apiService.rescheduleReservation(id, request).enqueue(new Callback<ReservationResponse>() {
-            @Override
-            public void onResponse(@NonNull Call<ReservationResponse> call,
-                                   @NonNull Response<ReservationResponse> response) {
+        apiService.rescheduleReservation(id, request)
+                .enqueue(new Callback<ReservationResponse>() {
+                    @Override
+                    public void onResponse(@NonNull Call<ReservationResponse> call,
+                                           @NonNull Response<ReservationResponse> response) {
 
-                if (!isAdded()) return;
-
-                if (response.isSuccessful()) {
-                    Toast.makeText(getContext(), "Reserva reprogramada con éxito", Toast.LENGTH_SHORT).show();
-                    loadReservation();
-                } else {
-                    try {
-                        String error = response.errorBody() != null
-                                ? response.errorBody().string()
-                                : "Error al reprogramar";
-
-                        Log.e("RESCHEDULE_ERROR", error);
-                        Toast.makeText(getContext(), "No se pudo reprogramar", Toast.LENGTH_SHORT).show();
-
-                    } catch (Exception e) {
-                        Toast.makeText(getContext(), "Error de disponibilidad", Toast.LENGTH_SHORT).show();
+                        if (response.isSuccessful()) {
+                            Toast.makeText(getContext(), "Reserva reprogramada", Toast.LENGTH_SHORT).show();
+                            loadReservation();
+                        }
                     }
-                }
-            }
 
-            @Override
-            public void onFailure(@NonNull Call<ReservationResponse> call,
-                                  @NonNull Throwable t) {
-                if (!isAdded()) return;
-                Toast.makeText(getContext(), "Fallo la conexión con el servidor", Toast.LENGTH_SHORT).show();
-            }
-        });
+                    @Override
+                    public void onFailure(@NonNull Call<ReservationResponse> call,
+                                          @NonNull Throwable t) {
+                        Toast.makeText(getContext(), "Error de red", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
-    private String getStringValue(Object object, String... methodNames) {
-        for (String methodName : methodNames) {
-            try {
-                Method method = object.getClass().getMethod(methodName);
-                Object value = method.invoke(object);
-
-                if (value != null) {
-                    return String.valueOf(value);
-                }
-
-            } catch (Exception ignored) {
-            }
-        }
-
-        return "";
-    }
-
-    private String safeText(String value, String fallback) {
-        if (value == null || value.trim().isEmpty()) return fallback;
-        return value;
-    }
+    // =========================
+    // FORMAT STATUS
+    // =========================
 
     private String formatStatus(String status) {
         if (status == null) return "Confirmada";
 
-        switch (status.toUpperCase()) {
+        switch (status.trim().toUpperCase()) {
             case "CONFIRMED":
+            case "CONFIRMADED":
+            case "CONFIRMADO":
+            case "CONFIRMADA":
                 return "Confirmada";
+
+            case "FINISHED":
+            case "FINALIZADO":
+            case "FINALIZADA":
+                return "Finalizada";
+
             case "CANCELLED":
+            case "CANCELED":
+            case "CANCELADO":
+            case "CANCELADA":
                 return "Cancelada";
+
             case "PENDING":
+            case "PENDIENTE":
                 return "Pendiente";
+
             default:
                 return status;
         }
     }
+    private void applyStatusStyle(String status) {
+        String formattedStatus = formatStatus(status);
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
+        switch (formattedStatus) {
+            case "Confirmada":
+                binding.textManageStatus.setBackgroundResource(R.drawable.common_bg_status_confirmed);
+                binding.textManageStatus.setTextColor(Color.parseColor("#2F7A7E"));
+                break;
+
+            case "Finalizada":
+                binding.textManageStatus.setBackgroundResource(R.drawable.common_bg_status_finished);
+                binding.textManageStatus.setTextColor(Color.parseColor("#1E4DB7"));
+                break;
+
+            case "Cancelada":
+                binding.textManageStatus.setBackgroundResource(R.drawable.common_bg_status_cancelled);
+                binding.textManageStatus.setTextColor(Color.parseColor("#B3261E"));
+                break;
+
+            default:
+                binding.textManageStatus.setBackgroundResource(R.drawable.common_bg_status_confirmed);
+                binding.textManageStatus.setTextColor(Color.parseColor("#2F7A7E"));
+                break;
+        }
+    }
+
+    // =========================
+    // CANCEL
+    // =========================
+
+    private void confirmCancelReservation() {
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Cancelar reserva")
+                .setMessage("¿Seguro?")
+                .setPositiveButton("Sí", (d, w) -> cancelReservation())
+                .setNegativeButton("No", null);
+
+        androidx.appcompat.app.AlertDialog dialog = builder.create();
+
+        dialog.setOnShowListener(d -> {
+            dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE)
+                    .setTextColor(android.graphics.Color.parseColor("#7F0303"));
+
+            dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_NEGATIVE)
+                    .setTextColor(android.graphics.Color.parseColor("#7F0303"));
+        });
+
+        dialog.show();
+    }
+
+    private void cancelReservation() {
+        apiService.cancelReservation(currentReservation.getId())
+                .enqueue(new Callback<Void>() {
+                    @Override
+                    public void onResponse(@NonNull Call<Void> call,
+                                           @NonNull Response<Void> response) {
+
+                        if (response.isSuccessful()) {
+                            Toast.makeText(getContext(), "Cancelada", Toast.LENGTH_SHORT).show();
+                            NavHostFragment.findNavController(DetailReservationFragment.this).popBackStack();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Call<Void> call,
+                                          @NonNull Throwable t) {
+                        Toast.makeText(getContext(), "Error", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 }

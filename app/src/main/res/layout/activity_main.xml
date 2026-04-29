@@ -99,7 +99,7 @@
                 android:id="@+id/textDiscover"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Discover"
+                android:text="Descubre"
                 android:textColor="#7F0303"
                 android:textSize="11sp"
                 android:fontFamily="@font/plus_jakarta_sans_medium" />
@@ -126,7 +126,7 @@
                 android:id="@+id/textSearch"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Search"
+                android:text="Buscar"
                 android:textColor="#888888"
                 android:textSize="11sp"
                 android:fontFamily="@font/plus_jakarta_sans_medium" />
@@ -153,7 +153,7 @@
                 android:id="@+id/textBookings"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Bookings"
+                android:text="Reservas"
                 android:textColor="#888888"
                 android:textSize="11sp"
                 android:fontFamily="@font/plus_jakarta_sans_medium" />
@@ -180,7 +180,7 @@
                 android:id="@+id/textProfile"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Profile"
+                android:text="Perfil"
                 android:textColor="#888888"
                 android:textSize="11sp"
                 android:fontFamily="@font/plus_jakarta_sans_medium" />
