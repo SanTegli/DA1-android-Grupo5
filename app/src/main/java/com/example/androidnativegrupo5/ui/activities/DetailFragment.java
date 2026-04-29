@@ -307,7 +307,6 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
                 if (!isAdded() || binding == null) return;
                 binding.textSchedules.setText("No se pudo cargar la disponibilidad.");
             }
-            @Override public void onFailure(@NonNull Call<List<AvailabilitySlotResponse>> call, @NonNull Throwable t) {}
         });
     }
 

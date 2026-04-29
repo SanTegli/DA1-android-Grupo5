@@ -92,7 +92,6 @@ public class ProfileFragment extends Fragment {
         usernameEditText = view.findViewById(R.id.usernameEditText);
         emailEditText = view.findViewById(R.id.emailEditText);
         phoneEditText = view.findViewById(R.id.phoneEditText);
-        profileImageView = view.findViewById(R.id.profileImage);
         
         Button btnMyReservations = view.findViewById(R.id.btnMyReservations);
         Button btnHistory = view.findViewById(R.id.btnMyHistory);
@@ -112,14 +111,6 @@ public class ProfileFragment extends Fragment {
         if (saveButton != null) saveButton.setOnClickListener(v -> saveProfile());
         if (logoutButton != null) logoutButton.setOnClickListener(v -> showLogoutConfirmation());
 
-        profileImageView.setOnClickListener(v -> {
-            Intent intent = new Intent(Intent.ACTION_PICK);
-            intent.setType("image/*");
-            pickImageLauncher.launch(intent);
-        });
-
-        view.findViewById(R.id.btn_back).setOnClickListener(v -> 
-                NavHostFragment.findNavController(this).navigateUp());
 
         btnMyReservations.setOnClickListener(v ->
                 NavHostFragment.findNavController(this).navigate(R.id.action_ProfileFragment_to_MyReservationsFragment));
@@ -185,9 +176,6 @@ public class ProfileFragment extends Fragment {
         emailEditText.setText(user.getEmail());
         phoneEditText.setText(user.getPhone());
 
-        if (user.getProfileImageUrl() != null && !user.getProfileImageUrl().isEmpty()) {
-            Glide.with(this).load(user.getProfileImageUrl()).circleCrop().into(profileImageView);
-        }
 
         UserPreferences prefs = user.getPreferences();
         if (prefs != null) {
@@ -207,11 +195,6 @@ public class ProfileFragment extends Fragment {
     }
 
     private void saveProfile() {
-        String username = usernameEditText.getText().toString().trim();
-        String phone = phoneEditText.getText().toString().trim();
-        String email = emailEditText.getText().toString().trim();
-        String imageUrl = selectedImageUri != null ? selectedImageUri.toString() : null;
-
         UserPreferences prefs = new UserPreferences(
                 categorySpinner.getText().toString(),
                 (int) budgetSlider.getValue(),
@@ -224,8 +207,6 @@ public class ProfileFragment extends Fragment {
         updateRequest.setPhone(phoneEditText.getText().toString().trim());
         updateRequest.setEmail(emailEditText.getText().toString().trim());
         updateRequest.setPreferences(prefs);
-        if (selectedImageUri != null) updateRequest.setProfileImageUrl(selectedImageUri.toString());
-
         setLoading(true);
         apiService.updateProfile(updateRequest).enqueue(new Callback<>() {
             @Override

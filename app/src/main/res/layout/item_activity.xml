@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="12dp"
@@ -36,16 +37,21 @@
             android:layout_weight="1"
             android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/text_name"
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/plus_jakarta_sans_bold"
-                android:text="Sunset Yacht Cruise"
-                android:textColor="@color/app_text"
-                android:textSize="16sp"
-                android:maxLines="1"
-                android:ellipsize="end" />
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/text_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_toStartOf="@id/btn_favorite"
+                    android:fontFamily="@font/plus_jakarta_sans_bold"
+                    android:text="Sunset Yacht Cruise"
+                    android:textColor="@color/app_text"
+                    android:textSize="16sp"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
 
                 <ImageButton
                     android:id="@+id/btn_favorite"
@@ -56,37 +62,20 @@
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/ic_heart_outline"
                     app:tint="@color/app_primary" />
+
             </RelativeLayout>
 
-            <!-- Hidden fields required by ActivityAdapter to avoid NPE -->
-            <TextView android:id="@+id/text_description" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
-            <TextView android:id="@+id/text_destination" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
-            <TextView android:id="@+id/text_duration" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
-            <TextView android:id="@+id/text_slots" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
-
             <TextView
-                android:id="@+id/text_description"
-                android:layout_width="1dp"
-                android:layout_height="1dp"
-                android:visibility="gone" />
-
-            <TextView
-                android:id="@+id/text_destination"
-                android:layout_width="1dp"
-                android:layout_height="1dp"
-                android:visibility="gone" />
-
-            <TextView
-                android:id="@+id/text_duration"
-                android:layout_width="1dp"
-                android:layout_height="1dp"
-                android:visibility="gone" />
-
-            <TextView
-                android:id="@+id/text_slots"
-                android:layout_width="1dp"
-                android:layout_height="1dp"
-                android:visibility="gone" />
+                android:id="@+id/indicatorUpdate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:fontFamily="@font/plus_jakarta_sans_bold"
+                android:textColor="@color/app_primary"
+                android:textSize="10sp"
+                android:visibility="gone"
+                tools:text="¡Precio modificado!"
+                tools:visibility="visible" />
 
             <LinearLayout
                 android:layout_width="match_parent"

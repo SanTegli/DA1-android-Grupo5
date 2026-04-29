@@ -71,7 +71,7 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.View
             // Cargar imagen con Glide
             Glide.with(itemView.getContext())
                     .load(favorite.getImageUrl())
-                    .placeholder(R.drawable.illustration_welcome_placeholder)
+                    .placeholder(R.drawable.common_illustration_welcome_placeholder)
                     .into(binding.imageActivity);
 
             // Indicadores de cambios

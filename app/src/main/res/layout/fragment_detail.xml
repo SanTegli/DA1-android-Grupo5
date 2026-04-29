@@ -35,11 +35,9 @@
                     android:layout_alignParentEnd="true"
                     android:layout_alignParentTop="true"
                     android:layout_margin="16dp"
-                    android:background="@drawable/bg_circle"
                     android:backgroundTint="#80FFFFFF"
                     android:src="@drawable/ic_heart_outline"
                     app:tint="@color/app_primary" />
-            </RelativeLayout>
                     android:layout_height="240dp"
                     android:scaleType="centerCrop"
                     android:src="@android:drawable/ic_menu_gallery" />
