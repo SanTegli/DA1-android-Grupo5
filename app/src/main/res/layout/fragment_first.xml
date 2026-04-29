@@ -66,7 +66,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Experiencias Recomendadas"
+                android:text="Tus próximos imperdibles"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:fontFamily="@font/plus_jakarta_sans_bold" />
@@ -78,6 +78,40 @@
                 android:layout_marginTop="12dp"/>
         </LinearLayout>
 
+        <!-- NEWS SECTION (ABAJO DE FEATURED) -->
+        <LinearLayout
+            android:id="@+id/layoutNews"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Novedades y beneficios"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/app_text"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerNews"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:clipToPadding="false" />
+        </LinearLayout>
+
+        <!-- POPULAR -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Lo mejor a la redonda"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginTop="24dp"
+            android:textColor="@color/app_text"/>
         <!-- ACTIVIDADES CERCA TUYO + VER TODAS -->
         <LinearLayout
             android:layout_width="match_parent"

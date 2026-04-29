@@ -91,6 +91,9 @@
         <action
             android:id="@+id/action_FirstFragment_to_ExploreActivitiesFragment"
             app:destination="@id/ExploreActivitiesFragment" />
+        <action
+            android:id="@+id/action_FirstFragment_to_FavoritesFragment"
+            app:destination="@id/FavoritesFragment" />
     </fragment>
 
     <fragment
@@ -143,6 +146,10 @@
             android:id="@+id/action_ProfileFragment_to_HistoryFragment"
             app:destination="@id/HistoryFragment" />
 
+        <action
+            android:id="@+id/action_ProfileFragment_to_FavoritesFragment"
+            app:destination="@id/FavoritesFragment" />
+
     </fragment>
 
     <fragment
@@ -179,6 +186,16 @@
         tools:layout="@layout/fragment_explore_activities">
         <action
             android:id="@+id/action_ExploreActivitiesFragment_to_DetailFragment"
+            app:destination="@id/DetailFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/FavoritesFragment"
+        android:name="com.example.androidnativegrupo5.ui.favorites.FavoritesFragment"
+        android:label="Favoritos"
+        tools:layout="@layout/fragment_favorites">
+        <action
+            android:id="@+id/action_FavoritesFragment_to_DetailFragment"
             app:destination="@id/DetailFragment" />
     </fragment>
 

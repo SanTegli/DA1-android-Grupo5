@@ -83,4 +83,5 @@ dependencies {
     implementation(libs.play.services.maps)
     implementation(libs.biometric)
     implementation("androidx.core:core-splashscreen:1.0.1")
+    implementation("com.google.android.flexbox:flexbox:3.0.0")
 }

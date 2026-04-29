@@ -13,6 +13,8 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -20,6 +22,8 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.bumptech.glide.Glide;
@@ -28,6 +32,7 @@ import com.example.androidnativegrupo5.data.model.UserPreferences;
 import com.example.androidnativegrupo5.data.model.UserResponse;
 import com.example.androidnativegrupo5.data.network.ApiService;
 import com.example.androidnativegrupo5.data.local.TokenManager;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.slider.Slider;
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -53,9 +58,10 @@ public class ProfileFragment extends Fragment {
     private TextInputEditText usernameEditText, emailEditText, phoneEditText;
     private AutoCompleteTextView categorySpinner, destinationSpinner, durationSpinner;
     private Slider budgetSlider;
-    private Button saveButton;
+    private Button saveButton, logoutButton;
     private ProgressBar progressBar;
     private ImageView profileImageView;
+    private TextView userNameDisplay;
     private Uri selectedImageUri;
 
     private final List<String> categories = Arrays.asList("Aventura", "Cultura", "Gastronomía", "Bienestar", "Naturaleza");
@@ -82,33 +88,29 @@ public class ProfileFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        userNameDisplay = view.findViewById(R.id.user_name_display);
         usernameEditText = view.findViewById(R.id.usernameEditText);
         emailEditText = view.findViewById(R.id.emailEditText);
         phoneEditText = view.findViewById(R.id.phoneEditText);
         profileImageView = view.findViewById(R.id.profileImage);
+        
         Button btnMyReservations = view.findViewById(R.id.btnMyReservations);
         Button btnHistory = view.findViewById(R.id.btnMyHistory);
-
-        // Bloquear edición de email
-        if (emailEditText != null) {
-            emailEditText.setFocusable(false);
-            emailEditText.setClickable(false);
-            emailEditText.setEnabled(false);
-        }
+        Button btnFavorites = view.findViewById(R.id.btnFavorites);
+        logoutButton = view.findViewById(R.id.logoutButton);
+        saveButton = view.findViewById(R.id.saveButton);
+        progressBar = view.findViewById(R.id.progressBar);
 
         categorySpinner = view.findViewById(R.id.categorySpinner);
         destinationSpinner = view.findViewById(R.id.destinationSpinner);
         durationSpinner = view.findViewById(R.id.durationSpinner);
         budgetSlider = view.findViewById(R.id.budgetSlider);
 
-        saveButton = view.findViewById(R.id.saveButton);
-        progressBar = view.findViewById(R.id.progressBar);
-
         setupSpinners();
-
         loadProfile();
 
-        saveButton.setOnClickListener(v -> saveProfile());
+        if (saveButton != null) saveButton.setOnClickListener(v -> saveProfile());
+        if (logoutButton != null) logoutButton.setOnClickListener(v -> showLogoutConfirmation());
 
         profileImageView.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_PICK);
@@ -116,11 +118,34 @@ public class ProfileFragment extends Fragment {
             pickImageLauncher.launch(intent);
         });
 
+        view.findViewById(R.id.btn_back).setOnClickListener(v -> 
+                NavHostFragment.findNavController(this).navigateUp());
+
         btnMyReservations.setOnClickListener(v ->
                 NavHostFragment.findNavController(this).navigate(R.id.action_ProfileFragment_to_MyReservationsFragment));
 
         btnHistory.setOnClickListener(v ->
                 NavHostFragment.findNavController(this).navigate(R.id.action_ProfileFragment_to_HistoryFragment));
+
+        if (btnFavorites != null) {
+            btnFavorites.setOnClickListener(v ->
+                NavHostFragment.findNavController(this).navigate(R.id.action_ProfileFragment_to_FavoritesFragment));
+        }
+    }
+
+    private void showLogoutConfirmation() {
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Cerrar Sesión")
+                .setMessage("¿Estás seguro de que quieres salir?")
+                .setPositiveButton("Salir", (dialog, which) -> handleLogout())
+                .setNegativeButton("Cancelar", null)
+                .show();
+    }
+
+    private void handleLogout() {
+        tokenManager.clearToken();
+        NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_content_main);
+        navController.navigate(R.id.WelcomeFragment);
     }
 
     private void setupSpinners() {
@@ -142,20 +167,13 @@ public class ProfileFragment extends Fragment {
                 setLoading(false);
                 if (response.isSuccessful() && response.body() != null) {
                     populateFields(response.body());
-                } else {
-                    Log.e("ProfileFragment", "Error loading profile: " + response.code());
-                    if (getContext() != null) {
-                        Toast.makeText(getContext(), "Error al cargar perfil", Toast.LENGTH_SHORT).show();
-                    }
+                } else if (response.code() == 401 || response.code() == 404 || response.code() == 500) {
+                    handleLogout();
                 }
             }
-
             @Override
             public void onFailure(Call<UserResponse> call, Throwable t) {
                 setLoading(false);
-                if (getContext() != null) {
-                    Toast.makeText(getContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
-                }
             }
         });
     }
@@ -163,15 +181,12 @@ public class ProfileFragment extends Fragment {
     private void populateFields(UserResponse user) {
         if (user == null) return;
         usernameEditText.setText(user.getUsername());
+        if (userNameDisplay != null) userNameDisplay.setText(user.getUsername());
         emailEditText.setText(user.getEmail());
         phoneEditText.setText(user.getPhone());
 
         if (user.getProfileImageUrl() != null && !user.getProfileImageUrl().isEmpty()) {
-            Glide.with(this)
-                    .load(user.getProfileImageUrl())
-                    .placeholder(android.R.drawable.ic_menu_report_image)
-                    .circleCrop()
-                    .into(profileImageView);
+            Glide.with(this).load(user.getProfileImageUrl()).circleCrop().into(profileImageView);
         }
 
         UserPreferences prefs = user.getPreferences();
@@ -205,38 +220,20 @@ public class ProfileFragment extends Fragment {
         );
 
         UserResponse updateRequest = new UserResponse();
-        updateRequest.setUsername(username);
-        updateRequest.setPhone(phone);
-        updateRequest.setEmail(email);
+        updateRequest.setUsername(usernameEditText.getText().toString().trim());
+        updateRequest.setPhone(phoneEditText.getText().toString().trim());
+        updateRequest.setEmail(emailEditText.getText().toString().trim());
         updateRequest.setPreferences(prefs);
-        if (imageUrl != null) {
-            updateRequest.setProfileImageUrl(imageUrl);
-        }
+        if (selectedImageUri != null) updateRequest.setProfileImageUrl(selectedImageUri.toString());
 
         setLoading(true);
         apiService.updateProfile(updateRequest).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
                 setLoading(false);
-                if (response.isSuccessful()) {
-                    if (getContext() != null) {
-                        Toast.makeText(getContext(), "✓ Perfil actualizado correctamente", Toast.LENGTH_SHORT).show();
-                    }
-                } else {
-                    Log.e("ProfileFragment", "Update fail: " + response.code());
-                    if (getContext() != null) {
-                        Toast.makeText(getContext(), "Error al actualizar perfil", Toast.LENGTH_SHORT).show();
-                    }
-                }
+                if (response.isSuccessful()) Toast.makeText(getContext(), "Perfil actualizado", Toast.LENGTH_SHORT).show();
             }
-
-            @Override
-            public void onFailure(Call<UserResponse> call, Throwable t) {
-                setLoading(false);
-                if (getContext() != null) {
-                    Toast.makeText(getContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
-                }
-            }
+            @Override public void onFailure(Call<UserResponse> call, Throwable t) { setLoading(false); }
         });
     }
 

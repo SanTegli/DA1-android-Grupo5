@@ -1,5 +1,7 @@
 package com.example.androidnativegrupo5.ui.activities;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -10,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -18,8 +21,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.example.androidnativegrupo5.R;
 import com.example.androidnativegrupo5.data.local.TokenManager;
 import com.example.androidnativegrupo5.data.model.Activity;
+import com.example.androidnativegrupo5.data.model.NewsItem;
 import com.example.androidnativegrupo5.data.model.PaginatedResponse;
 import com.example.androidnativegrupo5.data.network.ApiService;
+import com.example.androidnativegrupo5.databinding.FragmentFirstBinding;
+import com.google.gson.Gson;
 import com.example.androidnativegrupo5.databinding.FragmentFirstBinding;
 
 import java.util.ArrayList;
@@ -47,6 +53,7 @@ public class HomeFragment extends Fragment {
     private FragmentFirstBinding binding;
     private ActivityAdapter adapter;
     private FeaturedActivityAdapter featuredAdapter;
+    private NewsAdapter newsAdapter;
 
     private final List<Activity> allActivities = new ArrayList<>();
 
@@ -56,8 +63,10 @@ public class HomeFragment extends Fragment {
     private String searchText = "";
     private String filterCategory = null;
     private String filterDestination = null;
+    private Integer filterDuration = null;
     private Integer filterMinPrice = null;
     private Integer filterMaxPrice = null;
+    private String filterSearch = null;
 
     @Override
     public View onCreateView(
@@ -84,6 +93,7 @@ public class HomeFragment extends Fragment {
         binding.recyclerActivities.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.recyclerActivities.setAdapter(adapter);
 
+        setupNewsSection();
         setupFeaturedCarousel(navController);
 
         binding.editSearchActivities.addTextChangedListener(new TextWatcher() {
@@ -134,6 +144,54 @@ public class HomeFragment extends Fragment {
         loadAllActivities();
     }
 
+    private void setupNewsSection() {
+        newsAdapter = new NewsAdapter(news -> {
+            if (news.getLinkUrl() != null && !news.getLinkUrl().isEmpty()) {
+                try {
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(news.getLinkUrl()));
+                    startActivity(intent);
+                } catch (Exception e) {
+                    Toast.makeText(requireContext(), "No se pudo abrir el enlace", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        binding.recyclerNews.setLayoutManager(
+                new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        );
+        binding.recyclerNews.setAdapter(newsAdapter);
+        loadNews();
+    }
+
+    private void loadNews() {
+        apiService.getNews().enqueue(new Callback<List<NewsItem>>() {
+            @Override
+            public void onResponse(@NonNull Call<List<NewsItem>> call, @NonNull Response<List<NewsItem>> response) {
+                if (!isAdded() || binding == null) return;
+
+                if (response.isSuccessful() && response.body() != null) {
+                    Log.d("API_NEWS", "Noticias recibidas: " + response.body().size());
+                    if (!response.body().isEmpty()) {
+                        newsAdapter.setNewsList(response.body());
+                        binding.layoutNews.setVisibility(View.VISIBLE);
+                    } else {
+                        binding.layoutNews.setVisibility(View.GONE);
+                    }
+                } else {
+                    Log.e("API_NEWS", "Error en respuesta: " + response.code());
+                    binding.layoutNews.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<List<NewsItem>> call, @NonNull Throwable t) {
+                if (!isAdded() || binding == null) return;
+                Log.e("API_NEWS", "Fallo total: " + t.getMessage());
+                binding.layoutNews.setVisibility(View.GONE);
+            }
+        });
+    }
+
     private void setupFeaturedCarousel(NavController navController) {
         featuredAdapter = new FeaturedActivityAdapter(activity -> {
             Bundle bundle = new Bundle();
@@ -146,6 +204,41 @@ public class HomeFragment extends Fragment {
         );
 
         binding.recyclerFeatured.setAdapter(featuredAdapter);
+        loadFeaturedActivities();
+    }
+
+    private void loadFeaturedActivities() {
+        apiService.getActivities(0, 5, null, null, null, null, null)
+                .enqueue(new Callback<PaginatedResponse<Activity>>() {
+                    @Override
+                    public void onResponse(@NonNull Call<PaginatedResponse<Activity>> call,
+                                           @NonNull Response<PaginatedResponse<Activity>> response) {
+
+                        if (!isAdded() || binding == null) return;
+
+                        if (response.isSuccessful() && response.body() != null) {
+                            List<Activity> activities = response.body().getContent();
+
+                            if (activities != null && !activities.isEmpty()) {
+                                featuredAdapter.setActivities(activities);
+                                binding.layoutFeatured.setVisibility(View.VISIBLE);
+                            } else {
+                                binding.layoutFeatured.setVisibility(View.GONE);
+                            }
+                        } else {
+                            binding.layoutFeatured.setVisibility(View.GONE);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Call<PaginatedResponse<Activity>> call,
+                                          @NonNull Throwable t) {
+                        if (!isAdded() || binding == null) return;
+
+                        Log.e("HomeFragment", "Error featured: " + t.getMessage());
+                        binding.layoutFeatured.setVisibility(View.GONE);
+                    }
+                });
     }
 
     private void loadAllActivities() {

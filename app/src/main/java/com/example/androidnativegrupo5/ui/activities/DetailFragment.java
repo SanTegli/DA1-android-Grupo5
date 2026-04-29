@@ -17,6 +17,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.bumptech.glide.Glide;
 import com.example.androidnativegrupo5.R;
+import com.example.androidnativegrupo5.data.local.db.FavoriteActivity;
+import com.example.androidnativegrupo5.data.local.db.FavoriteDao;
 import com.example.androidnativegrupo5.data.model.Activity;
 import com.example.androidnativegrupo5.data.model.AvailabilitySlotResponse;
 import com.example.androidnativegrupo5.data.model.Rating;
@@ -35,6 +37,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.inject.Inject;
 
@@ -49,17 +53,17 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
     @Inject
     ApiService apiService;
 
+    @Inject
+    FavoriteDao favoriteDao;
+
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private FragmentDetailBinding binding;
     private Activity activity;
     private CommentAdapter commentAdapter;
     private GoogleMap googleMap;
 
     @Override
-    public View onCreateView(
-            @NonNull LayoutInflater inflater,
-            ViewGroup container,
-            Bundle savedInstanceState
-    ) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentDetailBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
@@ -91,6 +95,38 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
         loadActivityDetail(activityId);
         loadAvailability(activityId);
         loadComments(activityId);
+        checkFavoriteStatus(activityId);
+    }
+
+    private void checkFavoriteStatus(long activityId) {
+        executor.execute(() -> {
+            boolean isFav = favoriteDao.isFavorite(activityId);
+            if (isAdded()) {
+                requireActivity().runOnUiThread(() -> {
+                    binding.btnFavoriteDetail.setImageResource(isFav ? R.drawable.ic_heart_filled : R.drawable.ic_heart_outline);
+                });
+            }
+        });
+
+        binding.btnFavoriteDetail.setOnClickListener(v -> {
+            executor.execute(() -> {
+                boolean isFav = favoriteDao.isFavorite(activityId);
+                if (isFav) {
+                    favoriteDao.delete(favoriteDao.getFavoriteById(activityId));
+                } else if (activity != null) {
+                    favoriteDao.insert(new FavoriteActivity(
+                            activity.getId(), activity.getName(), activity.getDestination(),
+                            activity.getPrice(), activity.getAvailableSlots(), activity.getImageUrl()
+                    ));
+                }
+                if (isAdded()) {
+                    requireActivity().runOnUiThread(() -> {
+                        binding.btnFavoriteDetail.setImageResource(!isFav ? R.drawable.ic_heart_filled : R.drawable.ic_heart_outline);
+                        Toast.makeText(getContext(), !isFav ? "Añadido a favoritos" : "Eliminado de favoritos", Toast.LENGTH_SHORT).show();
+                    });
+                }
+            });
+        });
     }
 
     private void setupCommentsRecyclerView() {
@@ -271,6 +307,7 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
                 if (!isAdded() || binding == null) return;
                 binding.textSchedules.setText("No se pudo cargar la disponibilidad.");
             }
+            @Override public void onFailure(@NonNull Call<List<AvailabilitySlotResponse>> call, @NonNull Throwable t) {}
         });
     }
 
