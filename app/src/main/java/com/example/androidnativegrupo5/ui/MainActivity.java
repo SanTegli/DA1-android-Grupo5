@@ -14,6 +14,7 @@ import com.example.androidnativegrupo5.R;
 import com.example.androidnativegrupo5.data.local.TokenManager;
 import com.example.androidnativegrupo5.data.local.db.ReservaDao;
 import com.example.androidnativegrupo5.databinding.ActivityMainBinding;
+import com.example.androidnativegrupo5.utils.NetworkUtils;
 
 import javax.inject.Inject;
 
@@ -44,7 +45,11 @@ public class MainActivity extends AppCompatActivity {
         );
 
         if (savedInstanceState == null && tokenManager.getToken() != null) {
-            navController.navigate(R.id.FirstFragment);
+            if (NetworkUtils.isOnline(this)) {
+                navController.navigate(R.id.FirstFragment);
+            } else {
+                navController.navigate(R.id.OfflineFragment);
+            }
         }
 
         binding.btnBack.setOnClickListener(v -> navController.navigateUp());
@@ -82,7 +87,8 @@ public class MainActivity extends AppCompatActivity {
             boolean isAuthScreen =
                     destination.getId() == R.id.LoginFragment ||
                             destination.getId() == R.id.RegisterFragment ||
-                            destination.getId() == R.id.WelcomeFragment;
+                            destination.getId() == R.id.WelcomeFragment ||
+                            destination.getId() == R.id.OfflineFragment;
 
             binding.header.setVisibility(isAuthScreen ? View.GONE : View.VISIBLE);
             binding.footer.setVisibility(isAuthScreen ? View.GONE : View.VISIBLE);

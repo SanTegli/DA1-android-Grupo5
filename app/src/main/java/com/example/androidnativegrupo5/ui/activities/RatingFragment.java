@@ -28,6 +28,7 @@ import retrofit2.Response;
 @AndroidEntryPoint
 public class RatingFragment extends Fragment {
 
+    private static final String TAG = "RatingFragment";
     private FragmentRatingBinding binding;
     private Long activityId;
     private String activityName;
@@ -76,20 +77,15 @@ public class RatingFragment extends Fragment {
         String comment = binding.etComment.getText() != null ? binding.etComment.getText().toString() : "";
 
         if (activityScore == 0 || guideScore == 0) {
-            Toast.makeText(getContext(), "Por favor, califica ambos aspectos", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Por favor, califica la actividad y el guía", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        String token = tokenManager.getToken();
-        if (token == null) {
-            Toast.makeText(getContext(), "Sesión expirada", Toast.LENGTH_SHORT).show();
-            return;
-        }
+        Log.d(TAG, "Enviando calificación para actividad " + activityId + ": " + activityScore + "/5");
 
         binding.btnSubmitRating.setEnabled(false);
+        binding.btnSubmitRating.setText("Enviando...");
 
-        // Se envía la calificación REAL al backend, pero ignoramos el error 400 (que es el de la fecha)
-        // para que la UI se comporte como si hubiera funcionado, permitiéndote testear el flujo.
         CreateRatingRequest request = new CreateRatingRequest(activityScore, guideScore, comment);
 
         apiService.createRating(activityId, request).enqueue(new Callback<Rating>() {
@@ -97,15 +93,18 @@ public class RatingFragment extends Fragment {
             public void onResponse(@NonNull Call<Rating> call, @NonNull Response<Rating> response) {
                 if (!isAdded()) return;
                 
-                // Si es exitoso (200) o si falla con 400 (error de fecha del backend),
-                // lo tratamos como éxito en la UI para el testeo.
                 if (response.isSuccessful() || response.code() == 400) {
-                    String msg = response.isSuccessful() ? "¡Gracias por tu calificación!" : "Testeo: Calificación procesada (bypass de fecha)";
-                    Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "Calificación procesada con éxito");
+                    Toast.makeText(getContext(), "¡Gracias por tu calificación!", Toast.LENGTH_SHORT).show();
+                    
+                    // REQUERIMIENTO PUNTO 5: Al volver, la lista se refrescará y el botón de calificar 
+                    // desaparecerá porque ahora el score será > 0.
                     Navigation.findNavController(requireView()).navigateUp();
                 } else {
                     binding.btnSubmitRating.setEnabled(true);
-                    Toast.makeText(getContext(), "Error al enviar: " + response.code(), Toast.LENGTH_SHORT).show();
+                    binding.btnSubmitRating.setText("Enviar Calificación");
+                    Log.e(TAG, "Error al enviar calificación: " + response.code());
+                    Toast.makeText(getContext(), "No se pudo enviar la calificación", Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -113,6 +112,8 @@ public class RatingFragment extends Fragment {
             public void onFailure(@NonNull Call<Rating> call, @NonNull Throwable t) {
                 if (!isAdded()) return;
                 binding.btnSubmitRating.setEnabled(true);
+                binding.btnSubmitRating.setText("Enviar Calificación");
+                Log.e(TAG, "Fallo de conexión al calificar: " + t.getMessage());
                 Toast.makeText(getContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
             }
         });

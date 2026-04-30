@@ -16,6 +16,7 @@ import com.example.androidnativegrupo5.data.model.Activity;
 import com.example.androidnativegrupo5.data.model.PaginatedResponse;
 import com.example.androidnativegrupo5.data.network.ApiService;
 import com.example.androidnativegrupo5.databinding.FragmentExploreActivitiesBinding;
+import com.example.androidnativegrupo5.utils.NetworkUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -97,11 +98,25 @@ public class ExploreActivitiesFragment extends Fragment {
             bottomSheet.show(getParentFragmentManager(), "ExploreFilterBottomSheet");
         });
 
+        binding.btnGoToReservationsOffline.setOnClickListener(v -> {
+            Navigation.findNavController(v).navigate(R.id.action_ExploreActivitiesFragment_to_MyReservationsFragment);
+        });
+
+        binding.btnRetryExplore.setOnClickListener(v -> loadAllActivities());
+
         loadAllActivities();
     }
 
     private void loadAllActivities() {
+        if (!NetworkUtils.isOnline(requireContext())) {
+            showOfflineState();
+            return;
+        }
+
         binding.progressExplore.setVisibility(View.VISIBLE);
+        binding.layoutOfflineExplore.setVisibility(View.GONE);
+        binding.layoutHeaderExplore.setVisibility(View.VISIBLE);
+        binding.recyclerExploreActivities.setVisibility(View.VISIBLE);
 
         apiService.getActivities(0, 100, null, null, null, null, null)
                 .enqueue(new Callback<PaginatedResponse<Activity>>() {
@@ -139,9 +154,22 @@ public class ExploreActivitiesFragment extends Fragment {
                         if (!isAdded() || binding == null) return;
 
                         binding.progressExplore.setVisibility(View.GONE);
-                        Toast.makeText(requireContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
+                        if (!NetworkUtils.isOnline(requireContext())) {
+                            showOfflineState();
+                        } else {
+                            Toast.makeText(requireContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 });
+    }
+
+    private void showOfflineState() {
+        if (binding == null) return;
+        binding.progressExplore.setVisibility(View.GONE);
+        binding.layoutHeaderExplore.setVisibility(View.GONE);
+        binding.recyclerExploreActivities.setVisibility(View.GONE);
+        binding.textEmptyExplore.setVisibility(View.GONE);
+        binding.layoutOfflineExplore.setVisibility(View.VISIBLE);
     }
 
     private void buildDynamicFilterOptions() {

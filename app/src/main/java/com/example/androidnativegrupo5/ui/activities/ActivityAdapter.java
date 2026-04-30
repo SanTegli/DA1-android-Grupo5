@@ -1,6 +1,7 @@
 package com.example.androidnativegrupo5.ui.activities;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +35,7 @@ import dagger.hilt.components.SingletonComponent;
 
 public class ActivityAdapter extends RecyclerView.Adapter<ActivityAdapter.ActivityViewHolder> {
 
+    private static final String TAG = "ActivityAdapter";
     private List<Activity> activityList;
     private final OnActivityClickListener listener;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -53,19 +55,9 @@ public class ActivityAdapter extends RecyclerView.Adapter<ActivityAdapter.Activi
         this.listener = listener;
     }
 
-    public void addActivities(List<Activity> activities) {
-        int startPosition = activityList.size();
-        activityList.addAll(activities);
-        notifyItemRangeInserted(startPosition, activities.size());
-    }
-
     public void setActivities(List<Activity> activities) {
+        Log.d(TAG, "setActivities: Cargando " + (activities != null ? activities.size() : 0) + " actividades");
         this.activityList = new ArrayList<>(activities);
-        notifyDataSetChanged();
-    }
-
-    public void clearActivities() {
-        activityList.clear();
         notifyDataSetChanged();
     }
 
@@ -78,8 +70,7 @@ public class ActivityAdapter extends RecyclerView.Adapter<ActivityAdapter.Activi
 
     @Override
     public void onBindViewHolder(@NonNull ActivityViewHolder holder, int position) {
-        Activity activity = activityList.get(position);
-        holder.bind(activity, listener);
+        holder.bind(activityList.get(position), listener);
     }
 
     @Override
@@ -96,12 +87,7 @@ public class ActivityAdapter extends RecyclerView.Adapter<ActivityAdapter.Activi
         private final ImageButton btnFavorite;
         private final RatingBar ratingBar;
         private final TextView textRatingValue;
-        
-        // Campos ocultos para evitar NPE
-        private final TextView textDescription;
-        private final TextView textDestination;
-        private final TextView textDuration;
-        private final TextView textSlots;
+        private final TextView textCommentsCount;
 
         public ActivityViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -112,15 +98,12 @@ public class ActivityAdapter extends RecyclerView.Adapter<ActivityAdapter.Activi
             btnFavorite = itemView.findViewById(R.id.btn_favorite);
             ratingBar = itemView.findViewById(R.id.rating_bar);
             textRatingValue = itemView.findViewById(R.id.text_rating_value);
-            
-            textDescription = itemView.findViewById(R.id.text_description);
-            textDestination = itemView.findViewById(R.id.text_destination);
-            textDuration = itemView.findViewById(R.id.text_duration);
-            textSlots = itemView.findViewById(R.id.text_slots);
+            textCommentsCount = itemView.findViewById(R.id.text_comments_count);
         }
 
         public void bind(Activity activity, OnActivityClickListener listener) {
             Context context = itemView.getContext();
+            Log.d(TAG, "Binding actividad: " + activity.getName() + " (Rating: " + activity.getAverageRating() + ")");
 
             textName.setText(activity.getName());
             
@@ -136,13 +119,17 @@ public class ActivityAdapter extends RecyclerView.Adapter<ActivityAdapter.Activi
                 ratingBar.setRating(activity.getAverageRating().floatValue());
                 textRatingValue.setText(String.format(Locale.getDefault(), "%.1f", activity.getAverageRating()));
             }
+            
+            if (activity.getRatingCount() != null) {
+                textCommentsCount.setText("• " + activity.getRatingCount() + " Reseñas");
+            }
 
             Glide.with(context)
                     .load(activity.getImageUrl())
                     .placeholder(R.drawable.common_illustration_welcome_placeholder)
+                    .error(R.drawable.common_illustration_welcome_placeholder)
                     .into(imageActivity);
 
-            // Favoritos con Hilt EntryPoint
             AdapterEntryPoint entryPoint = EntryPointAccessors.fromApplication(context.getApplicationContext(), AdapterEntryPoint.class);
             FavoriteDao favoriteDao = entryPoint.favoriteDao();
 
@@ -154,6 +141,7 @@ public class ActivityAdapter extends RecyclerView.Adapter<ActivityAdapter.Activi
             });
 
             btnFavorite.setOnClickListener(v -> {
+                Log.d(TAG, "Toggle favorito para: " + activity.getName());
                 executor.execute(() -> {
                     boolean isFav = favoriteDao.isFavorite(activity.getId());
                     if (isFav) {

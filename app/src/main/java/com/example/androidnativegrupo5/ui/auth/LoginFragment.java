@@ -22,6 +22,7 @@ import com.example.androidnativegrupo5.data.model.OtpRequest;
 import com.example.androidnativegrupo5.data.network.ApiService;
 import com.example.androidnativegrupo5.data.local.TokenManager;
 import com.example.androidnativegrupo5.utils.Constants;
+import com.example.androidnativegrupo5.utils.NetworkUtils;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputEditText;
@@ -76,7 +77,11 @@ public class LoginFragment extends Fragment {
             String email = etEmail.getText().toString().trim();
             String pass = etPassword.getText().toString().trim();
             if (validarCamposFull(email, pass)) {
-                llamarLoginTradicional(email, pass);
+                if (NetworkUtils.isOnline(requireContext())) {
+                    llamarLoginTradicional(email, pass);
+                } else {
+                    NavHostFragment.findNavController(this).navigate(R.id.OfflineFragment);
+                }
             }
         });
 
@@ -89,14 +94,22 @@ public class LoginFragment extends Fragment {
                 tilEmail.setError("Formato de email inválido");
             } else {
                 tilEmail.setError(null);
-                enviarSoloOtp(email);
+                if (NetworkUtils.isOnline(requireContext())) {
+                    enviarSoloOtp(email);
+                } else {
+                    NavHostFragment.findNavController(this).navigate(R.id.OfflineFragment);
+                }
             }
         });
 
-        registerText.setOnClickListener(v ->
+        registerText.setOnClickListener(v -> {
+            if (NetworkUtils.isOnline(requireContext())) {
                 NavHostFragment.findNavController(this)
-                        .navigate(R.id.action_LoginFragment_to_RegisterFragment)
-        );
+                        .navigate(R.id.action_LoginFragment_to_RegisterFragment);
+            } else {
+                NavHostFragment.findNavController(this).navigate(R.id.OfflineFragment);
+            }
+        });
     }
 
     private boolean validarCamposFull(String email, String pass) {
@@ -132,7 +145,8 @@ public class LoginFragment extends Fragment {
             @Override public void onFailure(Call<AuthResponse> call, Throwable t) {
                 if (!isAdded()) return;
                 setLoading(false);
-                showError("Error de conexión");
+                // Si el backend no responde o no hay red, mandamos a offline
+                NavHostFragment.findNavController(LoginFragment.this).navigate(R.id.OfflineFragment);
             }
         });
     }
@@ -153,7 +167,7 @@ public class LoginFragment extends Fragment {
             @Override public void onFailure(Call<MessageResponse> call, Throwable t) {
                 if (!isAdded()) return;
                 setLoading(false);
-                showError("Error de red");
+                NavHostFragment.findNavController(LoginFragment.this).navigate(R.id.OfflineFragment);
             }
         });
     }

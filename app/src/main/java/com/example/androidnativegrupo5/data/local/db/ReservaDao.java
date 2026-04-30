@@ -16,11 +16,14 @@ public interface ReservaDao {
     @Query("SELECT * FROM reservas ORDER BY date DESC")
     List<Reserva> getAllReservas();
 
+    @Query("SELECT * FROM reservas WHERE id = :reservaId")
+    Reserva getReservaById(Long reservaId);
+
     @Query("DELETE FROM reservas")
     void deleteAll();
 
     @Query("UPDATE reservas SET status = 'CANCELLED', pendingCancellation = 1 WHERE id = :reservaId")
-    void markAsCancelledOffline(Long reservaId);
+    void markPendingCancellation(Long reservaId);
 
     @Query("SELECT * FROM reservas WHERE pendingCancellation = 1")
     List<Reserva> getPendingCancellations();

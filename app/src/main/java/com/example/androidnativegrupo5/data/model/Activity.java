@@ -35,6 +35,9 @@ public class Activity {
     @SerializedName("meetingPointLng")
     private Double meetingPointLng;
 
+    @SerializedName("isFavorite")
+    private boolean isFavorite;
+
     public Activity() {}
 
     public Long getId() {
@@ -156,4 +159,8 @@ public class Activity {
     public void setMeetingPointLng(Double meetingPointLng) {
         this.meetingPointLng = meetingPointLng;
     }
+
+    public boolean getIsFavorite() { return this.isFavorite; }
+
+    public void setIsFavorite(boolean isFavorite) { this.isFavorite = isFavorite; }
 }

@@ -181,7 +181,6 @@
         android:clipToPadding="false"
         android:paddingTop="10dp"
         android:paddingBottom="12dp"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        android:src="@drawable/history_ic_history" />
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
 </LinearLayout>
