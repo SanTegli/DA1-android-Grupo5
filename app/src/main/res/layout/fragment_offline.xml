@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="24dp"
+    android:background="#FFFFFF">
+
+    <ImageView
+        android:layout_width="140dp"
+        android:layout_height="140dp"
+        android:src="@drawable/common_illustration_welcome_placeholder"
+        android:layout_marginBottom="32dp"
+        app:tint="#7F0303" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="¡Servicio no disponible!"
+        android:textSize="26sp"
+        android:fontFamily="@font/plus_jakarta_sans_bold"
+        android:textColor="#1A1A1A"
+        android:layout_marginBottom="12dp"
+        android:textAlignment="center" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="No logramos conectar con el servidor. Revisá tu conexión o intentá más tarde. Mientras tanto, podés consultar tus reservas guardadas."
+        android:textSize="16sp"
+        android:fontFamily="@font/plus_jakarta_sans_regular"
+        android:textColor="#666666"
+        android:gravity="center"
+        android:layout_marginBottom="48dp" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnViewLocalReservations"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="Ver Mis Reservas Locales"
+        android:textColor="#FFFFFF"
+        app:backgroundTint="#7F0303"
+        app:cornerRadius="16dp"
+        app:icon="@drawable/history_ic_history"
+        app:iconGravity="textStart"
+        android:fontFamily="@font/plus_jakarta_sans_bold"
+        android:layout_marginBottom="16dp" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnRetryConnection"
+        style="@style/Widget.Material3.Button.TextButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Reintentar conexión"
+        android:textColor="#7F0303"
+        android:textSize="15sp"
+        android:fontFamily="@font/plus_jakarta_sans_bold" />
+
+</LinearLayout>

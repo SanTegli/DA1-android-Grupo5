@@ -1,438 +1,257 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF">
+    android:background="@color/app_background">
 
-    <androidx.core.widget.NestedScrollView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@id/bottom_bar"
-        android:fillViewport="true">
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="300dp">
+
+            <ImageView
+                android:id="@+id/imageDetail"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:src="@android:drawable/ic_menu_gallery" />
+
+            <ImageButton
+                android:id="@+id/btnFavoriteDetail"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_alignParentEnd="true"
+                android:layout_margin="16dp"
+                android:background="@drawable/bg_circle_white"
+                android:src="@drawable/ic_heart_outline"
+                app:tint="@color/app_primary" />
+        </RelativeLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:padding="20dp">
 
-            <FrameLayout
+            <TextView
+                android:id="@+id/textTitle"
                 android:layout_width="match_parent"
-                android:layout_height="300dp">
-
-                <ImageView
-                    android:id="@+id/image_detail"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scaleType="centerCrop"
-                    android:src="@android:drawable/ic_menu_gallery" />
-
-                <ImageButton
-                    android:id="@+id/btn_favorite_detail"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_margin="16dp"
-                    android:backgroundTint="#80FFFFFF"
-                    android:src="@drawable/ic_heart_outline"
-                    app:tint="@color/app_primary" />
-                    android:layout_height="240dp"
-                    android:scaleType="centerCrop"
-                    android:src="@android:drawable/ic_menu_gallery" />
-
-                <androidx.cardview.widget.CardView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="bottom"
-                    android:layout_marginStart="20dp"
-                    android:layout_marginEnd="20dp"
-                    android:layout_marginBottom="10dp"
-                    app:cardBackgroundColor="#FFFFFF"
-                    app:cardCornerRadius="18dp"
-                    app:cardElevation="2dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="16dp">
-
-                        <TextView
-                            android:id="@+id/text_title"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:fontFamily="@font/plus_jakarta_sans_bold"
-                            android:text="City Tour Buenos Aires"
-                            android:textColor="#111111"
-                            android:textSize="22sp" />
-
-                        <com.google.android.material.card.MaterialCardView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="12dp"
-                            app:cardBackgroundColor="#D8F3F5"
-                            app:cardCornerRadius="20dp"
-                            app:cardElevation="0dp">
-
-                            <TextView
-                                android:id="@+id/text_category"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:fontFamily="@font/plus_jakarta_sans_bold"
-                                android:paddingStart="14dp"
-                                android:paddingTop="5dp"
-                                android:paddingEnd="14dp"
-                                android:paddingBottom="5dp"
-                                android:text="Categoría"
-                                android:textColor="#547177"
-                                android:textSize="12sp"/>
-
-                        </com.google.android.material.card.MaterialCardView>
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:orientation="horizontal">
-
-                            <TextView
-                                android:id="@+id/text_duration"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:fontFamily="@font/plus_jakarta_sans_regular"
-                                android:text="Duración"
-                                android:textColor="#6E5A54"
-                                android:textSize="14sp" />
-
-                            <TextView
-                                android:id="@+id/text_destination"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:fontFamily="@font/plus_jakarta_sans_regular"
-                                android:textColor="#6E5A54"
-                                android:textSize="14sp" />
-
-                        </LinearLayout>
-
-                        <TextView
-                            android:id="@+id/text_slots"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:fontFamily="@font/plus_jakarta_sans_regular"
-                            android:text="Cupos generales"
-                            android:textColor="#777777"
-                            android:textSize="13sp" />
-
-                    </LinearLayout>
-
-                </androidx.cardview.widget.CardView>
-
-            </FrameLayout>
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/plus_jakarta_sans_bold"
+                android:textColor="@color/app_text"
+                android:textSize="24sp"
+                tools:text="Tour por la Ciudad" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingStart="22dp"
-                android:paddingTop="8dp"
-                android:paddingEnd="22dp"
-                android:paddingBottom="22dp">
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
 
                 <TextView
-                    android:layout_width="match_parent"
+                    android:id="@+id/textCategory"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/plus_jakarta_sans_bold"
-                    android:text="Descripción"
-                    android:textColor="#171717"
-                    android:textSize="22sp" />
-
-                <TextView
-                    android:id="@+id/text_description"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:fontFamily="@font/plus_jakarta_sans_regular"
-                    android:lineSpacingExtra="4dp"
-                    android:text="Descripción"
-                    android:textColor="#5E4A45"
-                    android:textSize="15sp" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="26dp"
-                    android:fontFamily="@font/plus_jakarta_sans_bold"
-                    android:text="Días disponibles"
-                    android:textColor="#171717"
-                    android:textSize="18sp" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:gravity="center"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:id="@+id/day_mon"
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
-                        android:layout_marginEnd="6dp"
-                        android:background="@drawable/detail_bg_day_unavailable"
-                        android:fontFamily="@font/plus_jakarta_sans_bold"
-                        android:gravity="center"
-                        android:text="L"
-                        android:textColor="@android:color/darker_gray"
-                        android:textSize="14sp" />
-
-                    <TextView
-                        android:id="@+id/day_tue"
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
-                        android:layout_marginEnd="6dp"
-                        android:background="@drawable/detail_bg_day_unavailable"
-                        android:fontFamily="@font/plus_jakarta_sans_bold"
-                        android:gravity="center"
-                        android:text="M"
-                        android:textColor="@android:color/darker_gray"
-                        android:textSize="14sp" />
-
-                    <TextView
-                        android:id="@+id/day_wed"
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
-                        android:layout_marginEnd="6dp"
-                        android:background="@drawable/detail_bg_day_unavailable"
-                        android:fontFamily="@font/plus_jakarta_sans_bold"
-                        android:gravity="center"
-                        android:text="X"
-                        android:textColor="@android:color/darker_gray"
-                        android:textSize="14sp" />
-
-                    <TextView
-                        android:id="@+id/day_thu"
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
-                        android:layout_marginEnd="6dp"
-                        android:background="@drawable/detail_bg_day_unavailable"
-                        android:fontFamily="@font/plus_jakarta_sans_bold"
-                        android:gravity="center"
-                        android:text="J"
-                        android:textColor="@android:color/darker_gray"
-                        android:textSize="14sp" />
-
-                    <TextView
-                        android:id="@+id/day_fri"
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
-                        android:layout_marginEnd="6dp"
-                        android:background="@drawable/detail_bg_day_unavailable"
-                        android:fontFamily="@font/plus_jakarta_sans_bold"
-                        android:gravity="center"
-                        android:text="V"
-                        android:textColor="@android:color/darker_gray"
-                        android:textSize="14sp" />
-
-                    <TextView
-                        android:id="@+id/day_sat"
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
-                        android:layout_marginEnd="6dp"
-                        android:background="@drawable/detail_bg_day_unavailable"
-                        android:fontFamily="@font/plus_jakarta_sans_bold"
-                        android:gravity="center"
-                        android:text="S"
-                        android:textColor="@android:color/darker_gray"
-                        android:textSize="14sp" />
-
-                    <TextView
-                        android:id="@+id/day_sun"
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
-                        android:background="@drawable/detail_bg_day_unavailable"
-                        android:fontFamily="@font/plus_jakarta_sans_bold"
-                        android:gravity="center"
-                        android:text="D"
-                        android:textColor="@android:color/darker_gray"
-                        android:textSize="14sp" />
-
-                </LinearLayout>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="24dp"
-                    android:fontFamily="@font/plus_jakarta_sans_bold"
-                    android:text="Próximos horarios"
-                    android:textColor="#171717"
-                    android:textSize="18sp" />
-
-                <TextView
-                    android:id="@+id/text_schedules"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:fontFamily="@font/plus_jakarta_sans_regular"
-                    android:textColor="#5E4A45"
-                    android:textSize="14sp" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="26dp"
-                    android:fontFamily="@font/plus_jakarta_sans_bold"
-                    android:text="Tu guía"
-                    android:textColor="#171717"
-                    android:textSize="18sp" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:background="@drawable/detail_bg_guide_card"
-                    android:orientation="horizontal"
-                    android:padding="16dp"
-                    android:gravity="center_vertical"
-                    android:elevation="3dp">
-
-                    <!-- INFO -->
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:id="@+id/text_guide_name"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/plus_jakarta_sans_bold"
-                            android:text="Nombre Guía"
-                            android:textColor="#1C1C1C"
-                            android:textSize="16sp" />
-
-                        <TextView
-                            android:id="@+id/text_guide_rating"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:fontFamily="@font/plus_jakarta_sans_regular"
-                            android:text="★ 4.8 (120 reviews)"
-                            android:textColor="#7A5C55"
-                            android:textSize="13sp" />
-
-                    </LinearLayout>
-
-                </LinearLayout>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="26dp"
-                    android:fontFamily="@font/plus_jakarta_sans_bold"
-                    android:text="Punto de encuentro"
-                    android:textColor="#171717"
-                    android:textSize="18sp" />
-
-                <TextView
-                    android:id="@+id/text_meeting_point"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:fontFamily="@font/plus_jakarta_sans_regular"
-                    android:textColor="#5E4A45"
-                    android:textSize="14sp" />
-
-                <com.google.android.gms.maps.MapView
-                    android:id="@+id/map_view"
-                    android:layout_width="match_parent"
-                    android:layout_height="200dp"
-                    android:layout_marginTop="12dp" />
-
-                <Button
-                    android:id="@+id/btn_how_to_get_there"
-                    android:layout_width="match_parent"
-                    android:layout_height="44dp"
-                    android:layout_marginTop="10dp"
-                    android:background="@drawable/common_bg_outline_button"
-                    android:fontFamily="@font/plus_jakarta_sans_bold"
-                    android:text="Cómo llegar"
-                    android:textAllCaps="false"
-                    android:textColor="#333333"
-                    app:backgroundTint="@null" />
-
-                <TextView
-                    android:id="@+id/text_comments_header"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="26dp"
-                    android:fontFamily="@font/plus_jakarta_sans_bold"
-                    android:text="Comentarios"
-                    android:textColor="#171717"
-                    android:textSize="18sp" />
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/recycler_comments"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:nestedScrollingEnabled="false" />
-
-                <TextView
-                    android:id="@+id/text_no_comments"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:fontFamily="@font/plus_jakarta_sans_regular"
-                    android:gravity="center"
-                    android:text="Aún no hay comentarios."
-                    android:textColor="#999999"
+                    android:textColor="@color/app_primary"
                     android:textSize="14sp"
-                    android:visibility="gone" />
+                    tools:text="Aventura" />
 
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="8dp"
+                    android:text="•"
+                    android:textColor="@color/app_text_secondary" />
+
+                <TextView
+                    android:id="@+id/textDestination"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/plus_jakarta_sans_regular"
+                    android:textColor="@color/app_text_secondary"
+                    android:textSize="14sp"
+                    tools:text="Bariloche" />
             </LinearLayout>
 
+            <TextView
+                android:id="@+id/textGuideName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:fontFamily="@font/plus_jakarta_sans_medium"
+                android:textColor="@color/app_text_secondary"
+                android:textSize="14sp"
+                tools:text="Guía: Alex Smith" />
+
+            <TextView
+                android:id="@+id/textPrice"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:fontFamily="@font/plus_jakarta_sans_bold"
+                android:textColor="@color/app_primary"
+                android:textSize="20sp"
+                tools:text="$99.99" />
+
+            <!-- INFO RAPIDA -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:orientation="horizontal"
+                android:weightSum="3">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+                    <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_calendar" app:tint="@color/app_primary"/>
+                    <TextView android:id="@+id/textDuration" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:textSize="12sp" tools:text="3 horas"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+                    <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_location" app:tint="@color/app_primary"/>
+                    <TextView android:id="@+id/textLanguage" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:textSize="12sp" android:text="Español"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+                    <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/main_ic_person" app:tint="@color/app_primary"/>
+                    <TextView android:id="@+id/textSlots" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:textSize="12sp" tools:text="10 cupos"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:layout_marginVertical="20dp" android:background="#EEEEEE" />
+
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:fontFamily="@font/plus_jakarta_sans_bold" android:text="Descripción" android:textColor="@color/app_text" android:textSize="18sp" />
+            <TextView android:id="@+id/textDescription" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:fontFamily="@font/plus_jakarta_sans_regular" android:lineSpacingExtra="4dp" android:textColor="@color/app_text_secondary" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:fontFamily="@font/plus_jakarta_sans_bold"
+                android:text="Qué incluye"
+                android:textColor="@color/app_text"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/textIncludes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="• Guía profesional\n• Equipo necesario\n• Traslados"
+                android:textColor="@color/app_text_secondary" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:fontFamily="@font/plus_jakarta_sans_bold"
+                android:text="Punto de encuentro"
+                android:textColor="@color/app_text"
+                android:textSize="18sp" />
+
+            <TextView android:id="@+id/textMeetingPoint"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textColor="@color/app_text_secondary" />
+
+            <com.google.android.gms.maps.MapView
+                android:id="@+id/mapView"
+                android:layout_width="match_parent"
+                android:layout_height="180dp"
+                android:layout_marginTop="12dp"
+                app:cardCornerRadius="16dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnHowToGetThere"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cómo llegar"
+                app:icon="@drawable/ic_location" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:fontFamily="@font/plus_jakarta_sans_bold"
+                android:text="Días disponibles"
+                android:textColor="@color/app_text"
+                android:textSize="18sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="horizontal"
+                android:gravity="center">
+
+                <TextView android:id="@+id/dayMon" android:layout_width="40dp" android:layout_height="40dp" android:gravity="center" android:text="L" android:layout_margin="2dp" android:background="@drawable/detail_bg_day_unavailable" android:textColor="@color/light_grey" />
+                <TextView android:id="@+id/dayTue" android:layout_width="40dp" android:layout_height="40dp" android:gravity="center" android:text="M" android:layout_margin="2dp" android:background="@drawable/detail_bg_day_unavailable" android:textColor="@color/light_grey" />
+                <TextView android:id="@+id/dayWed" android:layout_width="40dp" android:layout_height="40dp" android:gravity="center" android:text="X" android:layout_margin="2dp" android:background="@drawable/detail_bg_day_unavailable" android:textColor="@color/light_grey" />
+                <TextView android:id="@+id/dayThu" android:layout_width="40dp" android:layout_height="40dp" android:gravity="center" android:text="J" android:layout_margin="2dp" android:background="@drawable/detail_bg_day_unavailable" android:textColor="@color/light_grey" />
+                <TextView android:id="@+id/dayFri" android:layout_width="40dp" android:layout_height="40dp" android:gravity="center" android:text="V" android:layout_margin="2dp" android:background="@drawable/detail_bg_day_unavailable" android:textColor="@color/light_grey" />
+                <TextView android:id="@+id/daySat" android:layout_width="40dp" android:layout_height="40dp" android:gravity="center" android:text="S" android:layout_margin="2dp" android:background="@drawable/detail_bg_day_unavailable" android:textColor="@color/light_grey" />
+                <TextView android:id="@+id/daySun" android:layout_width="40dp" android:layout_height="40dp" android:gravity="center" android:text="D" android:layout_margin="2dp" android:background="@drawable/detail_bg_day_unavailable" android:textColor="@color/light_grey" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:fontFamily="@font/plus_jakarta_sans_bold"
+                android:text="Horarios"
+                android:textColor="@color/app_text"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/textSchedules"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textColor="@color/app_text_secondary"
+                tools:text="• 2023-10-25 - 10:00 | Cupos: 5" />
+
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="20dp" android:fontFamily="@font/plus_jakarta_sans_bold" android:text="Política de cancelación" android:textColor="@color/app_text" android:textSize="18sp" />
+            <TextView android:id="@+id/textCancellationPolicy" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="Cancelación gratuita hasta 48 horas antes de la actividad." android:textColor="@color/app_text_secondary" />
+
+            <!-- SECCIÓN COMENTARIOS -->
+            <TextView android:id="@+id/textCommentsHeader" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:fontFamily="@font/plus_jakarta_sans_bold" android:text="Opiniones" android:textColor="@color/app_text" android:textSize="18sp" />
+            <androidx.recyclerview.widget.RecyclerView android:id="@+id/recyclerComments" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:nestedScrollingEnabled="false" />
+            <TextView android:id="@+id/textNoComments" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:gravity="center" android:text="Aún no hay opiniones." android:visibility="gone" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnReserve"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="32dp"
+                android:text="Reservar ahora"
+                android:textColor="@android:color/white"
+                app:backgroundTint="@color/app_primary"
+                app:cornerRadius="16dp"
+                android:fontFamily="@font/plus_jakarta_sans_bold" />
+
         </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
-
-    <LinearLayout
-        android:id="@+id/bottom_bar"
-        android:layout_width="match_parent"
-        android:layout_height="72dp"
-        android:layout_alignParentBottom="true"
-        android:background="#FFFFFF"
-        android:elevation="6dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:padding="12dp">
-
-        <TextView
-            android:id="@+id/text_price"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:fontFamily="@font/plus_jakarta_sans_bold"
-            android:text="$25000.00"
-            android:textColor="#7F0303"
-            android:textSize="20sp" />
-
-        <Button
-            android:id="@+id/btn_reserve"
-            android:layout_width="wrap_content"
-            android:layout_height="46dp"
-            android:background="@drawable/common_bg_detail_button"
-            android:fontFamily="@font/plus_jakarta_sans_bold"
-            android:paddingHorizontal="22dp"
-            android:text="Reservar"
-            android:textAllCaps="false"
-            android:textColor="#FFFFFF"
-            app:backgroundTint="@null" />
-
     </LinearLayout>
-
-</RelativeLayout>
+</androidx.core.widget.NestedScrollView>

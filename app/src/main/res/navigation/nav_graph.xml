@@ -23,17 +23,19 @@
             app:destination="@id/RegisterFragment"
             app:popUpTo="@id/WelcomeFragment"
             app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_WelcomeFragment_to_OfflineFragment"
+            app:destination="@id/OfflineFragment" />
     </fragment>
 
     <fragment
-        android:id="@+id/ManageReservationFragment"
-        android:name="com.example.androidnativegrupo5.ui.reservations.DetailReservationFragment"
-        tools:layout="@layout/fragment_manage_reservation">
-
+        android:id="@+id/OfflineFragment"
+        android:name="com.example.androidnativegrupo5.ui.auth.OfflineFragment"
+        android:label="Sin Conexión"
+        tools:layout="@layout/fragment_offline">
         <action
-            android:id="@+id/action_ManageReservationFragment_to_RatingFragment"
-            app:destination="@id/RatingFragment" />
-
+            android:id="@+id/action_OfflineFragment_to_MyReservationsFragment"
+            app:destination="@id/MyReservationsFragment" />
     </fragment>
 
     <fragment
@@ -52,30 +54,9 @@
             app:destination="@id/FirstFragment"
             app:popUpTo="@id/WelcomeFragment"
             app:popUpToInclusive="true" />
-    </fragment>
-
-    <fragment
-        android:id="@+id/OtpFragment"
-        android:name="com.example.androidnativegrupo5.ui.auth.OtpFragment"
-        android:label="@string/verify_identity"
-        tools:layout="@layout/fragment_otp">
-        <argument
-            android:name="email"
-            app:argType="string" />
         <action
-            android:id="@+id/action_OtpFragment_to_FirstFragment"
-            app:destination="@id/FirstFragment"
-            app:popUpTo="@id/WelcomeFragment"
-            app:popUpToInclusive="true" />
-    </fragment>
-
-    <fragment
-        android:id="@+id/RegisterFragment"
-        android:name="com.example.androidnativegrupo5.ui.auth.RegisterFragment"
-        android:label="Register">
-        <action
-            android:id="@+id/action_registerFragment_to_otpFragment"
-            app:destination="@id/OtpFragment" />
+            android:id="@+id/action_LoginFragment_to_OfflineFragment"
+            app:destination="@id/OfflineFragment" />
     </fragment>
 
     <fragment
@@ -86,26 +67,13 @@
             android:id="@+id/action_FirstFragment_to_DetailFragment"
             app:destination="@id/DetailFragment" />
         <action
-            android:id="@+id/action_FirstFragment_to_MyReservationsFragment"
-            app:destination="@id/MyReservationsFragment" />
+            android:id="@+id/action_FirstFragment_to_OfflineFragment"
+            app:destination="@id/OfflineFragment"
+            app:popUpTo="@id/nav_graph"
+            app:popUpToInclusive="true" />
         <action
             android:id="@+id/action_FirstFragment_to_ExploreActivitiesFragment"
             app:destination="@id/ExploreActivitiesFragment" />
-        <action
-            android:id="@+id/action_FirstFragment_to_FavoritesFragment"
-            app:destination="@id/FavoritesFragment" />
-    </fragment>
-
-    <fragment
-        android:id="@+id/DetailFragment"
-        android:name="com.example.androidnativegrupo5.ui.activities.DetailFragment"
-        android:label="Detalle">
-        <argument
-            android:name="activityId"
-            app:argType="long" />
-        <action
-            android:id="@+id/action_DetailFragment_to_ReservationFragment"
-            app:destination="@id/ReservationFragment" />
     </fragment>
 
     <fragment
@@ -113,13 +81,22 @@
         android:name="com.example.androidnativegrupo5.ui.reservations.MyReservationsFragment"
         android:label="Mis Reservas"
         tools:layout="@layout/fragment_my_reservations">
-
         <action
             android:id="@+id/action_MyReservationsFragment_to_HistoryFragment"
             app:destination="@id/HistoryFragment" />
         <action
-            android:id="@+id/action_MyReservationsFragment_to_RatingFragment"
-            app:destination="@id/RatingFragment" />
+            android:id="@+id/action_MyReservationsFragment_to_ManageReservationFragment"
+            app:destination="@id/ManageReservationFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/DetailFragment"
+        android:name="com.example.androidnativegrupo5.ui.activities.DetailFragment"
+        android:label="Detalle">
+        <argument android:name="activityId" app:argType="long" />
+        <action
+            android:id="@+id/action_DetailFragment_to_ReservationFragment"
+            app:destination="@id/ReservationFragment" />
     </fragment>
 
     <fragment
@@ -127,37 +104,33 @@
         android:name="com.example.androidnativegrupo5.ui.reservations.ReservationFragment"
         android:label="Reservar"
         tools:layout="@layout/fragment_reservation">
-        <argument android:name="activityId" app:argType="long" />
-        <argument android:name="activityName" app:argType="string" />
-        <argument android:name="activityPrice" app:argType="float" />
+        <argument
+            android:name="activityId"
+            app:argType="long" />
+        <argument
+            android:name="activityName"
+            app:argType="string" />
+        <argument
+            android:name="activityPrice"
+            app:argType="float" />
     </fragment>
 
     <fragment
-        android:id="@+id/ProfileFragment"
-        android:name="com.example.androidnativegrupo5.ui.profile.ProfileFragment"
-        android:label="Perfil del Viajero"
-        tools:layout="@layout/fragment_profile">
-
+        android:id="@+id/ExploreActivitiesFragment"
+        android:name="com.example.androidnativegrupo5.ui.activities.ExploreActivitiesFragment"
+        android:label="Explorar">
         <action
-            android:id="@+id/action_ProfileFragment_to_MyReservationsFragment"
+            android:id="@+id/action_ExploreActivitiesFragment_to_DetailFragment"
+            app:destination="@id/DetailFragment" />
+        <action
+            android:id="@+id/action_ExploreActivitiesFragment_to_MyReservationsFragment"
             app:destination="@id/MyReservationsFragment" />
-
-        <action
-            android:id="@+id/action_ProfileFragment_to_HistoryFragment"
-            app:destination="@id/HistoryFragment" />
-
-        <action
-            android:id="@+id/action_ProfileFragment_to_FavoritesFragment"
-            app:destination="@id/FavoritesFragment" />
-
     </fragment>
 
     <fragment
         android:id="@+id/HistoryFragment"
         android:name="com.example.androidnativegrupo5.ui.activities.HistoryFragment"
-        android:label="Historial"
-        tools:layout="@layout/fragment_history">
-
+        android:label="Historial">
         <action
             android:id="@+id/action_HistoryFragment_to_DetailFragment"
             app:destination="@id/DetailFragment" />
@@ -180,13 +153,38 @@
     </fragment>
 
     <fragment
-        android:id="@+id/ExploreActivitiesFragment"
-        android:name="com.example.androidnativegrupo5.ui.activities.ExploreActivitiesFragment"
-        android:label="Todas las actividades"
-        tools:layout="@layout/fragment_explore_activities">
+        android:id="@+id/ProfileFragment"
+        android:name="com.example.androidnativegrupo5.ui.profile.ProfileFragment"
+        android:label="Perfil" >
         <action
-            android:id="@+id/action_ExploreActivitiesFragment_to_DetailFragment"
-            app:destination="@id/DetailFragment" />
+            android:id="@+id/action_ProfileFragment_to_MyReservationsFragment"
+            app:destination="@id/MyReservationsFragment" />
+        <action
+            android:id="@+id/action_ProfileFragment_to_HistoryFragment"
+            app:destination="@id/HistoryFragment" />
+        <action
+            android:id="@+id/action_ProfileFragment_to_FavoritesFragment"
+            app:destination="@id/FavoritesFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/OtpFragment"
+        android:name="com.example.androidnativegrupo5.ui.auth.OtpFragment"
+        android:label="OTP">
+        <action
+            android:id="@+id/action_OtpFragment_to_FirstFragment"
+            app:destination="@id/FirstFragment"
+            app:popUpTo="@id/nav_graph"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/RegisterFragment"
+        android:name="com.example.androidnativegrupo5.ui.auth.RegisterFragment"
+        android:label="Registro">
+        <action
+            android:id="@+id/action_registerFragment_to_otpFragment"
+            app:destination="@id/OtpFragment" />
     </fragment>
 
     <fragment
@@ -197,6 +195,22 @@
         <action
             android:id="@+id/action_FavoritesFragment_to_DetailFragment"
             app:destination="@id/DetailFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/ManageReservationFragment"
+        android:name="com.example.androidnativegrupo5.ui.reservations.DetailReservationFragment"
+        android:label="Gestionar Reserva"
+        tools:layout="@layout/fragment_manage_reservation">
+        <argument
+            android:name="reservationId"
+            app:argType="long" />
+        <argument
+            android:name="activityId"
+            app:argType="long" />
+        <action
+            android:id="@+id/action_ManageReservationFragment_to_RatingFragment"
+            app:destination="@id/RatingFragment" />
     </fragment>
 
 </navigation>
