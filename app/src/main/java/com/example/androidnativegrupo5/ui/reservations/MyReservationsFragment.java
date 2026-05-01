@@ -157,20 +157,57 @@ public class MyReservationsFragment extends Fragment implements ReservationAdapt
 
         Spinner spinnerStatus = sheetView.findViewById(R.id.spinnerReservationStatus);
         View btnApplyFilters = sheetView.findViewById(R.id.btnApplyFilters);
+        View btnCloseFilters = sheetView.findViewById(R.id.btnCloseFilters);
+        View btnClearFilters = sheetView.findViewById(R.id.btnClearFilters);
 
         String[] options = {"Todas", "Confirmadas", "Finalizadas", "Canceladas"};
-        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, options);
+
+        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(
+                requireContext(),
+                android.R.layout.simple_spinner_item,
+                options
+        );
+
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerStatus.setAdapter(spinnerAdapter);
 
+        if (selectedStatusFilter == null) {
+            spinnerStatus.setSelection(0);
+        } else if (selectedStatusFilter.equals("CONFIRMED")) {
+            spinnerStatus.setSelection(1);
+        } else if (selectedStatusFilter.equals("FINISHED")) {
+            spinnerStatus.setSelection(2);
+        } else if (selectedStatusFilter.equals("CANCELLED")) {
+            spinnerStatus.setSelection(3);
+        }
+
+        btnCloseFilters.setOnClickListener(v -> dialog.dismiss());
+
+        btnClearFilters.setOnClickListener(v -> {
+            selectedStatusFilter = null;
+            spinnerStatus.setSelection(0);
+            applyStatusFilter();
+            dialog.dismiss();
+        });
+
         btnApplyFilters.setOnClickListener(v -> {
             int pos = spinnerStatus.getSelectedItemPosition();
+
             switch (pos) {
-                case 1: selectedStatusFilter = "CONFIRMED"; break;
-                case 2: selectedStatusFilter = "FINISHED"; break;
-                case 3: selectedStatusFilter = "CANCELLED"; break;
-                default: selectedStatusFilter = null;
+                case 1:
+                    selectedStatusFilter = "CONFIRMED";
+                    break;
+                case 2:
+                    selectedStatusFilter = "FINISHED";
+                    break;
+                case 3:
+                    selectedStatusFilter = "CANCELLED";
+                    break;
+                default:
+                    selectedStatusFilter = null;
+                    break;
             }
+
             applyStatusFilter();
             dialog.dismiss();
         });
