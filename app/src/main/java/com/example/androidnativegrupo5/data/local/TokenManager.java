@@ -3,6 +3,9 @@ package com.example.androidnativegrupo5.data.local;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.example.androidnativegrupo5.data.model.UserResponse;
+import com.google.gson.Gson;
+
 import javax.inject.Inject;
 
 import dagger.hilt.android.qualifiers.ApplicationContext;
@@ -10,13 +13,16 @@ import dagger.hilt.android.qualifiers.ApplicationContext;
 public class TokenManager {
 
     private SharedPreferences prefs;
+    private final Gson gson;
 
     private static final String PREF_NAME = "auth";
     private static final String KEY_TOKEN = "token";
+    private static final String KEY_USER_PROFILE = "user_profile";
 
     @Inject
     public TokenManager(@ApplicationContext Context context) {
         prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        this.gson = new Gson();
     }
 
     public String getToken() {
@@ -28,7 +34,18 @@ public class TokenManager {
     }
 
     public void clearToken() {
-        prefs.edit().remove(KEY_TOKEN).apply();
+        prefs.edit().remove(KEY_TOKEN).remove(KEY_USER_PROFILE).apply();
+    }
+
+    public void saveUserProfile(UserResponse user) {
+        String json = gson.toJson(user);
+        prefs.edit().putString(KEY_USER_PROFILE, json).apply();
+    }
+
+    public UserResponse getUserProfile() {
+        String json = prefs.getString(KEY_USER_PROFILE, null);
+        if (json == null) return null;
+        return gson.fromJson(json, UserResponse.class);
     }
 
     public void setBiometricEnabled(boolean enabled) {

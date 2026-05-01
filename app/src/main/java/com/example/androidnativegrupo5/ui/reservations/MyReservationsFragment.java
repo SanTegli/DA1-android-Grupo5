@@ -1,6 +1,5 @@
 package com.example.androidnativegrupo5.ui.reservations;
 
-import android.app.AlertDialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,8 +15,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.androidnativegrupo5.R;
 import com.example.androidnativegrupo5.data.local.TokenManager;
+import com.example.androidnativegrupo5.data.local.db.AvailabilityDao;
+import com.example.androidnativegrupo5.data.local.db.CachedAvailability;
 import com.example.androidnativegrupo5.data.local.db.Reserva;
 import com.example.androidnativegrupo5.data.local.db.ReservaDao;
+import com.example.androidnativegrupo5.data.model.AvailabilitySlotResponse;
+import com.example.androidnativegrupo5.data.model.RescheduleReservationRequest;
 import com.example.androidnativegrupo5.data.model.ReservationResponse;
 import com.example.androidnativegrupo5.data.network.ApiService;
 import com.example.androidnativegrupo5.databinding.FragmentMyReservationsBinding;
@@ -26,6 +29,7 @@ import com.example.androidnativegrupo5.utils.NetworkUtils;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
+import com.example.androidnativegrupo5.utils.SyncManager;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import java.util.ArrayList;
@@ -48,6 +52,7 @@ public class MyReservationsFragment extends Fragment implements ReservationAdapt
     @Inject ApiService apiService;
     @Inject TokenManager tokenManager;
     @Inject ReservaDao reservaDao;
+    @Inject AvailabilityDao availabilityDao;
 
     private FragmentMyReservationsBinding binding;
     private ReservationAdapter adapter;
@@ -71,7 +76,6 @@ public class MyReservationsFragment extends Fragment implements ReservationAdapt
         adapter = new ReservationAdapter(new ArrayList<>(), this);
         binding.recyclerReservations.setAdapter(adapter);
 
-        // Listener del botón de filtro (Punto solicitado)
         binding.btnFilterReservations.setOnClickListener(v -> {
             Log.d(TAG, "Abriendo diálogo de filtros de reservas");
             showStatusFilterDialog();
@@ -85,34 +89,65 @@ public class MyReservationsFragment extends Fragment implements ReservationAdapt
     }
 
     private void checkStatusAndLoad() {
+        // Estrategia "Cache First": Cargamos siempre lo local primero
+        loadOfflineData();
+
         if (!NetworkUtils.isOnline(requireContext())) {
-            Log.w(TAG, "Sin conexión. Cargando reservas locales.");
+            Log.w(TAG, "Sin conexión detectada. Mostrando aviso.");
             binding.layoutOfflineWarning.setVisibility(View.VISIBLE);
-            loadOfflineData();
         } else {
+            Log.d(TAG, "Conexión detectada. Intentando sincronizar.");
             binding.layoutOfflineWarning.setVisibility(View.GONE);
             loadReservations();
         }
     }
 
     private void loadReservations() {
-        Log.d(TAG, "Solicitando reservas activas al servidor...");
         apiService.getMyReservations().enqueue(new Callback<List<ReservationResponse>>() {
             @Override
             public void onResponse(@NonNull Call<List<ReservationResponse>> call, @NonNull Response<List<ReservationResponse>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    Log.d(TAG, "Reservas recibidas: " + response.body().size());
-                    allReservations.clear();
-                    allReservations.addAll(response.body());
+                    Log.d(TAG, "Datos recibidos de API: " + response.body().size());
                     syncLocalDatabase(response.body());
-                    applyStatusFilter();
+                    prefetchAvailabilityForAll(response.body());
                 }
             }
             @Override
             public void onFailure(@NonNull Call<List<ReservationResponse>> call, @NonNull Throwable t) {
-                Log.e(TAG, "Error al cargar reservas de la API: " + t.getMessage());
-                loadOfflineData();
+                Log.e(TAG, "Fallo de API, se mantiene lo cargado de Room: " + t.getMessage());
             }
+        });
+    }
+
+    private void prefetchAvailabilityForAll(List<ReservationResponse> reservations) {
+        for (ReservationResponse res : reservations) {
+            if (res.getActivityId() != null) {
+                apiService.getAvailability(res.getActivityId()).enqueue(new Callback<List<AvailabilitySlotResponse>>() {
+                    @Override
+                    public void onResponse(Call<List<AvailabilitySlotResponse>> call, Response<List<AvailabilitySlotResponse>> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            cacheAvailability(res.getActivityId(), response.body());
+                        }
+                    }
+                    @Override public void onFailure(Call<List<AvailabilitySlotResponse>> call, Throwable t) {}
+                });
+            }
+        }
+    }
+
+    private void cacheAvailability(Long activityId, List<AvailabilitySlotResponse> slots) {
+        executor.execute(() -> {
+            availabilityDao.deleteByActivityId(activityId);
+            List<CachedAvailability> cachedList = new ArrayList<>();
+            for (AvailabilitySlotResponse s : slots) {
+                CachedAvailability c = new CachedAvailability();
+                c.setActivityId(activityId);
+                c.setDate(s.getDate());
+                c.setTime(s.getTime());
+                c.setAvailableSlots(s.getAvailableSlots());
+                cachedList.add(c);
+            }
+            availabilityDao.insertAll(cachedList);
         });
     }
 
@@ -136,7 +171,6 @@ public class MyReservationsFragment extends Fragment implements ReservationAdapt
                 case 3: selectedStatusFilter = "CANCELLED"; break;
                 default: selectedStatusFilter = null;
             }
-            Log.d(TAG, "Filtro aplicado: " + (selectedStatusFilter != null ? selectedStatusFilter : "TODAS"));
             applyStatusFilter();
             dialog.dismiss();
         });
@@ -155,50 +189,84 @@ public class MyReservationsFragment extends Fragment implements ReservationAdapt
                 if (status.contains(selectedStatusFilter)) filtered.add(res);
             }
         }
-        Log.d(TAG, "applyStatusFilter: Mostrando " + filtered.size() + " reservas filtradas");
         adapter.updateData(filtered);
     }
 
     private void loadOfflineData() {
         executor.execute(() -> {
             List<Reserva> localData = reservaDao.getAllReservas();
-            Log.d(TAG, "loadOfflineData: Datos encontrados en Room: " + localData.size());
             List<ReservationResponse> uiList = new ArrayList<>();
             for (Reserva r : localData) uiList.add(r.toResponse());
             
-            requireActivity().runOnUiThread(() -> {
-                allReservations.clear();
-                allReservations.addAll(uiList);
-                applyStatusFilter();
-            });
+            if (getActivity() != null) {
+                getActivity().runOnUiThread(() -> {
+                    allReservations.clear();
+                    allReservations.addAll(uiList);
+                    applyStatusFilter();
+                });
+            }
         });
     }
 
     @Override
     public void onDetailClick(ReservationResponse reservation) {
         Bundle bundle = new Bundle();
-
-        Log.d(TAG, "Abriendo detalle para reserva: " + reservation.getId());
-
         long resId = (reservation.getId() != null) ? reservation.getId() : 0L;
         long actId = (reservation.getActivityId() != null) ? reservation.getActivityId() : 0L;
-
         bundle.putLong("reservationId", resId);
         bundle.putLong("activityId", actId);
-
-        Log.d(TAG, "Navegando a gestión con ActivityID: " + actId);
         NavHostFragment.findNavController(this).navigate(R.id.ManageReservationFragment, bundle);
-
     }
 
     private void syncLocalDatabase(List<ReservationResponse> remoteData) {
         executor.execute(() -> {
-            reservaDao.deleteAll();
             for (ReservationResponse dto : remoteData) {
+                Reserva local = reservaDao.getReservaById(dto.getId());
+                if (local != null) {
+                    if (local.isPendingSync()) {
+                        Log.d(TAG, "Reenviando cambio local al backend: " + local.getId());
+
+                        try {
+                            apiService.rescheduleReservation(
+                                    local.getId(),
+                                    new RescheduleReservationRequest(
+                                            local.getNewDate(),
+                                            local.getNewTime(),
+                                            local.getNewParticipants()
+                                    )
+                            ).execute();
+                            local.setPendingSync(false);
+                            reservaDao.update(local);
+                        } catch (Exception e) {
+                            Log.e(TAG, "Error reenviando cambios", e);
+                        }
+                        continue;
+                    }
+
+                    if (local.isPendingCancellation()) {
+                        Log.d(TAG, "Reenviando cancelación: " + local.getId());
+                        try {
+                            apiService.cancelReservation(local.getId()).execute();
+                            reservaDao.clearPendingCancellation(local.getId());
+                        } catch (Exception e) {
+                            Log.e(TAG, "Error cancelando", e);
+                        }
+                        continue;
+                    }
+                }
                 reservaDao.insert(Reserva.fromResponse(dto));
             }
-            Log.d(TAG, "syncLocalDatabase: Base de datos local actualizada.");
+
+            Log.d(TAG, "Sync terminado");
+            loadOfflineData();
         });
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        checkStatusAndLoad();
     }
 
     @Override

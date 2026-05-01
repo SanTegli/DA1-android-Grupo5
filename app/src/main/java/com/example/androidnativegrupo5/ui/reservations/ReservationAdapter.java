@@ -35,12 +35,13 @@ public class ReservationAdapter extends RecyclerView.Adapter<ReservationAdapter.
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView name, date, time, slots, status, totalPrice;
-        ImageView imageReservation;
+        ImageView imageReservation, icPendingSync;
         Button btnManageReservation;
 
         public ViewHolder(@NonNull View view) {
             super(view);
             imageReservation = view.findViewById(R.id.image_reservation);
+            icPendingSync = view.findViewById(R.id.ic_pending_sync);
             name = view.findViewById(R.id.text_name);
             date = view.findViewById(R.id.text_date);
             time = view.findViewById(R.id.text_time);
@@ -71,6 +72,11 @@ public class ReservationAdapter extends RecyclerView.Adapter<ReservationAdapter.
         holder.status.setText(formatStatus(r.getStatus()));
         applyStatusStyle(holder.status, r.getStatus());
         holder.totalPrice.setText("$" + String.format(java.util.Locale.US, "%.2f", r.getTotalPrice()));
+
+        // Mostrar nube si hay sincronización pendiente
+        if (holder.icPendingSync != null) {
+            holder.icPendingSync.setVisibility(r.isPendingSync() ? View.VISIBLE : View.GONE);
+        }
 
         String imageUrl = r.getImageUrl();
         Log.d(TAG, "Cargando imagen para " + r.getActivityName() + ": " + imageUrl);

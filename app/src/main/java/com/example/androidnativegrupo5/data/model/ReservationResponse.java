@@ -27,6 +27,9 @@ public class ReservationResponse {
     @SerializedName("guideName")
     private String guideName;
 
+    // UI helper for offline sync status
+    private boolean pendingSync;
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -62,4 +65,7 @@ public class ReservationResponse {
 
     public String getGuideName() { return guideName; }
     public void setGuideName(String guideName) { this.guideName = guideName; }
+
+    public boolean isPendingSync() { return pendingSync; }
+    public void setPendingSync(boolean pendingSync) { this.pendingSync = pendingSync; }
 }
