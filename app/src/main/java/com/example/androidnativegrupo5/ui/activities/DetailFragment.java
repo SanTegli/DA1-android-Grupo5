@@ -319,9 +319,13 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
                 if (!isAdded() || binding == null) return;
 
                 if (response.isSuccessful() && response.body() != null) {
-                    List<AvailabilitySlotResponse> availabilityList = response.body();
+
+                    List<AvailabilitySlotResponse> availabilityList =
+                            filterFutureAvailability(response.body());
+
                     renderAvailableDays(availabilityList);
                     renderAvailableSchedules(availabilityList);
+
                 } else {
                     binding.textSchedules.setText("No hay horarios disponibles.");
                 }
@@ -334,7 +338,6 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
             }
         });
     }
-
     private void renderAvailableDays(List<AvailabilitySlotResponse> availabilityList) {
         Set<DayOfWeek> availableDays = new HashSet<>();
 
