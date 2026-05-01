@@ -1,6 +1,8 @@
 package com.example.androidnativegrupo5.ui.activities;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,6 +46,7 @@ public class ExploreActivitiesFragment extends Fragment {
     private final List<String> dynamicCategories = new ArrayList<>();
     private final List<String> dynamicDestinations = new ArrayList<>();
 
+    private String searchText = "";
     private String filterCategory = null;
     private String filterDestination = null;
     private Integer filterMinPrice = null;
@@ -73,6 +76,17 @@ public class ExploreActivitiesFragment extends Fragment {
 
         binding.recyclerExploreActivities.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.recyclerExploreActivities.setAdapter(adapter);
+
+        binding.editSearchActivities.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                searchText = s != null ? s.toString() : "";
+                applyLocalFilters();
+            }
+        });
 
         binding.btnFilterExplore.setOnClickListener(clickedView -> {
             FilterBottomSheetDialogFragment bottomSheet = new FilterBottomSheetDialogFragment();
@@ -199,7 +213,12 @@ public class ExploreActivitiesFragment extends Fragment {
     private void applyLocalFilters() {
         List<Activity> filtered = new ArrayList<>();
 
+        String search = searchText != null
+                ? searchText.toLowerCase().trim()
+                : "";
+
         for (Activity activity : allActivities) {
+            if (!matchesSearch(activity, search)) continue;
             if (!matchesCategory(activity)) continue;
             if (!matchesDestination(activity)) continue;
             if (!matchesPrice(activity)) continue;
@@ -213,6 +232,22 @@ public class ExploreActivitiesFragment extends Fragment {
             binding.textEmptyExplore.setVisibility(filtered.isEmpty() ? View.VISIBLE : View.GONE);
             binding.textResultsCount.setText(filtered.size() + " actividades encontradas");
         }
+    }
+
+    private boolean matchesSearch(Activity activity, String search) {
+        if (search == null || search.isEmpty()) return true;
+
+        String name = safe(activity.getName()).toLowerCase();
+        String description = safe(activity.getDescription()).toLowerCase();
+        String destination = safe(activity.getDestination()).toLowerCase();
+        String category = safe(activity.getCategory()).toLowerCase();
+        String guide = safe(activity.getGuideName()).toLowerCase();
+
+        return name.contains(search)
+                || description.contains(search)
+                || destination.contains(search)
+                || category.contains(search)
+                || guide.contains(search);
     }
 
     private boolean matchesCategory(Activity activity) {
