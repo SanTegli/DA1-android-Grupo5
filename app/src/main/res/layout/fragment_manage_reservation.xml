@@ -235,6 +235,43 @@
             android:visibility="gone"
             app:backgroundTint="@null" />
 
+        <LinearLayout
+            android:id="@+id/layoutRatingResult"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:padding="16dp"
+            android:background="#F8F8F8"
+            android:layout_marginTop="12dp">
+
+            <TextView
+                android:id="@+id/textRatingActivity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Actividad: ★★★★★"
+                android:textSize="16sp"
+                android:textColor="#1E1B16" />
+
+            <TextView
+                android:id="@+id/textRatingGuide"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Guía: ★★★★☆"
+                android:textSize="16sp"
+                android:textColor="#1E1B16"
+                android:layout_marginTop="6dp"/>
+
+            <TextView
+                android:id="@+id/textRatingComment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Comentario"
+                android:layout_marginTop="8dp"
+                android:textSize="14sp"
+                android:textColor="#555555"/>
+        </LinearLayout>
+
     </LinearLayout>
 
 </androidx.core.widget.NestedScrollView>
