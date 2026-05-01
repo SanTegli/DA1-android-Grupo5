@@ -29,6 +29,7 @@ import retrofit2.Response;
 public class RatingFragment extends Fragment {
 
     private static final String TAG = "RatingFragment";
+
     private FragmentRatingBinding binding;
     private Long activityId;
     private String activityName;
@@ -42,6 +43,7 @@ public class RatingFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         if (getArguments() != null) {
             activityId = getArguments().getLong("activityId");
             activityName = getArguments().getString("activityName");
@@ -49,14 +51,16 @@ public class RatingFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             ViewGroup container,
                              Bundle savedInstanceState) {
         binding = FragmentRatingBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view,
+                              @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         if (activityName != null) {
@@ -74,47 +78,90 @@ public class RatingFragment extends Fragment {
 
         int activityScore = (int) binding.ratingActivity.getRating();
         int guideScore = (int) binding.ratingGuide.getRating();
-        String comment = binding.etComment.getText() != null ? binding.etComment.getText().toString() : "";
+
+        String comment = binding.etComment.getText() != null
+                ? binding.etComment.getText().toString().trim()
+                : "";
 
         if (activityScore == 0 || guideScore == 0) {
             Toast.makeText(getContext(), "Por favor, califica la actividad y el guía", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        Log.d(TAG, "Enviando calificación para actividad " + activityId + ": " + activityScore + "/5");
+        Log.d(TAG, "Enviando calificación para actividad " + activityId);
 
         binding.btnSubmitRating.setEnabled(false);
         binding.btnSubmitRating.setText("Enviando...");
 
-        CreateRatingRequest request = new CreateRatingRequest(activityScore, guideScore, comment);
+        CreateRatingRequest request = new CreateRatingRequest(
+                activityScore,
+                guideScore,
+                comment
+        );
 
         apiService.createRating(activityId, request).enqueue(new Callback<Rating>() {
             @Override
-            public void onResponse(@NonNull Call<Rating> call, @NonNull Response<Rating> response) {
-                if (!isAdded()) return;
-                
-                if (response.isSuccessful() || response.code() == 400) {
-                    Log.d(TAG, "Calificación procesada con éxito");
+            public void onResponse(@NonNull Call<Rating> call,
+                                   @NonNull Response<Rating> response) {
+
+                if (!isAdded() || binding == null) return;
+
+                if (response.isSuccessful()) {
                     Toast.makeText(getContext(), "¡Gracias por tu calificación!", Toast.LENGTH_SHORT).show();
-                    
-                    // REQUERIMIENTO PUNTO 5: Al volver, la lista se refrescará y el botón de calificar 
-                    // desaparecerá porque ahora el score será > 0.
                     Navigation.findNavController(requireView()).navigateUp();
+                    return;
+                }
+
+                int code = response.code();
+                Log.e(TAG, "Error al enviar calificación. Código HTTP: " + code);
+
+                if (code == 400 || code == 409) {
+                    binding.textAlreadyRated.setVisibility(View.VISIBLE);
+                    binding.textAlreadyRated.setText("Ya calificaste esta experiencia");
+
+                    binding.btnSubmitRating.setEnabled(false);
+                    binding.btnSubmitRating.setText("Ya calificada");
+
+                    binding.ratingActivity.setIsIndicator(true);
+                    binding.ratingGuide.setIsIndicator(true);
+                    binding.etComment.setEnabled(false);
+
+                } else if (code == 403) {
+
+                    binding.textAlreadyRated.setVisibility(View.VISIBLE);
+                    binding.textAlreadyRated.setText("Solo podés calificar una actividad finalizada");
+
+                    binding.btnSubmitRating.setEnabled(false);
+
                 } else {
+
                     binding.btnSubmitRating.setEnabled(true);
                     binding.btnSubmitRating.setText("Enviar Calificación");
-                    Log.e(TAG, "Error al enviar calificación: " + response.code());
-                    Toast.makeText(getContext(), "No se pudo enviar la calificación", Toast.LENGTH_SHORT).show();
+
+                    Toast.makeText(
+                            getContext(),
+                            "Error al enviar calificación",
+                            Toast.LENGTH_SHORT
+                    ).show();
                 }
             }
 
             @Override
-            public void onFailure(@NonNull Call<Rating> call, @NonNull Throwable t) {
-                if (!isAdded()) return;
+            public void onFailure(@NonNull Call<Rating> call,
+                                  @NonNull Throwable t) {
+
+                if (!isAdded() || binding == null) return;
+
                 binding.btnSubmitRating.setEnabled(true);
                 binding.btnSubmitRating.setText("Enviar Calificación");
+
                 Log.e(TAG, "Fallo de conexión al calificar: " + t.getMessage());
-                Toast.makeText(getContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
+
+                Toast.makeText(
+                        getContext(),
+                        "Error de conexión",
+                        Toast.LENGTH_SHORT
+                ).show();
             }
         });
     }

@@ -1,14 +1,14 @@
 package com.example.androidnativegrupo5.ui.activities;
 
 import android.app.DatePickerDialog;
+import android.content.DialogInterface;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.content.DialogInterface;
-import android.graphics.Color;
 import android.widget.Button;
 
 import androidx.annotation.NonNull;
@@ -18,10 +18,10 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.androidnativegrupo5.R;
-import com.example.androidnativegrupo5.databinding.FragmentHistoryBinding;
+import com.example.androidnativegrupo5.data.local.TokenManager;
 import com.example.androidnativegrupo5.data.model.ActivityHistoryItem;
 import com.example.androidnativegrupo5.data.network.ApiService;
-import com.example.androidnativegrupo5.data.local.TokenManager;
+import com.example.androidnativegrupo5.databinding.FragmentHistoryBinding;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -39,6 +39,7 @@ import retrofit2.Response;
 public class HistoryFragment extends Fragment {
 
     private static final String TAG = "HistoryFragment";
+
     private FragmentHistoryBinding binding;
     private HistoryAdapter adapter;
 
@@ -68,15 +69,28 @@ public class HistoryFragment extends Fragment {
             @Override
             public void onHistoryClick(ActivityHistoryItem item) {
                 Bundle bundle = new Bundle();
-                bundle.putLong("activityId", item.getActivityId());
-                navController.navigate(R.id.action_HistoryFragment_to_DetailFragment, bundle);
+
+                long reservationId = item.getReservationId() != null ? item.getReservationId() : 0L;
+                long activityId = item.getActivityId() != null ? item.getActivityId() : 0L;
+
+                bundle.putLong("reservationId", reservationId);
+                bundle.putLong("activityId", activityId);
+
+                Log.d(TAG, "History -> ManageReservationFragment | reservationId: "
+                        + reservationId + " | activityId: " + activityId);
+
+                navController.navigate(R.id.ManageReservationFragment, bundle);
             }
 
             @Override
             public void onRateClick(ActivityHistoryItem item) {
                 Bundle bundle = new Bundle();
-                bundle.putLong("activityId", item.getActivityId());
+
+                long activityId = item.getActivityId() != null ? item.getActivityId() : 0L;
+
+                bundle.putLong("activityId", activityId);
                 bundle.putString("activityName", item.getActivityName());
+
                 navController.navigate(R.id.action_HistoryFragment_to_RatingFragment, bundle);
             }
         });
@@ -102,11 +116,19 @@ public class HistoryFragment extends Fragment {
 
     private void showDatePicker(boolean isFromDate) {
         Calendar calendar = Calendar.getInstance();
+
         DatePickerDialog datePickerDialog = new DatePickerDialog(
                 requireContext(),
                 R.style.CustomDatePickerTheme,
                 (datePicker, year, month, dayOfMonth) -> {
-                    String selectedDate = String.format(Locale.getDefault(), "%04d-%02d-%02d", year, month + 1, dayOfMonth);
+                    String selectedDate = String.format(
+                            Locale.getDefault(),
+                            "%04d-%02d-%02d",
+                            year,
+                            month + 1,
+                            dayOfMonth
+                    );
+
                     if (isFromDate) {
                         fromDate = selectedDate;
                         binding.inputFromDate.setText(selectedDate);
@@ -120,10 +142,8 @@ public class HistoryFragment extends Fragment {
                 calendar.get(Calendar.DAY_OF_MONTH)
         );
 
-        // RESTORE: No permitir fechas futuras
         datePickerDialog.getDatePicker().setMaxDate(System.currentTimeMillis());
 
-        // RESTORE: Estilos de botones
         datePickerDialog.setOnShowListener(dialog -> {
             Button btnOk = datePickerDialog.getButton(DialogInterface.BUTTON_POSITIVE);
             Button btnCancel = datePickerDialog.getButton(DialogInterface.BUTTON_NEGATIVE);
@@ -142,37 +162,57 @@ public class HistoryFragment extends Fragment {
 
     private void loadHistory() {
         if (binding == null) return;
+
         String token = tokenManager.getToken();
         if (token == null) return;
 
         binding.progressBarHistory.setVisibility(View.VISIBLE);
-        String destination = binding.inputDestination.getText() != null ? binding.inputDestination.getText().toString().trim() : null;
-        if (TextUtils.isEmpty(destination)) destination = null;
+
+        String destination = binding.inputDestination.getText() != null
+                ? binding.inputDestination.getText().toString().trim()
+                : null;
+
+        if (TextUtils.isEmpty(destination)) {
+            destination = null;
+        }
 
         Log.d(TAG, "loadHistory: Cargando historial con filtros.");
 
         apiService.getHistory(fromDate, toDate, destination).enqueue(new Callback<List<ActivityHistoryItem>>() {
             @Override
-            public void onResponse(@NonNull Call<List<ActivityHistoryItem>> call, @NonNull Response<List<ActivityHistoryItem>> response) {
+            public void onResponse(@NonNull Call<List<ActivityHistoryItem>> call,
+                                   @NonNull Response<List<ActivityHistoryItem>> response) {
+
                 if (!isAdded() || binding == null) return;
+
                 binding.progressBarHistory.setVisibility(View.GONE);
-                
+
                 if (response.isSuccessful() && response.body() != null) {
                     List<ActivityHistoryItem> allItems = response.body();
                     List<ActivityHistoryItem> finishedOnly = new ArrayList<>();
-                    
-                    // Solo mostrar actividades pasadas (Requerimiento 5)
+
                     for (ActivityHistoryItem item : allItems) {
                         finishedOnly.add(item);
                     }
-                    
+
                     adapter.setItems(finishedOnly);
-                    binding.textEmptyHistory.setVisibility(finishedOnly.isEmpty() ? View.VISIBLE : View.GONE);
+                    binding.textEmptyHistory.setVisibility(
+                            finishedOnly.isEmpty() ? View.VISIBLE : View.GONE
+                    );
+                } else {
+                    binding.textEmptyHistory.setVisibility(View.VISIBLE);
                 }
             }
+
             @Override
-            public void onFailure(@NonNull Call<List<ActivityHistoryItem>> call, @NonNull Throwable t) {
-                if (binding != null) binding.progressBarHistory.setVisibility(View.GONE);
+            public void onFailure(@NonNull Call<List<ActivityHistoryItem>> call,
+                                  @NonNull Throwable t) {
+
+                if (!isAdded() || binding == null) return;
+
+                binding.progressBarHistory.setVisibility(View.GONE);
+                binding.textEmptyHistory.setVisibility(View.VISIBLE);
+
                 Log.e(TAG, "Error loadHistory: " + t.getMessage());
             }
         });

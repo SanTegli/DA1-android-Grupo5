@@ -94,6 +94,20 @@
                 android:fontFamily="@font/plus_jakarta_sans_regular" />
         </com.google.android.material.textfield.TextInputLayout>
 
+        <TextView
+            android:id="@+id/text_already_rated"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:background="#E8F5E9"
+            android:fontFamily="@font/plus_jakarta_sans_bold"
+            android:gravity="center"
+            android:padding="14dp"
+            android:text="Ya calificaste esta experiencia"
+            android:textColor="#2E7D32"
+            android:textSize="15sp"
+            android:visibility="gone" />
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_submit_rating"
             android:layout_width="match_parent"

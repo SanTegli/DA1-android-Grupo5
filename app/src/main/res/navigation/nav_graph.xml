@@ -132,8 +132,8 @@
         android:name="com.example.androidnativegrupo5.ui.activities.HistoryFragment"
         android:label="Historial">
         <action
-            android:id="@+id/action_HistoryFragment_to_DetailFragment"
-            app:destination="@id/DetailFragment" />
+            android:id="@+id/action_HistoryFragment_to_DetailReservationFragment"
+            app:destination="@id/ManageReservationFragment" />
         <action
             android:id="@+id/action_HistoryFragment_to_RatingFragment"
             app:destination="@id/RatingFragment" />
