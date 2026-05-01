@@ -176,11 +176,19 @@ public class MyReservationsFragment extends Fragment implements ReservationAdapt
 
     @Override
     public void onDetailClick(ReservationResponse reservation) {
-        Log.d(TAG, "Abriendo detalle para reserva: " + reservation.getId());
         Bundle bundle = new Bundle();
-        bundle.putLong("reservationId", reservation.getId());
-        bundle.putLong("activityId", reservation.getActivityId());
+
+        Log.d(TAG, "Abriendo detalle para reserva: " + reservation.getId());
+
+        long resId = (reservation.getId() != null) ? reservation.getId() : 0L;
+        long actId = (reservation.getActivityId() != null) ? reservation.getActivityId() : 0L;
+
+        bundle.putLong("reservationId", resId);
+        bundle.putLong("activityId", actId);
+
+        Log.d(TAG, "Navegando a gestión con ActivityID: " + actId);
         NavHostFragment.findNavController(this).navigate(R.id.ManageReservationFragment, bundle);
+
     }
 
     private void syncLocalDatabase(List<ReservationResponse> remoteData) {

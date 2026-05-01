@@ -10,6 +10,7 @@ public class RescheduleReservationRequest {
     @SerializedName("time")
     private String newTime;
 
+    @SerializedName("participants")
     private int participants;
 
     public RescheduleReservationRequest(String newDate, String newTime, int participants) {
