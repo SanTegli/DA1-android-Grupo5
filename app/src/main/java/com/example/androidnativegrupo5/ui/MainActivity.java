@@ -1,10 +1,10 @@
 package com.example.androidnativegrupo5.ui;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.content.ContextCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -12,22 +12,37 @@ import androidx.core.splashscreen.SplashScreen;
 
 import com.example.androidnativegrupo5.R;
 import com.example.androidnativegrupo5.data.local.TokenManager;
+import com.example.androidnativegrupo5.data.local.db.Reserva;
 import com.example.androidnativegrupo5.data.local.db.ReservaDao;
+import com.example.androidnativegrupo5.data.model.RescheduleReservationRequest;
+import com.example.androidnativegrupo5.data.model.ReservationResponse;
+import com.example.androidnativegrupo5.data.network.ApiService;
 import com.example.androidnativegrupo5.databinding.ActivityMainBinding;
+import com.example.androidnativegrupo5.utils.NetworkMonitor;
 import com.example.androidnativegrupo5.utils.NetworkUtils;
+import com.example.androidnativegrupo5.utils.SyncManager;
+
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
+import retrofit2.Response;
 
 @AndroidEntryPoint
 public class MainActivity extends AppCompatActivity {
 
     @Inject TokenManager tokenManager;
     @Inject ReservaDao reservaDao;
+    @Inject ApiService apiService;
+
+    private NetworkMonitor networkMonitor = new NetworkMonitor();
 
     private ActivityMainBinding binding;
     private NavController navController;
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +50,12 @@ public class MainActivity extends AppCompatActivity {
         SplashScreen.installSplashScreen(this);
 
         super.onCreate(savedInstanceState);
+
+        networkMonitor.start(this, () -> {
+            runOnUiThread(() -> {
+                syncOfflineChanges();
+            });
+        });
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -47,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
         if (savedInstanceState == null && tokenManager.getToken() != null) {
             if (NetworkUtils.isOnline(this)) {
                 navController.navigate(R.id.FirstFragment);
+                syncOfflineChanges();
             } else {
                 navController.navigate(R.id.OfflineFragment);
             }
@@ -126,6 +148,47 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void syncOfflineChanges() {
+        if (!NetworkUtils.isOnline(this)) return;
+
+        executor.execute(() -> {
+            // Sincronizar reprogramaciones pendientes
+            List<Reserva> pendingSync = reservaDao.getPendingSync();
+            for (Reserva r : pendingSync) {
+                RescheduleReservationRequest req = new RescheduleReservationRequest(
+                        r.getNewDate(), r.getNewTime(), r.getNewParticipants()
+                );
+                try {
+                    Response<ReservationResponse> response = apiService.rescheduleReservation(r.getId(), req).execute();
+                    if (response.isSuccessful() && response.body() != null) {
+                        Reserva updated = Reserva.fromResponse(response.body());
+                        updated.setPendingSync(false);
+                        reservaDao.update(updated);
+                        Log.d("MainActivity", "Reserva " + r.getId() + " sincronizada con éxito.");
+                    }
+                } catch (Exception e) {
+                    Log.e("MainActivity", "Error sincronizando reserva " + r.getId(), e);
+                }
+            }
+
+            // Sincronizar cancelaciones pendientes
+            List<Reserva> cancellations = reservaDao.getPendingCancellations();
+            for (Reserva r : cancellations) {
+                try {
+                    Response<Void> response = apiService.cancelReservation(r.getId()).execute();
+                    if (response.isSuccessful()) {
+                        reservaDao.clearPendingCancellation(r.getId());
+                        Log.d("MainActivity", "Cancelación de reserva " + r.getId() + " sincronizada.");
+                    }
+                } catch (Exception e) {
+                    Log.e("MainActivity", "Error sincronizando cancelación " + r.getId(), e);
+                }
+            }
+        });
+
+        SyncManager.needsRefresh = true;
+    }
+
     private void updateFooterSelection(int selectedId) {
         int inactiveColor = ContextCompat.getColor(this, R.color.footer_inactive);
         int activeColor = ContextCompat.getColor(this, R.color.footer_active);
@@ -180,5 +243,12 @@ public class MainActivity extends AppCompatActivity {
     public boolean onSupportNavigateUp() {
         return navController != null && navController.navigateUp()
                 || super.onSupportNavigateUp();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        networkMonitor.stop();
     }
 }

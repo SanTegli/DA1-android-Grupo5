@@ -21,6 +21,8 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.bumptech.glide.Glide;
 import com.example.androidnativegrupo5.R;
 import com.example.androidnativegrupo5.data.local.TokenManager;
+import com.example.androidnativegrupo5.data.local.db.AvailabilityDao;
+import com.example.androidnativegrupo5.data.local.db.CachedAvailability;
 import com.example.androidnativegrupo5.data.local.db.Reserva;
 import com.example.androidnativegrupo5.data.local.db.ReservaDao;
 import com.example.androidnativegrupo5.data.model.Activity;
@@ -30,6 +32,7 @@ import com.example.androidnativegrupo5.data.model.ReservationResponse;
 import com.example.androidnativegrupo5.data.network.ApiService;
 import com.example.androidnativegrupo5.databinding.FragmentManageReservationBinding;
 import com.example.androidnativegrupo5.utils.NetworkUtils;
+import com.example.androidnativegrupo5.utils.SyncManager;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -40,6 +43,7 @@ import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -62,6 +66,7 @@ public class DetailReservationFragment extends Fragment implements OnMapReadyCal
     @Inject ApiService apiService;
     @Inject TokenManager tokenManager;
     @Inject ReservaDao reservaDao;
+    @Inject AvailabilityDao availabilityDao;
 
     private FragmentManageReservationBinding binding;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -99,7 +104,7 @@ public class DetailReservationFragment extends Fragment implements OnMapReadyCal
         binding.btnCancelReservation.setOnClickListener(v -> confirmCancelReservation());
         binding.btnRescheduleReservation.setOnClickListener(v -> {
             if (currentReservation == null) return;
-            showRescheduleDialog(currentReservation);
+            showRescheduleFlow();
         });
         binding.btnRateReservation.setOnClickListener(v -> {
             if (currentReservation == null) return;
@@ -176,7 +181,7 @@ public class DetailReservationFragment extends Fragment implements OnMapReadyCal
 
     private void bindReservation(ReservationResponse reservation) {
         if (reservation == null) return;
-        
+
         Glide.with(requireContext())
                 .load(reservation.getImageUrl())
                 .placeholder(R.drawable.common_illustration_welcome_placeholder)
@@ -186,7 +191,7 @@ public class DetailReservationFragment extends Fragment implements OnMapReadyCal
         binding.textManageDateTime.setText(reservation.getDate() + " - " + reservation.getTime());
         binding.textManagePeople.setText("Personas: " + reservation.getParticipants());
         binding.textManageTotalPrice.setText("Total: $" + reservation.getTotalPrice());
-        
+
         String address = reservation.getMeetingPointAddress() != null ? reservation.getMeetingPointAddress() : "Consultar al llegar";
         binding.textMeetingAddress.setText(address);
 
@@ -194,13 +199,17 @@ public class DetailReservationFragment extends Fragment implements OnMapReadyCal
         binding.textManageStatus.setText(formatStatus(status));
         applyStatusStyle(status);
 
+        // Indicador de sincronización pendiente
+        if (binding.layoutPendingSyncDetail != null) {
+            binding.layoutPendingSyncDetail.setVisibility(reservation.isPendingSync() ? View.VISIBLE : View.GONE);
+        }
+
         String n = status != null ? status.trim().toUpperCase() : "";
         boolean isCancelled = n.contains("CANCEL");
         boolean isFinished = n.contains("FINISH");
-        boolean isOffline = !NetworkUtils.isOnline(requireContext());
 
-        binding.btnCancelReservation.setVisibility((isCancelled || isFinished || isOffline) ? View.GONE : View.VISIBLE);
-        binding.btnRescheduleReservation.setVisibility((isCancelled || isFinished || isOffline) ? View.GONE : View.VISIBLE);
+        binding.btnCancelReservation.setVisibility((isCancelled || isFinished) ? View.GONE : View.VISIBLE);
+        binding.btnRescheduleReservation.setVisibility((isCancelled || isFinished) ? View.GONE : View.VISIBLE);
         binding.btnRateReservation.setVisibility(isFinished ? View.VISIBLE : View.GONE);
     }
 
@@ -243,20 +252,69 @@ public class DetailReservationFragment extends Fragment implements OnMapReadyCal
         }
     }
 
+    private void showRescheduleFlow() {
+        if (!NetworkUtils.isOnline(requireContext())) {
+            loadCachedAvailabilityAndShow();
+        } else {
+            showRescheduleDialog(currentReservation);
+        }
+    }
+
     private void showRescheduleDialog(ReservationResponse reservation) {
         apiService.getAvailability(reservation.getActivityId()).enqueue(new Callback<List<AvailabilitySlotResponse>>() {
             @Override
             public void onResponse(@NonNull Call<List<AvailabilitySlotResponse>> call, @NonNull Response<List<AvailabilitySlotResponse>> response) {
-                if (response.isSuccessful() && response.body() != null) renderRescheduleDialog(reservation, response.body());
+                if (response.isSuccessful() && response.body() != null) {
+                    List<AvailabilitySlotResponse> slots = response.body();
+                    cacheAvailability(reservation.getActivityId(), slots);
+                    renderRescheduleDialog(reservation, slots, false);
+                } else {
+                    loadCachedAvailabilityAndShow();
+                }
             }
             @Override
             public void onFailure(@NonNull Call<List<AvailabilitySlotResponse>> call, @NonNull Throwable t) {
-                Toast.makeText(getContext(), "Error al cargar horarios", Toast.LENGTH_SHORT).show();
+                loadCachedAvailabilityAndShow();
             }
         });
     }
 
-    private void renderRescheduleDialog(ReservationResponse reservation, List<AvailabilitySlotResponse> slots) {
+    private void cacheAvailability(Long activityId, List<AvailabilitySlotResponse> slots) {
+        executor.execute(() -> {
+            availabilityDao.deleteByActivityId(activityId);
+            List<CachedAvailability> cachedList = new ArrayList<>();
+            for (AvailabilitySlotResponse s : slots) {
+                CachedAvailability c = new CachedAvailability();
+                c.setActivityId(activityId);
+                c.setDate(s.getDate());
+                c.setTime(s.getTime());
+                c.setAvailableSlots(s.getAvailableSlots());
+                cachedList.add(c);
+            }
+            availabilityDao.insertAll(cachedList);
+        });
+    }
+
+    private void loadCachedAvailabilityAndShow() {
+        executor.execute(() -> {
+            List<CachedAvailability> cached = availabilityDao.getAvailabilityByActivityId(currentReservation.getActivityId());
+            if (getActivity() != null) {
+                getActivity().runOnUiThread(() -> {
+                    if (cached == null || cached.isEmpty()) {
+                        Toast.makeText(getContext(), "No hay horarios cacheados. Conéctate para ver disponibilidad.", Toast.LENGTH_LONG).show();
+                    } else {
+                        List<AvailabilitySlotResponse> slots = new ArrayList<>();
+                        for (CachedAvailability c : cached) {
+                            slots.add(new AvailabilitySlotResponse(c.getDate(), c.getTime(), c.getAvailableSlots()));
+                        }
+                        renderRescheduleDialog(currentReservation, slots, true);
+                    }
+                });
+            }
+        });
+    }
+
+    private void renderRescheduleDialog(ReservationResponse reservation, List<AvailabilitySlotResponse> slots, boolean isOffline) {
         View view = LayoutInflater.from(getContext()).inflate(R.layout.dialog_reschedule, null);
         ChipGroup cgDates = view.findViewById(R.id.chipGroupDatesReschedule);
         ChipGroup cgTimes = view.findViewById(R.id.chipGroupTimesReschedule);
@@ -283,7 +341,9 @@ public class DetailReservationFragment extends Fragment implements OnMapReadyCal
             });
             cgDates.addView(c);
         }
-        new MaterialAlertDialogBuilder(requireContext()).setTitle("Reprogramar").setView(view)
+
+        String title = isOffline ? "Reprogramar (Modo Offline)" : "Reprogramar";
+        new MaterialAlertDialogBuilder(requireContext()).setTitle(title).setView(view)
                 .setPositiveButton("Confirmar", (d, w) -> {
                     String slotsStr = editSlots != null ? editSlots.getText().toString() : "";
                     if (sDate[0].isEmpty() || sTime[0].isEmpty()) {
@@ -296,34 +356,34 @@ public class DetailReservationFragment extends Fragment implements OnMapReadyCal
                 }).setNegativeButton("Cancelar", null).show();
     }
 
-    private void executeReschedule(Long id, String d, String t, int slotsVal) {
-        RescheduleReservationRequest req = new RescheduleReservationRequest(d, t, slotsVal);
+    private void executeReschedule(Long id, String d, String time, int slotsVal) {
+        if (!NetworkUtils.isOnline(requireContext())) {
+            saveRescheduleOffline(id, d, time, slotsVal);
+            return;
+        }
 
-        Log.d(TAG, "Enviando reprogramación: Reserva " + id + ", " + slotsVal + " participantes");
-
+        RescheduleReservationRequest req = new RescheduleReservationRequest(d, time, slotsVal);
         apiService.rescheduleReservation(id, req).enqueue(new Callback<ReservationResponse>() {
             @Override
             public void onResponse(@NonNull Call<ReservationResponse> call, @NonNull Response<ReservationResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    // ÉXITO: El servidor validó y aplicó los cambios
                     Toast.makeText(getContext(), "¡Reprogramación exitosa!", Toast.LENGTH_SHORT).show();
                     currentReservation = response.body();
                     bindReservation(currentReservation);
                     executor.execute(() -> reservaDao.insert(Reserva.fromResponse(response.body())));
                 } else {
-                    // ERROR: El servidor rechazó el cambio (probablemente por cupos)
-                    Log.e(TAG, "Error del servidor: " + response.code());
                     if (response.code() == 400) {
-                        Toast.makeText(getContext(), "No hay cupos disponibles para esa cantidad de personas", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getContext(), "No hay cupos disponibles", Toast.LENGTH_LONG).show();
                     } else {
-                        Toast.makeText(getContext(), "No se pudo modificar la reserva. Verifique la disponibilidad.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "No se pudo modificar la reserva", Toast.LENGTH_SHORT).show();
                     }
+                    saveRescheduleOffline(id, d, time, slotsVal);
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<ReservationResponse> call, @NonNull Throwable t) {
-                Toast.makeText(getContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
+                saveRescheduleOffline(id, d, time, slotsVal);
             }
         });
     }
@@ -331,7 +391,7 @@ public class DetailReservationFragment extends Fragment implements OnMapReadyCal
     private void confirmCancelReservation() {
         AlertDialog dialog = new MaterialAlertDialogBuilder(requireContext())
                 .setTitle("Cancelar Reserva")
-                .setMessage("¿Estás seguro de que deseas cancelar esta reserva?")
+                .setMessage("¿Estás seguro?")
                 .setPositiveButton("Sí, cancelar", (d, w) -> cancelReservation())
                 .setNegativeButton("No, volver", null)
                 .show();
@@ -341,14 +401,55 @@ public class DetailReservationFragment extends Fragment implements OnMapReadyCal
     }
 
     private void cancelReservation() {
+        if (!NetworkUtils.isOnline(requireContext())) {
+            markCancellationOffline();
+            return;
+        }
+
         apiService.cancelReservation(reservationId).enqueue(new Callback<Void>() {
             @Override public void onResponse(@NonNull Call<Void> c, @NonNull Response<Void> r) {
-                if (r.isSuccessful()) { 
-                    Toast.makeText(getContext(), "Reserva cancelada", Toast.LENGTH_SHORT).show(); 
-                    NavHostFragment.findNavController(DetailReservationFragment.this).popBackStack(); 
+                if (r.isSuccessful()) {
+                    Toast.makeText(getContext(), "Reserva cancelada", Toast.LENGTH_SHORT).show();
+                    NavHostFragment.findNavController(DetailReservationFragment.this).popBackStack();
+                } else {
+                    markCancellationOffline();
                 }
             }
-            @Override public void onFailure(@NonNull Call<Void> c, @NonNull Throwable t) { Toast.makeText(getContext(), "Error de red", Toast.LENGTH_SHORT).show(); }
+            @Override public void onFailure(@NonNull Call<Void> c, @NonNull Throwable t) {
+                markCancellationOffline();
+            }
+        });
+    }
+
+    private void markCancellationOffline() {
+        executor.execute(() -> {
+            reservaDao.markPendingCancellation(reservationId);
+            if (isAdded()) {
+                requireActivity().runOnUiThread(() -> {
+                    Toast.makeText(getContext(), "Cancelación guardada offline", Toast.LENGTH_SHORT).show();
+                    NavHostFragment.findNavController(DetailReservationFragment.this).popBackStack();
+                });
+            }
+        });
+    }
+
+    private void saveRescheduleOffline(Long id, String d, String t, int slotsVal) {
+        executor.execute(() -> {
+            Reserva local = reservaDao.getReservaById(id);
+            if (local != null) {
+                local.setNewDate(d);
+                local.setNewTime(t);
+                local.setNewParticipants(slotsVal);
+                local.setPendingSync(true);
+                reservaDao.update(local);
+                if (isAdded()) {
+                    requireActivity().runOnUiThread(() -> {
+                        Toast.makeText(getContext(), "Reprogramación guardada offline", Toast.LENGTH_SHORT).show();
+                        currentReservation = local.toResponse();
+                        bindReservation(currentReservation);
+                    });
+                }
+            }
         });
     }
 
@@ -363,15 +464,25 @@ public class DetailReservationFragment extends Fragment implements OnMapReadyCal
 
     private void applyStatusStyle(String s) {
         String f = formatStatus(s);
-        if (f.equals("Confirmada")) { 
-            binding.textManageStatus.setBackgroundResource(R.drawable.common_bg_status_confirmed); 
-            binding.textManageStatus.setTextColor(Color.parseColor("#2F7A7E")); 
-        } else if (f.equals("Finalizada")) { 
-            binding.textManageStatus.setBackgroundResource(R.drawable.common_bg_status_finished); 
-            binding.textManageStatus.setTextColor(Color.parseColor("#1E4DB7")); 
-        } else if (f.equals("Cancelada")) { 
-            binding.textManageStatus.setBackgroundResource(R.drawable.common_bg_status_cancelled); 
-            binding.textManageStatus.setTextColor(Color.parseColor("#B3261E")); 
+        if (f.equals("Confirmada")) {
+            binding.textManageStatus.setBackgroundResource(R.drawable.common_bg_status_confirmed);
+            binding.textManageStatus.setTextColor(Color.parseColor("#2F7A7E"));
+        } else if (f.equals("Finalizada")) {
+            binding.textManageStatus.setBackgroundResource(R.drawable.common_bg_status_finished);
+            binding.textManageStatus.setTextColor(Color.parseColor("#1E4DB7"));
+        } else if (f.equals("Cancelada")) {
+            binding.textManageStatus.setBackgroundResource(R.drawable.common_bg_status_cancelled);
+            binding.textManageStatus.setTextColor(Color.parseColor("#B3261E"));
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        if (SyncManager.needsRefresh) {
+            loadData();
+            SyncManager.needsRefresh = false;
         }
     }
 
