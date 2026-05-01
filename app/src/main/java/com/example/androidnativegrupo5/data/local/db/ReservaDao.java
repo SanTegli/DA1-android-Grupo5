@@ -37,4 +37,5 @@ public interface ReservaDao {
 
     @Query("SELECT * FROM reservas WHERE pendingSync = 1")
     List<Reserva> getPendingSync();
+    
 }

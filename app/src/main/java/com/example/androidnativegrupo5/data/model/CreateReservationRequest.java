@@ -22,7 +22,6 @@ public class CreateReservationRequest {
         this.time = time;
     }
 
-    // Getters and Setters
     public Long getActivityId() { return activityId; }
     public void setActivityId(Long activityId) { this.activityId = activityId; }
 

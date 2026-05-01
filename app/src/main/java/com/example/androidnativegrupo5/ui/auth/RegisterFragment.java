@@ -1,6 +1,7 @@
 package com.example.androidnativegrupo5.ui.auth;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,14 +35,14 @@ import retrofit2.Response;
 @AndroidEntryPoint
 public class RegisterFragment extends Fragment {
 
+    private static final String TAG = "RegisterFragment";
+
     @Inject
     ApiService apiService;
 
     private TextInputLayout usernameLayout, emailLayout, passwordLayout, confirmPasswordLayout;
     private TextInputEditText usernameEditText, emailEditText, passwordEditText, confirmPasswordEditText;
     private Button registerButton;
-
-    public RegisterFragment() {}
 
     @Nullable
     @Override
@@ -53,6 +54,7 @@ public class RegisterFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        Log.d(TAG, "onViewCreated: Iniciando RegisterFragment");
 
         usernameLayout = view.findViewById(R.id.usernameLayout);
         emailLayout = view.findViewById(R.id.emailLayout);
@@ -74,13 +76,12 @@ public class RegisterFragment extends Fragment {
             String confirmPassword = confirmPasswordEditText.getText() != null ? confirmPasswordEditText.getText().toString().trim() : "";
 
             if (validarCampos(username, email, password, confirmPassword)) {
+                Log.i(TAG, "Campos válidos. Iniciando registro para: " + email);
                 llamarRegister(username, email, password, view);
             }
         });
 
-        loginText.setOnClickListener(v ->
-                Navigation.findNavController(view).popBackStack()
-        );
+        loginText.setOnClickListener(v -> Navigation.findNavController(view).popBackStack());
     }
 
     private boolean validarCampos(String username, String email, String password, String confirmPassword) {
@@ -139,35 +140,41 @@ public class RegisterFragment extends Fragment {
         apiService.register(request).enqueue(new Callback<AuthResponse>() {
             @Override
             public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
+                if (!isAdded()) return;
+
                 if (response.isSuccessful()) {
+                    Log.i(TAG, "Registro exitoso. Solicitando OTP.");
                     solicitarOtpYProceder(email, rootView);
                 } else {
                     setLoading(false);
+                    Log.e(TAG, "Error en registro: " + response.code());
                     if (response.code() == 409) {
                         showError(rootView, "El username o email ya está registrado");
-                    } else if (response.code() == 400) {
-                        showError(rootView, "Datos inválidos de registro");
                     } else {
-                        showError(rootView, getString(R.string.error_connection));
+                        showError(rootView, "Error al registrarse. Intentá más tarde.");
                     }
                 }
             }
 
             @Override
             public void onFailure(Call<AuthResponse> call, Throwable t) {
+                if (!isAdded()) return;
                 setLoading(false);
-                showError(rootView, getString(R.string.error_connection));
+                Log.e(TAG, "Falla en API registro", t);
+                showError(rootView, "Error de conexión");
             }
         });
     }
 
     private void solicitarOtpYProceder(String email, View rootView) {
-        OtpRequest otpRequest = new OtpRequest(email);
-
-        apiService.requestOtp(otpRequest).enqueue(new Callback<MessageResponse>() {
+        apiService.requestOtp(new OtpRequest(email)).enqueue(new Callback<MessageResponse>() {
             @Override
             public void onResponse(Call<MessageResponse> call, Response<MessageResponse> response) {
+                if (!isAdded()) return;
                 setLoading(false);
+                
+                Log.d(TAG, "OTP solicitado tras registro. Éxito: " + response.isSuccessful());
+                
                 Bundle bundle = new Bundle();
                 bundle.putString(Constants.EXTRA_EMAIL, email);
                 Navigation.findNavController(rootView)
@@ -176,7 +183,10 @@ public class RegisterFragment extends Fragment {
 
             @Override
             public void onFailure(Call<MessageResponse> call, Throwable t) {
+                if (!isAdded()) return;
                 setLoading(false);
+                Log.e(TAG, "Falla solicitando OTP tras registro", t);
+                // Navegamos igual para permitir reintentar desde la pantalla de OTP
                 Bundle bundle = new Bundle();
                 bundle.putString(Constants.EXTRA_EMAIL, email);
                 Navigation.findNavController(rootView)

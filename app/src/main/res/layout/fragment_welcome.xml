@@ -4,7 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#FFFFFF"
+    android:background="@color/surface_container_lowest"
+    android:textColor="@color/on_surface"
     android:padding="24dp"
     android:gravity="center">
 
@@ -13,7 +14,7 @@
         android:id="@+id/imgWelcome"
         android:layout_width="220dp"
         android:layout_height="220dp"
-        android:layout_marginBottom="32dp"
+        android:layout_marginBottom="48dp"
         android:src="@drawable/common_illustration_welcome_placeholder" />
 
     <TextView
@@ -41,17 +42,18 @@
     <!-- BIOMETRIC BUTTON -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnBiometric"
-        style="@style/Widget.Material3.Button.TonalButton"
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:layout_marginBottom="16dp"
-        android:text="Acceder con Biometría"
+        android:text="INGRESAR CON HUELLA"
         android:textColor="#7F0303"
-        app:backgroundTint="#FDF2F2"
+        app:backgroundTint="@color/white"
         app:cornerRadius="16dp"
         app:icon="@drawable/common_ic_fingerprint"
         app:iconGravity="textStart"
         app:iconTint="#7F0303"
+        app:strokeColor="#7F0303"
+        app:strokeWidth="2dp"
         android:fontFamily="@font/plus_jakarta_sans_bold" />
 
     <!-- LOGIN BUTTON -->
@@ -60,7 +62,7 @@
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:layout_marginBottom="16dp"
-        android:text="Iniciar Sesión con Usuario"
+        android:text="INICIAR SESIÓN CON USUARIO"
         android:textColor="#FFFFFF"
         app:backgroundTint="#7F0303"
         app:cornerRadius="16dp"

@@ -3,17 +3,16 @@ package com.example.androidnativegrupo5.data.model;
 import com.google.gson.annotations.SerializedName;
 
 public class NewsItem {
+
     private Long id;
     private String title;
     private String description;
+
     @SerializedName("imageUrl")
     private String imageUrl;
+
     private String linkUrl;
-    
-    // Campo para redirección interna (Punto 9)
     private Long activityId;
-    
-    // Campo para distinguir tipo (Oferta, Novedad, etc)
     private String tag; 
 
     public NewsItem(Long id, String title, String description, String imageUrl, String linkUrl) {
