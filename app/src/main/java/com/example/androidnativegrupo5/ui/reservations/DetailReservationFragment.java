@@ -10,6 +10,7 @@ import android.widget.Toast;
 import android.graphics.Color;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -84,9 +85,10 @@ public class DetailReservationFragment extends Fragment implements OnMapReadyCal
         if (getArguments() != null) {
             reservationId = getArguments().getLong("reservationId");
             activityId = getArguments().getLong("activityId", 0);
+            Log.d(TAG, "onViewCreated: Cargando reserva " + reservationId + " para actividad " + activityId);
         }
 
-        // Setup Mapa (Punto 10)
+        // Setup Mapa
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map_voucher);
         if (mapFragment != null) {
             mapFragment.getMapAsync(this);
@@ -125,8 +127,11 @@ public class DetailReservationFragment extends Fragment implements OnMapReadyCal
                     for (ReservationResponse r : response.body()) {
                         if (r.getId().equals(reservationId)) {
                             currentReservation = r;
+                            Log.d(TAG, "Reserva encontrada: " + r.getActivityName() + " (ID: " + r.getId() + ")");
                             fetchActivityCoords(r.getActivityId());
                             bindReservation(r);
+                            // Actualizamos cache local
+                            executor.execute(() -> reservaDao.insert(Reserva.fromResponse(r)));
                             return;
                         }
                     }
@@ -140,6 +145,7 @@ public class DetailReservationFragment extends Fragment implements OnMapReadyCal
     }
 
     private void fetchActivityCoords(Long id) {
+        if (id == null || id == 0) return;
         apiService.getActivityById(id).enqueue(new Callback<Activity>() {
             @Override
             public void onResponse(Call<Activity> call, Response<Activity> response) {
@@ -169,6 +175,8 @@ public class DetailReservationFragment extends Fragment implements OnMapReadyCal
     }
 
     private void bindReservation(ReservationResponse reservation) {
+        if (reservation == null) return;
+        
         Glide.with(requireContext())
                 .load(reservation.getImageUrl())
                 .placeholder(R.drawable.common_illustration_welcome_placeholder)
@@ -212,15 +220,9 @@ public class DetailReservationFragment extends Fragment implements OnMapReadyCal
             googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(pos, 15f));
             binding.cardMeetingPoint.setVisibility(View.VISIBLE);
         } else {
-            // Arreglo aquí: binding.mapVoucher ya no es un fragment directo en el binding si se usa <fragment> tag de forma estándar con ViewBinding
-            // pero en el layout está como <fragment android:id="@+id/map_voucher" ... />
-            // El error decía: cannot find symbol variable mapVoucher
-            // Sin embargo, vi el layout y sí tiene el id.
-            // Es probable que ViewBinding no genere el campo para <fragment> o lo genere diferente.
-            // Si el error persiste, podemos intentar ocultar el contenedor o usar FragmentContainerView.
-            View mapFragmentView = getChildFragmentManager().findFragmentById(R.id.map_voucher).getView();
-            if (mapFragmentView != null) {
-                mapFragmentView.setVisibility(View.GONE);
+            if (getChildFragmentManager().findFragmentById(R.id.map_voucher) != null) {
+                View mapFragmentView = getChildFragmentManager().findFragmentById(R.id.map_voucher).getView();
+                if (mapFragmentView != null) mapFragmentView.setVisibility(View.GONE);
             }
         }
     }
@@ -258,6 +260,12 @@ public class DetailReservationFragment extends Fragment implements OnMapReadyCal
         View view = LayoutInflater.from(getContext()).inflate(R.layout.dialog_reschedule, null);
         ChipGroup cgDates = view.findViewById(R.id.chipGroupDatesReschedule);
         ChipGroup cgTimes = view.findViewById(R.id.chipGroupTimesReschedule);
+        EditText editSlots = view.findViewById(R.id.editSlotsReschedule);
+
+        if (editSlots != null) {
+            editSlots.setText(String.valueOf(reservation.getParticipants()));
+        }
+
         final String[] sDate = {""}; final String[] sTime = {""};
         Set<String> dates = new LinkedHashSet<>();
         for (AvailabilitySlotResponse s : slots) dates.add(s.getDate());
@@ -277,24 +285,53 @@ public class DetailReservationFragment extends Fragment implements OnMapReadyCal
         }
         new MaterialAlertDialogBuilder(requireContext()).setTitle("Reprogramar").setView(view)
                 .setPositiveButton("Confirmar", (d, w) -> {
-                    if (!sDate[0].isEmpty() && !sTime[0].isEmpty()) executeReschedule(reservation.getId(), sDate[0], sTime[0]);
+                    String slotsStr = editSlots != null ? editSlots.getText().toString() : "";
+                    if (sDate[0].isEmpty() || sTime[0].isEmpty()) {
+                        Toast.makeText(getContext(), "Seleccione fecha y hora", Toast.LENGTH_SHORT).show();
+                    } else if (slotsStr.isEmpty() || Integer.parseInt(slotsStr) <= 0) {
+                        Toast.makeText(getContext(), "Ingrese cantidad de participantes", Toast.LENGTH_SHORT).show();
+                    } else {
+                        executeReschedule(reservation.getId(), sDate[0], sTime[0], Integer.parseInt(slotsStr));
+                    }
                 }).setNegativeButton("Cancelar", null).show();
     }
 
-    private void executeReschedule(Long id, String d, String t) {
-        RescheduleReservationRequest req = new RescheduleReservationRequest(d, t, currentReservation.getParticipants());
+    private void executeReschedule(Long id, String d, String t, int slotsVal) {
+        RescheduleReservationRequest req = new RescheduleReservationRequest(d, t, slotsVal);
+
+        Log.d(TAG, "Enviando reprogramación: Reserva " + id + ", " + slotsVal + " participantes");
+
         apiService.rescheduleReservation(id, req).enqueue(new Callback<ReservationResponse>() {
-            @Override public void onResponse(@NonNull Call<ReservationResponse> c, @NonNull Response<ReservationResponse> r) {
-                if (r.isSuccessful()) { Toast.makeText(getContext(), "Reprogramada", Toast.LENGTH_SHORT).show(); loadReservation(); }
+            @Override
+            public void onResponse(@NonNull Call<ReservationResponse> call, @NonNull Response<ReservationResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    // ÉXITO: El servidor validó y aplicó los cambios
+                    Toast.makeText(getContext(), "¡Reprogramación exitosa!", Toast.LENGTH_SHORT).show();
+                    currentReservation = response.body();
+                    bindReservation(currentReservation);
+                    executor.execute(() -> reservaDao.insert(Reserva.fromResponse(response.body())));
+                } else {
+                    // ERROR: El servidor rechazó el cambio (probablemente por cupos)
+                    Log.e(TAG, "Error del servidor: " + response.code());
+                    if (response.code() == 400) {
+                        Toast.makeText(getContext(), "No hay cupos disponibles para esa cantidad de personas", Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(getContext(), "No se pudo modificar la reserva. Verifique la disponibilidad.", Toast.LENGTH_SHORT).show();
+                    }
+                }
             }
-            @Override public void onFailure(@NonNull Call<ReservationResponse> c, @NonNull Throwable t) { Toast.makeText(getContext(), "Error", Toast.LENGTH_SHORT).show(); }
+
+            @Override
+            public void onFailure(@NonNull Call<ReservationResponse> call, @NonNull Throwable t) {
+                Toast.makeText(getContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
+            }
         });
     }
 
     private void confirmCancelReservation() {
         AlertDialog dialog = new MaterialAlertDialogBuilder(requireContext())
                 .setTitle("Cancelar Reserva")
-                .setMessage("¿Estás seguro de que deseas cancelar esta reserva? Esta acción no se puede deshacer.")
+                .setMessage("¿Estás seguro de que deseas cancelar esta reserva?")
                 .setPositiveButton("Sí, cancelar", (d, w) -> cancelReservation())
                 .setNegativeButton("No, volver", null)
                 .show();
