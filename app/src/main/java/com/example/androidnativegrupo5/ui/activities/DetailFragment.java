@@ -8,6 +8,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.ArrayList;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -33,9 +36,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -248,6 +248,28 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
+    private List<AvailabilitySlotResponse> filterFutureAvailability(List<AvailabilitySlotResponse> availabilityList) {
+        List<AvailabilitySlotResponse> futureList = new ArrayList<>();
+        LocalDateTime now = LocalDateTime.now();
+
+        for (AvailabilitySlotResponse item : availabilityList) {
+            try {
+                LocalDate date = LocalDate.parse(item.getDate());
+                LocalTime time = LocalTime.parse(item.getTime());
+
+                LocalDateTime slotDateTime = LocalDateTime.of(date, time);
+
+                if (slotDateTime.isAfter(now)) {
+                    futureList.add(item);
+                }
+
+            } catch (Exception ignored) {
+            }
+        }
+
+        return futureList;
+    }
+
     @Override
     public void onMapReady(@NonNull GoogleMap map) {
         googleMap = map;
@@ -297,7 +319,7 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
                 if (!isAdded() || binding == null) return;
 
                 if (response.isSuccessful() && response.body() != null) {
-                    List<AvailabilitySlotResponse> availabilityList = filterFutureAvailability(response.body());
+                    List<AvailabilitySlotResponse> availabilityList = response.body();
                     renderAvailableDays(availabilityList);
                     renderAvailableSchedules(availabilityList);
                 } else {
@@ -359,28 +381,6 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
         binding.textSchedules.setText(builder.toString());
     }
 
-    private List<AvailabilitySlotResponse> filterFutureAvailability(List<AvailabilitySlotResponse> availabilityList) {
-        List<AvailabilitySlotResponse> futureList = new ArrayList<>();
-        LocalDateTime now = LocalDateTime.now();
-
-        for (AvailabilitySlotResponse item : availabilityList) {
-            try {
-                LocalDate date = LocalDate.parse(item.getDate());
-                LocalTime time = LocalTime.parse(item.getTime());
-
-                LocalDateTime slotDateTime = LocalDateTime.of(date, time);
-
-                if (slotDateTime.isAfter(now)) {
-                    futureList.add(item);
-                }
-
-            } catch (Exception ignored) {
-            }
-        }
-
-        return futureList;
-    }
-
     private void setDayStyle(TextView textView, boolean available) {
         if (available) {
             textView.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.black));
@@ -390,8 +390,6 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
             textView.setBackgroundResource(R.drawable.detail_bg_day_unavailable);
         }
     }
-
-
 
     private String safe(String value) {
         return value != null ? value : "-";
