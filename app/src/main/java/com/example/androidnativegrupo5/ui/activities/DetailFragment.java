@@ -8,6 +8,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.ArrayList;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -245,6 +248,28 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
+    private List<AvailabilitySlotResponse> filterFutureAvailability(List<AvailabilitySlotResponse> availabilityList) {
+        List<AvailabilitySlotResponse> futureList = new ArrayList<>();
+        LocalDateTime now = LocalDateTime.now();
+
+        for (AvailabilitySlotResponse item : availabilityList) {
+            try {
+                LocalDate date = LocalDate.parse(item.getDate());
+                LocalTime time = LocalTime.parse(item.getTime());
+
+                LocalDateTime slotDateTime = LocalDateTime.of(date, time);
+
+                if (slotDateTime.isAfter(now)) {
+                    futureList.add(item);
+                }
+
+            } catch (Exception ignored) {
+            }
+        }
+
+        return futureList;
+    }
+
     @Override
     public void onMapReady(@NonNull GoogleMap map) {
         googleMap = map;
@@ -294,7 +319,8 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
                 if (!isAdded() || binding == null) return;
 
                 if (response.isSuccessful() && response.body() != null) {
-                    List<AvailabilitySlotResponse> availabilityList = response.body();
+                    List<AvailabilitySlotResponse> availabilityList = filterFutureAvailability(response.body());
+
                     renderAvailableDays(availabilityList);
                     renderAvailableSchedules(availabilityList);
                 } else {
