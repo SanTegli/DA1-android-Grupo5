@@ -20,15 +20,27 @@ public class ReservationResponse {
     private String time;
     private String status;
     private double totalPrice;
-    
+
     @SerializedName("meetingPointAddress")
     private String meetingPointAddress;
-    
+
     @SerializedName("guideName")
     private String guideName;
 
+    // 🔥 NUEVO: CALIFICACIÓN
+    @SerializedName("activityScore")
+    private Integer activityScore;
+
+    @SerializedName("guideScore")
+    private Integer guideScore;
+
+    @SerializedName(value = "ratingComment", alternate = {"comment"})
+    private String ratingComment;
+
     // UI helper for offline sync status
     private boolean pendingSync;
+
+    // ===== GETTERS / SETTERS =====
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -65,6 +77,17 @@ public class ReservationResponse {
 
     public String getGuideName() { return guideName; }
     public void setGuideName(String guideName) { this.guideName = guideName; }
+
+    // 🔥 GETTERS NUEVOS
+
+    public Integer getActivityScore() { return activityScore; }
+    public void setActivityScore(Integer activityScore) { this.activityScore = activityScore; }
+
+    public Integer getGuideScore() { return guideScore; }
+    public void setGuideScore(Integer guideScore) { this.guideScore = guideScore; }
+
+    public String getRatingComment() { return ratingComment; }
+    public void setRatingComment(String ratingComment) { this.ratingComment = ratingComment; }
 
     public boolean isPendingSync() { return pendingSync; }
     public void setPendingSync(boolean pendingSync) { this.pendingSync = pendingSync; }

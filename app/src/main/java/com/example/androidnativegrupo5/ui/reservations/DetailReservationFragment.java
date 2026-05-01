@@ -221,21 +221,76 @@ public class DetailReservationFragment extends Fragment implements OnMapReadyCal
         binding.textManageStatus.setText(formatStatus(status));
         applyStatusStyle(status);
 
-        if (binding.layoutPendingSyncDetail != null) {
-            binding.layoutPendingSyncDetail.setVisibility(
-                    reservation.isPendingSync() ? View.VISIBLE : View.GONE
-            );
-        }
-
         String n = status != null ? status.trim().toUpperCase() : "";
         boolean isCancelled = n.contains("CANCEL");
         boolean isFinished = n.contains("FINISH");
 
         binding.btnCancelReservation.setVisibility((isCancelled || isFinished) ? View.GONE : View.VISIBLE);
         binding.btnRescheduleReservation.setVisibility((isCancelled || isFinished) ? View.GONE : View.VISIBLE);
-        binding.btnRateReservation.setVisibility(isFinished ? View.VISIBLE : View.GONE);
+
+        // 🔥 DEBUG (CLAVE)
+        Log.d(TAG, "Rating DEBUG -> activityScore: "
+                + reservation.getActivityScore()
+                + " | guideScore: "
+                + reservation.getGuideScore()
+                + " | comment: "
+                + reservation.getRatingComment());
+
+        boolean alreadyRated = reservation.getActivityScore() != null
+                && reservation.getActivityScore() > 0;
+
+        if (isFinished) {
+            binding.btnRateReservation.setVisibility(View.VISIBLE);
+
+            if (alreadyRated) {
+
+                binding.btnRateReservation.setText("Ver calificación");
+
+                // 🔥 MOSTRAR BLOQUE
+                binding.layoutRatingResult.setVisibility(View.VISIBLE);
+
+                binding.textRatingActivity.setText(
+                        "Actividad: " + getStars(reservation.getActivityScore())
+                );
+
+                binding.textRatingGuide.setText(
+                        "Guía: " + getStars(reservation.getGuideScore())
+                );
+
+                if (reservation.getRatingComment() != null
+                        && !reservation.getRatingComment().isEmpty()) {
+
+                    binding.textRatingComment.setVisibility(View.VISIBLE);
+                    binding.textRatingComment.setText(
+                            "\"" + reservation.getRatingComment() + "\""
+                    );
+
+                } else {
+                    binding.textRatingComment.setVisibility(View.GONE);
+                }
+
+            } else {
+                binding.layoutRatingResult.setVisibility(View.GONE);
+                binding.btnRateReservation.setText("Calificar experiencia");
+            }
+
+        } else {
+            binding.btnRateReservation.setVisibility(View.GONE);
+            binding.layoutRatingResult.setVisibility(View.GONE);
+        }
     }
 
+    private String getStars(Integer score) {
+        if (score == null) return "";
+
+        StringBuilder stars = new StringBuilder();
+
+        for (int i = 0; i < 5; i++) {
+            stars.append(i < score ? "★" : "☆");
+        }
+
+        return stars.toString();
+    }
     @Override
     public void onMapReady(@NonNull GoogleMap map) {
         this.googleMap = map;
