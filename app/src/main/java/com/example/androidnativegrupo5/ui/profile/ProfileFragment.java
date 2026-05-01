@@ -31,6 +31,7 @@ import com.example.androidnativegrupo5.data.model.UserPreferences;
 import com.example.androidnativegrupo5.data.model.UserResponse;
 import com.example.androidnativegrupo5.data.network.ApiService;
 import com.example.androidnativegrupo5.data.local.TokenManager;
+import com.example.androidnativegrupo5.utils.NetworkUtils;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.slider.Slider;
 import com.google.android.material.textfield.TextInputEditText;
@@ -98,17 +99,26 @@ public class ProfileFragment extends Fragment {
         budgetSlider = view.findViewById(R.id.budgetSlider);
 
         setupSpinners();
-        loadProfile();
+        
+        // Estrategia: Cargar primero lo que hay en cache (Offline)
+        loadOfflineProfile();
+        
+        // Intentar actualizar desde el servidor si hay internet
+        if (NetworkUtils.isOnline(requireContext())) {
+            loadProfile();
+        } else {
+            Toast.makeText(getContext(), "Modo offline: mostrando datos guardados", Toast.LENGTH_SHORT).show();
+        }
 
         if (saveButton != null) saveButton.setOnClickListener(v -> {
-            Log.d(TAG, "Botón Guardar clickeado");
-            saveProfile();
+            if (NetworkUtils.isOnline(requireContext())) {
+                saveProfile();
+            } else {
+                Toast.makeText(getContext(), "No puedes editar el perfil sin conexión", Toast.LENGTH_SHORT).show();
+            }
         });
         
-        if (logoutButton != null) logoutButton.setOnClickListener(v -> {
-            Log.d(TAG, "Botón Cerrar Sesión clickeado");
-            showLogoutConfirmation();
-        });
+        if (logoutButton != null) logoutButton.setOnClickListener(v -> showLogoutConfirmation());
 
         btnMyReservations.setOnClickListener(v ->
                 NavHostFragment.findNavController(this).navigate(R.id.action_ProfileFragment_to_MyReservationsFragment));
@@ -122,28 +132,12 @@ public class ProfileFragment extends Fragment {
         }
     }
 
-    private void showLogoutConfirmation() {
-        new MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Cerrar Sesión")
-                .setMessage("¿Estás seguro de que quieres salir?")
-                .setPositiveButton("Salir", (dialog, which) -> handleLogout())
-                .setNegativeButton("Cancelar", null)
-                .show();
-    }
-
-    private void handleLogout() {
-        Log.d(TAG, "Cerrando sesión y limpiando token");
-        tokenManager.clearToken();
-        NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_content_main);
-        navController.navigate(R.id.WelcomeFragment);
-    }
-
-    private void setupSpinners() {
-        ArrayAdapter<String> catAdapter = new ArrayAdapter<>(requireContext(), R.layout.dropdown_item, categories);
-        categorySpinner.setAdapter(catAdapter);
-
-        ArrayAdapter<String> destAdapter = new ArrayAdapter<>(requireContext(), R.layout.dropdown_item, destinations);
-        destinationSpinner.setAdapter(destAdapter);
+    private void loadOfflineProfile() {
+        UserResponse cachedUser = tokenManager.getUserProfile();
+        if (cachedUser != null) {
+            Log.d(TAG, "Cargando perfil desde caché local");
+            populateFields(cachedUser);
+        }
     }
 
     private void loadProfile() {
@@ -154,16 +148,16 @@ public class ProfileFragment extends Fragment {
             public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
                 setLoading(false);
                 if (response.isSuccessful() && response.body() != null) {
-                    Log.d(TAG, "Perfil cargado con éxito: " + response.body().getUsername());
+                    Log.d(TAG, "Perfil cargado con éxito. Guardando en caché.");
+                    tokenManager.saveUserProfile(response.body());
                     populateFields(response.body());
                 } else if (response.code() == 401) {
-                    Log.e(TAG, "Sesión expirada (401)");
                     handleLogout();
                 }
             }
             @Override
             public void onFailure(Call<UserResponse> call, Throwable t) {
-                Log.e(TAG, "Error de red al cargar perfil: " + t.getMessage());
+                Log.e(TAG, "Error de red: se mantendrán los datos offline.");
                 setLoading(false);
             }
         });
@@ -175,13 +169,12 @@ public class ProfileFragment extends Fragment {
         emailEditText.setText(user.getEmail());
         phoneEditText.setText(user.getPhone());
         
-        if (user.getProfileImageUrl() != null) {
+        if (user.getProfileImageUrl() != null && isAdded()) {
             Glide.with(this).load(user.getProfileImageUrl()).circleCrop().into(profileImageView);
         }
 
         UserPreferences prefs = user.getPreferences();
         if (prefs != null) {
-            Log.d(TAG, "Cargando preferencias: " + prefs.getPreferredCategory());
             if (prefs.getPreferredCategory() != null) categorySpinner.setText(prefs.getPreferredCategory(), false);
             if (prefs.getPreferredDestination() != null) destinationSpinner.setText(prefs.getPreferredDestination(), false);
             if (prefs.getMaxPrice() != null) budgetSlider.setValue(prefs.getMaxPrice().floatValue());
@@ -193,7 +186,7 @@ public class ProfileFragment extends Fragment {
                 categorySpinner.getText().toString(),
                 (int) budgetSlider.getValue(),
                 destinationSpinner.getText().toString(),
-                "" // Duration vacía si no se usa
+                ""
         );
 
         UserResponse req = new UserResponse();
@@ -202,22 +195,43 @@ public class ProfileFragment extends Fragment {
         req.setEmail(emailEditText.getText().toString().trim());
         req.setPreferences(prefs);
         
-        Log.d(TAG, "Enviando actualización de perfil...");
         setLoading(true);
         apiService.updateProfile(req).enqueue(new Callback<UserResponse>() {
             @Override
             public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
                 setLoading(false);
-                if (response.isSuccessful()) {
-                    Log.d(TAG, "Perfil actualizado exitosamente");
-                    Toast.makeText(getContext(), "Perfil actualizado", Toast.LENGTH_SHORT).show();
+                if (response.isSuccessful() && response.body() != null) {
+                    tokenManager.saveUserProfile(response.body());
+                    Toast.makeText(getContext(), "Perfil actualizado y guardado", Toast.LENGTH_SHORT).show();
                 }
             }
             @Override public void onFailure(Call<UserResponse> call, Throwable t) {
-                Log.e(TAG, "Error al guardar perfil: " + t.getMessage());
                 setLoading(false);
+                Toast.makeText(getContext(), "Error al guardar en el servidor", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void setupSpinners() {
+        ArrayAdapter<String> catAdapter = new ArrayAdapter<>(requireContext(), R.layout.dropdown_item, categories);
+        categorySpinner.setAdapter(catAdapter);
+        ArrayAdapter<String> destAdapter = new ArrayAdapter<>(requireContext(), R.layout.dropdown_item, destinations);
+        destinationSpinner.setAdapter(destAdapter);
+    }
+
+    private void showLogoutConfirmation() {
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Cerrar Sesión")
+                .setMessage("¿Estás seguro de que quieres salir?")
+                .setPositiveButton("Salir", (dialog, which) -> handleLogout())
+                .setNegativeButton("Cancelar", null)
+                .show();
+    }
+
+    private void handleLogout() {
+        tokenManager.clearToken();
+        NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_content_main);
+        navController.navigate(R.id.WelcomeFragment);
     }
 
     private void setLoading(boolean isLoading) {

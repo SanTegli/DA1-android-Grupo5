@@ -319,8 +319,7 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
                 if (!isAdded() || binding == null) return;
 
                 if (response.isSuccessful() && response.body() != null) {
-                    List<AvailabilitySlotResponse> availabilityList = filterFutureAvailability(response.body());
-
+                    List<AvailabilitySlotResponse> availabilityList = response.body();
                     renderAvailableDays(availabilityList);
                     renderAvailableSchedules(availabilityList);
                 } else {

@@ -20,7 +20,14 @@ public class Reserva {
     private String time;
     private String status;
     private double totalPrice;
+    private String imageUrl;
     private boolean pendingCancellation;
+    
+    // Offline Rescheduling (Modo Pro)
+    private boolean pendingSync;
+    private String newDate;
+    private String newTime;
+    private Integer newParticipants;
     
     // Información esencial para el Voucher Offline (Punto 8)
     private String meetingPoint;
@@ -39,6 +46,7 @@ public class Reserva {
         local.setTime(response.getTime());
         local.setStatus(response.getStatus());
         local.setTotalPrice(response.getTotalPrice());
+        local.setImageUrl(response.getImageUrl());
         
         // Asignamos datos adicionales si vienen en el response
         local.setMeetingPoint(response.getMeetingPointAddress() != null ? response.getMeetingPointAddress() : "Punto de encuentro a confirmar");
@@ -73,8 +81,23 @@ public class Reserva {
     public double getTotalPrice() { return totalPrice; }
     public void setTotalPrice(double totalPrice) { this.totalPrice = totalPrice; }
 
+    public String getImageUrl() { return imageUrl; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+
     public boolean isPendingCancellation() { return pendingCancellation; }
     public void setPendingCancellation(boolean pendingCancellation) { this.pendingCancellation = pendingCancellation; }
+
+    public boolean isPendingSync() { return pendingSync; }
+    public void setPendingSync(boolean pendingSync) { this.pendingSync = pendingSync; }
+
+    public String getNewDate() { return newDate; }
+    public void setNewDate(String newDate) { this.newDate = newDate; }
+
+    public String getNewTime() { return newTime; }
+    public void setNewTime(String newTime) { this.newTime = newTime; }
+
+    public Integer getNewParticipants() { return newParticipants; }
+    public void setNewParticipants(Integer newParticipants) { this.newParticipants = newParticipants; }
 
     public String getMeetingPoint() { return meetingPoint; }
     public void setMeetingPoint(String meetingPoint) { this.meetingPoint = meetingPoint; }
@@ -90,13 +113,15 @@ public class Reserva {
         res.setId(this.getId());
         res.setActivityId(this.getActivityId());
         res.setActivityName(this.getActivityName());
-        res.setDate(this.getDate());
-        res.setTime(this.getTime());
-        res.setParticipants(this.getParticipants());
+        res.setImageUrl(this.getImageUrl());
+        res.setDate(this.pendingSync ? this.newDate : this.getDate());
+        res.setTime(this.pendingSync ? this.newTime : this.getTime());
+        res.setParticipants(this.pendingSync ? this.newParticipants : this.getParticipants());
         res.setStatus(this.getStatus());
         res.setTotalPrice(this.getTotalPrice());
         res.setMeetingPointAddress(this.getMeetingPoint());
         res.setGuideName(this.getGuideName());
+        res.setPendingSync(this.pendingSync || this.pendingCancellation);
         return res;
     }
 }
