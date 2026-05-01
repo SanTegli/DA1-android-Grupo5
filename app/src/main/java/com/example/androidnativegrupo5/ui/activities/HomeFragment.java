@@ -5,14 +5,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -43,8 +40,6 @@ import retrofit2.Response;
 @AndroidEntryPoint
 public class HomeFragment extends Fragment {
 
-    private static final String TAG = "HomeFragment";
-
     @Inject ApiService apiService;
     @Inject TokenManager tokenManager;
 
@@ -64,7 +59,11 @@ public class HomeFragment extends Fragment {
     private Integer filterMaxPrice = null;
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(
+            @NonNull LayoutInflater inflater,
+            ViewGroup container,
+            Bundle savedInstanceState
+    ) {
         binding = FragmentFirstBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
@@ -72,11 +71,12 @@ public class HomeFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
         NavController navController = Navigation.findNavController(view);
 
         setupAdapters(navController);
-        checkConnectionAndLoad(navController);
         setupListeners(navController);
+        checkConnectionAndLoad(navController);
     }
 
     private void setupAdapters(NavController navController) {
@@ -85,15 +85,30 @@ public class HomeFragment extends Fragment {
             bundle.putLong("activityId", activity.getId());
             navController.navigate(R.id.action_FirstFragment_to_DetailFragment, bundle);
         });
+
         binding.recyclerActivities.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.recyclerActivities.setAdapter(adapter);
+
+        featuredAdapter = new FeaturedActivityAdapter(activity -> {
+            Bundle bundle = new Bundle();
+            bundle.putLong("activityId", activity.getId());
+            navController.navigate(R.id.action_FirstFragment_to_DetailFragment, bundle);
+        });
+
+        binding.recyclerFeatured.setLayoutManager(
+                new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        );
+        binding.recyclerFeatured.setAdapter(featuredAdapter);
 
         newsAdapter = new NewsAdapter(news -> {
             if (news.getLinkUrl() != null && !news.getLinkUrl().isEmpty()) {
                 startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(news.getLinkUrl())));
             }
         });
-        binding.recyclerNews.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
+
+        binding.recyclerNews.setLayoutManager(
+                new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        );
         binding.recyclerNews.setAdapter(newsAdapter);
     }
 
@@ -101,62 +116,135 @@ public class HomeFragment extends Fragment {
         binding.editSearchActivities.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
-            @Override public void afterTextChanged(Editable s) {
+
+            @Override
+            public void afterTextChanged(Editable s) {
                 searchText = s != null ? s.toString() : "";
                 applyLocalFilters();
             }
         });
 
-        binding.btnViewAllActivities.setOnClickListener(v -> navController.navigate(R.id.ExploreActivitiesFragment));
+        binding.btnViewAllActivities.setOnClickListener(v ->
+                navController.navigate(R.id.ExploreActivitiesFragment)
+        );
+
+        binding.btnFilter.setOnClickListener(v -> {
+            FilterBottomSheetDialogFragment bottomSheet = new FilterBottomSheetDialogFragment();
+
+            bottomSheet.setFilterOptions(dynamicCategories, dynamicDestinations);
+
+            bottomSheet.setCurrentFilters(
+                    filterCategory,
+                    filterDestination,
+                    filterMinPrice != null ? filterMinPrice.floatValue() : 0f,
+                    filterMaxPrice != null ? filterMaxPrice.floatValue() : 100000f
+            );
+
+            bottomSheet.setOnFiltersAppliedListener((category, destination, minPrice, maxPrice) -> {
+                filterCategory = category;
+                filterDestination = destination;
+                filterMinPrice = minPrice != null ? minPrice.intValue() : null;
+                filterMaxPrice = maxPrice != null ? maxPrice.intValue() : null;
+
+                applyLocalFilters();
+            });
+
+            bottomSheet.show(getParentFragmentManager(), "HomeFilterBottomSheet");
+        });
     }
 
     private void checkConnectionAndLoad(NavController navController) {
         if (!NetworkUtils.isOnline(requireContext())) {
             navController.navigate(R.id.action_FirstFragment_to_OfflineFragment);
-        } else {
-            loadNews();
-            setupFeaturedCarousel(navController);
-            loadAllActivities();
+            return;
         }
-    }
 
-    private void setupFeaturedCarousel(NavController navController) {
-        featuredAdapter = new FeaturedActivityAdapter(activity -> {
-            Bundle bundle = new Bundle();
-            bundle.putLong("activityId", activity.getId());
-            navController.navigate(R.id.action_FirstFragment_to_DetailFragment, bundle);
-        });
-        binding.recyclerFeatured.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
-        binding.recyclerFeatured.setAdapter(featuredAdapter);
+        loadNews();
         loadFeaturedActivities();
+        loadAllActivities();
     }
 
     private void loadAllActivities() {
         if (binding == null) return;
+
         binding.progressBar.setVisibility(View.VISIBLE);
 
         apiService.getActivities(0, 100, null, null, null, null, null)
                 .enqueue(new Callback<PaginatedResponse<Activity>>() {
                     @Override
-                    public void onResponse(@NonNull Call<PaginatedResponse<Activity>> call, @NonNull Response<PaginatedResponse<Activity>> response) {
+                    public void onResponse(
+                            @NonNull Call<PaginatedResponse<Activity>> call,
+                            @NonNull Response<PaginatedResponse<Activity>> response
+                    ) {
                         if (!isAdded() || binding == null) return;
+
                         binding.progressBar.setVisibility(View.GONE);
+
                         if (response.isSuccessful() && response.body() != null) {
+                            List<Activity> activities = response.body().getContent();
+
                             allActivities.clear();
-                            allActivities.addAll(response.body().getContent());
+
+                            if (activities != null) {
+                                allActivities.addAll(activities);
+                            }
+
+                            buildDynamicFilterOptions();
+                            setupFeaturedFromAllActivities();
                             applyLocalFilters();
+
                         } else {
-                            // Si el back devuelve error aunque haya internet (back apagado)
-                            Navigation.findNavController(requireView()).navigate(R.id.action_FirstFragment_to_OfflineFragment);
+                            Navigation.findNavController(requireView())
+                                    .navigate(R.id.action_FirstFragment_to_OfflineFragment);
                         }
                     }
 
                     @Override
-                    public void onFailure(@NonNull Call<PaginatedResponse<Activity>> call, @NonNull Throwable t) {
+                    public void onFailure(
+                            @NonNull Call<PaginatedResponse<Activity>> call,
+                            @NonNull Throwable t
+                    ) {
                         if (!isAdded() || binding == null) return;
+
                         binding.progressBar.setVisibility(View.GONE);
-                        // Falla total de conexión al backend
-                        Navigation.findNavController(requireView()).navigate(R.id.action_FirstFragment_to_OfflineFragment);
+
+                        Navigation.findNavController(requireView())
+                                .navigate(R.id.action_FirstFragment_to_OfflineFragment);
+                    }
+                });
+    }
+
+    private void loadFeaturedActivities() {
+        apiService.getActivities(0, 5, null, null, null, null, null)
+                .enqueue(new Callback<PaginatedResponse<Activity>>() {
+                    @Override
+                    public void onResponse(
+                            @NonNull Call<PaginatedResponse<Activity>> call,
+                            @NonNull Response<PaginatedResponse<Activity>> response
+                    ) {
+                        if (!isAdded() || binding == null) return;
+
+                        if (response.isSuccessful() && response.body() != null) {
+                            List<Activity> activities = response.body().getContent();
+
+                            if (activities != null && !activities.isEmpty()) {
+                                featuredAdapter.setActivities(activities);
+                                binding.layoutFeatured.setVisibility(View.VISIBLE);
+                            } else {
+                                binding.layoutFeatured.setVisibility(View.GONE);
+                            }
+                        } else {
+                            binding.layoutFeatured.setVisibility(View.GONE);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(
+                            @NonNull Call<PaginatedResponse<Activity>> call,
+                            @NonNull Throwable t
+                    ) {
+                        if (!isAdded() || binding == null) return;
+                        binding.layoutFeatured.setVisibility(View.GONE);
                     }
                 });
     }
@@ -164,38 +252,131 @@ public class HomeFragment extends Fragment {
     private void loadNews() {
         apiService.getNews().enqueue(new Callback<List<NewsItem>>() {
             @Override
-            public void onResponse(@NonNull Call<List<NewsItem>> call, @NonNull Response<List<NewsItem>> response) {
+            public void onResponse(
+                    @NonNull Call<List<NewsItem>> call,
+                    @NonNull Response<List<NewsItem>> response
+            ) {
                 if (!isAdded() || binding == null) return;
+
                 if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
                     newsAdapter.setNewsList(response.body());
                     binding.layoutNews.setVisibility(View.VISIBLE);
+                } else {
+                    binding.layoutNews.setVisibility(View.GONE);
                 }
             }
-            @Override public void onFailure(@NonNull Call<List<NewsItem>> call, @NonNull Throwable t) {}
+
+            @Override
+            public void onFailure(@NonNull Call<List<NewsItem>> call, @NonNull Throwable t) {
+                if (!isAdded() || binding == null) return;
+                binding.layoutNews.setVisibility(View.GONE);
+            }
         });
     }
 
-    private void loadFeaturedActivities() {
-        apiService.getActivities(0, 5, null, null, null, null, null)
-                .enqueue(new Callback<PaginatedResponse<Activity>>() {
-                    @Override
-                    public void onResponse(@NonNull Call<PaginatedResponse<Activity>> call, @NonNull Response<PaginatedResponse<Activity>> response) {
-                        if (!isAdded() || binding == null) return;
-                        if (response.isSuccessful() && response.body() != null) {
-                            featuredAdapter.setActivities(response.body().getContent());
-                        }
-                    }
-                    @Override public void onFailure(@NonNull Call<PaginatedResponse<Activity>> call, @NonNull Throwable t) {}
-                });
+    private void setupFeaturedFromAllActivities() {
+        List<Activity> featured = new ArrayList<>();
+
+        for (int i = 0; i < allActivities.size() && i < 5; i++) {
+            featured.add(allActivities.get(i));
+        }
+
+        featuredAdapter.setActivities(featured);
+
+        if (binding != null) {
+            binding.layoutFeatured.setVisibility(featured.isEmpty() ? View.GONE : View.VISIBLE);
+        }
+    }
+
+    private void buildDynamicFilterOptions() {
+        Set<String> categoriesSet = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+        Set<String> destinationsSet = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+
+        for (Activity activity : allActivities) {
+            String category = safe(activity.getCategory()).trim();
+            String destination = safe(activity.getDestination()).trim();
+
+            if (!category.isEmpty()) categoriesSet.add(category);
+            if (!destination.isEmpty()) destinationsSet.add(destination);
+        }
+
+        dynamicCategories.clear();
+        dynamicCategories.addAll(categoriesSet);
+
+        dynamicDestinations.clear();
+        dynamicDestinations.addAll(destinationsSet);
     }
 
     private void applyLocalFilters() {
         List<Activity> filtered = new ArrayList<>();
-        String search = searchText.toLowerCase(Locale.ROOT).trim();
-        for (Activity a : allActivities) {
-            if (a.getName().toLowerCase().contains(search)) filtered.add(a);
+
+        String search = searchText != null
+                ? searchText.toLowerCase(Locale.ROOT).trim()
+                : "";
+
+        for (Activity activity : allActivities) {
+            if (!matchesSearch(activity, search)) continue;
+            if (!matchesCategory(activity)) continue;
+            if (!matchesDestination(activity)) continue;
+            if (!matchesPrice(activity)) continue;
+
+            filtered.add(activity);
         }
+
         adapter.setActivities(filtered);
+        updateFeaturedVisibility();
+    }
+
+    private boolean matchesSearch(Activity activity, String search) {
+        if (search == null || search.isEmpty()) return true;
+
+        String name = safe(activity.getName()).toLowerCase(Locale.ROOT);
+        String description = safe(activity.getDescription()).toLowerCase(Locale.ROOT);
+        String destination = safe(activity.getDestination()).toLowerCase(Locale.ROOT);
+        String category = safe(activity.getCategory()).toLowerCase(Locale.ROOT);
+        String guide = safe(activity.getGuideName()).toLowerCase(Locale.ROOT);
+
+        return name.contains(search)
+                || description.contains(search)
+                || destination.contains(search)
+                || category.contains(search)
+                || guide.contains(search);
+    }
+
+    private boolean matchesCategory(Activity activity) {
+        if (filterCategory == null || filterCategory.trim().isEmpty()) return true;
+        return safe(activity.getCategory()).equalsIgnoreCase(filterCategory);
+    }
+
+    private boolean matchesDestination(Activity activity) {
+        if (filterDestination == null || filterDestination.trim().isEmpty()) return true;
+        return safe(activity.getDestination()).equalsIgnoreCase(filterDestination);
+    }
+
+    private boolean matchesPrice(Activity activity) {
+        double price = activity.getPrice();
+
+        if (filterMinPrice != null && price < filterMinPrice) return false;
+        if (filterMaxPrice != null && price > filterMaxPrice) return false;
+
+        return true;
+    }
+
+    private void updateFeaturedVisibility() {
+        if (binding == null) return;
+
+        boolean hasActiveFilters =
+                searchText != null && !searchText.trim().isEmpty()
+                        || filterCategory != null && !filterCategory.trim().isEmpty()
+                        || filterDestination != null && !filterDestination.trim().isEmpty()
+                        || filterMinPrice != null
+                        || filterMaxPrice != null;
+
+        binding.layoutFeatured.setVisibility(hasActiveFilters ? View.GONE : View.VISIBLE);
+    }
+
+    private String safe(String value) {
+        return value != null ? value : "";
     }
 
     @Override
