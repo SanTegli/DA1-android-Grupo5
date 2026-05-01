@@ -74,25 +74,38 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.View
                     .placeholder(R.drawable.common_illustration_welcome_placeholder)
                     .into(binding.imageActivity);
 
-            // Indicadores de cambios
-            if (favorite.isHasPriceChange() || favorite.isHasSlotChange()) {
+            // Manejo de disponibilidad (Punto 6. Favorito eliminado)
+            if (!favorite.isAvailable()) {
+                binding.getRoot().setAlpha(0.5f); // Opacidad para indicar que no está disponible
                 binding.indicatorUpdate.setVisibility(View.VISIBLE);
-                if (favorite.isHasPriceChange() && favorite.isHasSlotChange()) {
-                    binding.indicatorUpdate.setText("¡Precio y cupos modificados!");
-                } else if (favorite.isHasPriceChange()) {
-                    binding.indicatorUpdate.setText("¡Precio modificado!");
-                } else {
-                    binding.indicatorUpdate.setText("¡Nuevos cupos!");
-                }
+                binding.indicatorUpdate.setText("Actividad no disponible / Eliminada");
+                binding.btnDetail.setEnabled(false);
+                binding.btnDetail.setText("N/A");
             } else {
-                binding.indicatorUpdate.setVisibility(View.GONE);
+                binding.getRoot().setAlpha(1.0f);
+                binding.btnDetail.setEnabled(true);
+                binding.btnDetail.setText("Reservar");
+                
+                // Indicadores de cambios (Punto 7. Notificaciones)
+                if (favorite.isHasPriceChange() || favorite.isHasSlotChange()) {
+                    binding.indicatorUpdate.setVisibility(View.VISIBLE);
+                    if (favorite.isHasPriceChange() && favorite.isHasSlotChange()) {
+                        binding.indicatorUpdate.setText("¡Precio y cupos modificados!");
+                    } else if (favorite.isHasPriceChange()) {
+                        binding.indicatorUpdate.setText("¡Precio modificado!");
+                    } else {
+                        binding.indicatorUpdate.setText("¡Nuevos cupos!");
+                    }
+                } else {
+                    binding.indicatorUpdate.setVisibility(View.GONE);
+                }
             }
 
             binding.getRoot().setOnClickListener(v -> listener.onActivityClick(favorite));
             binding.btnDetail.setOnClickListener(v -> listener.onActivityClick(favorite));
             binding.btnFavorite.setOnClickListener(v -> listener.onUnfavoriteClick(favorite));
             
-            // Valores por defecto para campos que no vienen en el objeto local simplificado
+            // Valores por defecto
             binding.ratingBar.setRating(5f);
             binding.textRatingValue.setText("5.0");
             binding.textCommentsCount.setText("• Nuevo");

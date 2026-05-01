@@ -16,6 +16,7 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.androidnativegrupo5.R;
 import com.example.androidnativegrupo5.data.local.TokenManager;
+import com.example.androidnativegrupo5.utils.NetworkUtils;
 
 import java.util.concurrent.Executor;
 
@@ -45,15 +46,29 @@ public class WelcomeFragment extends Fragment {
             btnBiometric.setVisibility(View.GONE);
         }
 
-        btnBiometric.setOnClickListener(v -> setupBiometric());
+        btnBiometric.setOnClickListener(v -> {
+            if (NetworkUtils.isOnline(requireContext())) {
+                setupBiometric();
+            } else {
+                NavHostFragment.findNavController(this).navigate(R.id.action_WelcomeFragment_to_OfflineFragment);
+            }
+        });
 
-        btnClassicLogin.setOnClickListener(v ->
-                NavHostFragment.findNavController(this).navigate(R.id.action_WelcomeFragment_to_LoginFragment)
-        );
+        btnClassicLogin.setOnClickListener(v -> {
+            if (NetworkUtils.isOnline(requireContext())) {
+                NavHostFragment.findNavController(this).navigate(R.id.action_WelcomeFragment_to_LoginFragment);
+            } else {
+                NavHostFragment.findNavController(this).navigate(R.id.action_WelcomeFragment_to_OfflineFragment);
+            }
+        });
 
-        view.findViewById(R.id.tvRegisterWelcome).setOnClickListener(v ->
-                NavHostFragment.findNavController(this).navigate(R.id.action_WelcomeFragment_to_RegisterFragment)
-        );
+        view.findViewById(R.id.tvRegisterWelcome).setOnClickListener(v -> {
+            if (NetworkUtils.isOnline(requireContext())) {
+                NavHostFragment.findNavController(this).navigate(R.id.action_WelcomeFragment_to_RegisterFragment);
+            } else {
+                NavHostFragment.findNavController(this).navigate(R.id.action_WelcomeFragment_to_OfflineFragment);
+            }
+        });
     }
 
     private void setupBiometric() {
@@ -64,8 +79,13 @@ public class WelcomeFragment extends Fragment {
                     public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
                         super.onAuthenticationSucceeded(result);
                         if (tokenManager.getToken() != null) {
-                            NavHostFragment.findNavController(WelcomeFragment.this)
-                                    .navigate(R.id.action_WelcomeFragment_to_FirstFragment);
+                            if (NetworkUtils.isOnline(requireContext())) {
+                                NavHostFragment.findNavController(WelcomeFragment.this)
+                                        .navigate(R.id.action_WelcomeFragment_to_FirstFragment);
+                            } else {
+                                NavHostFragment.findNavController(WelcomeFragment.this)
+                                        .navigate(R.id.action_WelcomeFragment_to_OfflineFragment);
+                            }
                         }
                     }
                 });

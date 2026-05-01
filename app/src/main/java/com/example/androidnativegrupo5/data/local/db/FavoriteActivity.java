@@ -16,6 +16,7 @@ public class FavoriteActivity {
     private String imageUrl;
     private boolean hasPriceChange;
     private boolean hasSlotChange;
+    private boolean isAvailable = true;
 
     public FavoriteActivity(@NonNull Long id, String name, String destination, double lastKnownPrice, int lastKnownSlots, String imageUrl) {
         this.id = id;
@@ -50,4 +51,7 @@ public class FavoriteActivity {
 
     public boolean isHasSlotChange() { return hasSlotChange; }
     public void setHasSlotChange(boolean hasSlotChange) { this.hasSlotChange = hasSlotChange; }
+
+    public boolean isAvailable() { return isAvailable; }
+    public void setAvailable(boolean available) { isAvailable = available; }
 }

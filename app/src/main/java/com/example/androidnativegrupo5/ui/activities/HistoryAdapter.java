@@ -94,6 +94,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
             textGuide.setText("Guía: " + safe(item.getGuideName()));
 
             if (item.getActivityScore() != null && item.getActivityScore() > 0) {
+                // Ya calificada: mostrar info
                 layoutRatingInfo.setVisibility(View.VISIBLE);
                 btnRate.setVisibility(View.GONE);
 
@@ -107,10 +108,10 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
                     textRatingComment.setVisibility(View.GONE);
                 }
             } else {
+                // No calificada: verificar si está dentro de la ventana de 48hs
                 layoutRatingInfo.setVisibility(View.GONE);
 
-                //if (isWithinRatingWindow(item.getDate())) {
-                if (true) {
+                if (isWithinRatingWindow(item.getDate())) {
                     btnRate.setVisibility(View.VISIBLE);
                     btnRate.setOnClickListener(v -> listener.onRateClick(item));
                 } else {
@@ -121,9 +122,11 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
             cardHistory.setOnClickListener(v -> listener.onHistoryClick(item));
         }
 
+        /**
+         * Verifica si han pasado menos de 48 horas desde la realización de la actividad.
+         */
         private boolean isWithinRatingWindow(String dateStr) {
             try {
-                // El historial suele venir en yyyy-MM-dd
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
                 Date activityDate = sdf.parse(dateStr);
                 if (activityDate == null) return false;
@@ -131,11 +134,16 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
                 long currentTime = System.currentTimeMillis();
                 long activityTimeMillis = activityDate.getTime();
                 
-                // 48 horas + margen de seguridad (por ejemplo 24h más para cubrir el día completo)
-                // Total 72h desde el inicio del día de la actividad
-                long windowMillis = 72 * 60 * 60 * 1000L; 
+                // La consigna dice "Dentro de las 48 horas posteriores a la finalización".
+                // Asumimos que la actividad termina el día de la fecha.
+                // 48 horas = 48 * 60 * 60 * 1000 milisegundos.
+                long fortyEightHoursInMillis = 48 * 60 * 60 * 1000L; 
                 
-                return currentTime > activityTimeMillis && currentTime <= (activityTimeMillis + windowMillis);
+                // Debe haber pasado la fecha de la actividad, pero no más de 48hs de margen adicional
+                // (Sumamos 24h para considerar que la actividad pudo terminar al final del día indicado)
+                long maxTime = activityTimeMillis + fortyEightHoursInMillis + (24 * 60 * 60 * 1000L);
+                
+                return currentTime > activityTimeMillis && currentTime <= maxTime;
             } catch (Exception e) {
                 return false;
             }

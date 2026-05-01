@@ -6,11 +6,10 @@ public class ReservationResponse {
 
     private Long id;
 
-    @SerializedName("activityId")
+    @SerializedName(value = "activityId", alternate = {"activity_id"})
     private Long activityId;
 
     private String activityName;
-
     private String destination;
 
     @SerializedName(value = "imageUrl", alternate = {"image_url"})
@@ -21,6 +20,12 @@ public class ReservationResponse {
     private String time;
     private String status;
     private double totalPrice;
+    
+    @SerializedName("meetingPointAddress")
+    private String meetingPointAddress;
+    
+    @SerializedName("guideName")
+    private String guideName;
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -51,4 +56,10 @@ public class ReservationResponse {
 
     public double getTotalPrice() { return totalPrice; }
     public void setTotalPrice(double totalPrice) { this.totalPrice = totalPrice; }
+
+    public String getMeetingPointAddress() { return meetingPointAddress; }
+    public void setMeetingPointAddress(String meetingPointAddress) { this.meetingPointAddress = meetingPointAddress; }
+
+    public String getGuideName() { return guideName; }
+    public void setGuideName(String guideName) { this.guideName = guideName; }
 }

@@ -59,11 +59,12 @@
         android:id="@+id/btnClassicLogin"
         android:layout_width="match_parent"
         android:layout_height="56dp"
+        android:layout_marginBottom="16dp"
         android:text="Iniciar Sesión con Usuario"
         android:textColor="#FFFFFF"
         app:backgroundTint="#7F0303"
         app:cornerRadius="16dp"
-        app:icon="@drawable/common_ic_login"
+        app:icon="@drawable/common_ic_person"
         app:iconGravity="textStart"
         app:iconTint="#FFFFFF"
         android:fontFamily="@font/plus_jakarta_sans_bold" />

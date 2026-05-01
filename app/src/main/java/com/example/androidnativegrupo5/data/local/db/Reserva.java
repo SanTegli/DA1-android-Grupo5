@@ -21,6 +21,11 @@ public class Reserva {
     private String status;
     private double totalPrice;
     private boolean pendingCancellation;
+    
+    // Información esencial para el Voucher Offline (Punto 8)
+    private String meetingPoint;
+    private String guideName;
+    private String voucherCode; 
 
     public Reserva() {}
 
@@ -34,6 +39,12 @@ public class Reserva {
         local.setTime(response.getTime());
         local.setStatus(response.getStatus());
         local.setTotalPrice(response.getTotalPrice());
+        
+        // Asignamos datos adicionales si vienen en el response
+        local.setMeetingPoint(response.getMeetingPointAddress() != null ? response.getMeetingPointAddress() : "Punto de encuentro a confirmar");
+        local.setGuideName(response.getGuideName());
+        local.setVoucherCode("VOU-" + response.getId()); // Generamos un código de voucher visual
+        
         return local;
     }
 
@@ -65,6 +76,15 @@ public class Reserva {
     public boolean isPendingCancellation() { return pendingCancellation; }
     public void setPendingCancellation(boolean pendingCancellation) { this.pendingCancellation = pendingCancellation; }
 
+    public String getMeetingPoint() { return meetingPoint; }
+    public void setMeetingPoint(String meetingPoint) { this.meetingPoint = meetingPoint; }
+
+    public String getGuideName() { return guideName; }
+    public void setGuideName(String guideName) { this.guideName = guideName; }
+
+    public String getVoucherCode() { return voucherCode; }
+    public void setVoucherCode(String voucherCode) { this.voucherCode = voucherCode; }
+
     public ReservationResponse toResponse() {
         ReservationResponse res = new ReservationResponse();
         res.setId(this.getId());
@@ -75,6 +95,8 @@ public class Reserva {
         res.setParticipants(this.getParticipants());
         res.setStatus(this.getStatus());
         res.setTotalPrice(this.getTotalPrice());
+        res.setMeetingPointAddress(this.getMeetingPoint());
+        res.setGuideName(this.getGuideName());
         return res;
     }
 }

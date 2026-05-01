@@ -52,10 +52,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
+                    android:fontFamily="@font/plus_jakarta_sans_bold"
                     android:text="Filtros"
                     android:textColor="#FFFFFF"
-                    android:textSize="13sp"
-                    android:textStyle="bold" />
+                    android:textSize="13sp" />
 
             </LinearLayout>
 
@@ -93,10 +93,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
+                    android:fontFamily="@font/plus_jakarta_sans_bold"
                     android:text="Historial de actividades"
                     android:textColor="#333333"
-                    android:textSize="13sp"
-                    android:textStyle="bold" />
+                    android:textSize="13sp" />
 
             </LinearLayout>
 
@@ -110,6 +110,7 @@
         android:layout_height="wrap_content"
         android:background="#FFF3CD"
         android:padding="8dp"
+        android:fontFamily="@font/plus_jakarta_sans_medium"
         android:text="Modo sin conexión. Mostrando reservas guardadas."
         android:textAlignment="center"
         android:textColor="#856404"

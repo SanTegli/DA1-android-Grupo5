@@ -119,4 +119,7 @@ public interface ApiService {
 
     @GET("/api/v1/news")
     Call<List<NewsItem>> getNews();
+
+    @GET("/api/v1/activities/favorites")
+    Call<List<Activity>> getFavoriteActivities();
 }
