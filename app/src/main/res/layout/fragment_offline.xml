@@ -39,7 +39,7 @@
         android:id="@+id/btnViewLocalReservations"
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:text="Ver Mis Reservas Locales"
+        android:text="VER MIS RESERVAS LOCALES"
         android:textColor="#FFFFFF"
         app:backgroundTint="#7F0303"
         app:cornerRadius="16dp"

@@ -6,8 +6,6 @@ public class UserPreferences {
     private String preferredDestination;
     private String activityDuration;
 
-    public UserPreferences() {}
-
     public UserPreferences(String preferredCategory, Integer maxPrice, String preferredDestination, String activityDuration) {
         this.preferredCategory = preferredCategory;
         this.maxPrice = maxPrice;

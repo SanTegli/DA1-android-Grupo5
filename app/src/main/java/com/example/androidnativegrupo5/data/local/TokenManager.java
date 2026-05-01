@@ -2,6 +2,7 @@ package com.example.androidnativegrupo5.data.local;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import com.example.androidnativegrupo5.data.model.UserResponse;
 import com.google.gson.Gson;
@@ -26,10 +27,13 @@ public class TokenManager {
     }
 
     public String getToken() {
-        return prefs.getString(KEY_TOKEN, null);
+        String token = prefs.getString(KEY_TOKEN, null);
+        Log.d("TOKEN_DEBUG", "Obteniendo token: " + token);
+        return token;
     }
 
     public void saveToken(String token) {
+        Log.d("TOKEN_DEBUG", "Guardando token: " + token);
         prefs.edit().putString(KEY_TOKEN, token).apply();
     }
 

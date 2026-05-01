@@ -22,14 +22,12 @@ public class Reserva {
     private double totalPrice;
     private String imageUrl;
     private boolean pendingCancellation;
-    
-    // Offline Rescheduling (Modo Pro)
+
     private boolean pendingSync;
     private String newDate;
     private String newTime;
     private Integer newParticipants;
-    
-    // Información esencial para el Voucher Offline (Punto 8)
+
     private String meetingPoint;
     private String guideName;
     private String voucherCode; 
@@ -47,11 +45,10 @@ public class Reserva {
         local.setStatus(response.getStatus());
         local.setTotalPrice(response.getTotalPrice());
         local.setImageUrl(response.getImageUrl());
-        
-        // Asignamos datos adicionales si vienen en el response
+
         local.setMeetingPoint(response.getMeetingPointAddress() != null ? response.getMeetingPointAddress() : "Punto de encuentro a confirmar");
         local.setGuideName(response.getGuideName());
-        local.setVoucherCode("VOU-" + response.getId()); // Generamos un código de voucher visual
+        local.setVoucherCode("VOU-" + response.getId());
         
         return local;
     }
@@ -124,4 +121,5 @@ public class Reserva {
         res.setPendingSync(this.pendingSync || this.pendingCancellation);
         return res;
     }
+
 }

@@ -27,7 +27,6 @@ public class ReservationResponse {
     @SerializedName("guideName")
     private String guideName;
 
-    // UI helper for offline sync status
     private boolean pendingSync;
 
     public Long getId() { return id; }

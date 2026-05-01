@@ -230,8 +230,13 @@ public class ProfileFragment extends Fragment {
 
     private void handleLogout() {
         tokenManager.clearToken();
+
         NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_content_main);
-        navController.navigate(R.id.WelcomeFragment);
+
+        navController.navigate(R.id.WelcomeFragment, null, new androidx.navigation.NavOptions.Builder()
+                .setPopUpTo(R.id.nav_graph, true)
+                .setLaunchSingleTop(true)
+                .build());
     }
 
     private void setLoading(boolean isLoading) {

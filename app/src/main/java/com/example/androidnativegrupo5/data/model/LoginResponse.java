@@ -1,6 +1,7 @@
 package com.example.androidnativegrupo5.data.model;
 
 public class LoginResponse {
+
     private String token;
     private String mensaje;
 

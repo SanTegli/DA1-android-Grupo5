@@ -69,7 +69,7 @@
         <action
             android:id="@+id/action_FirstFragment_to_OfflineFragment"
             app:destination="@id/OfflineFragment"
-            app:popUpTo="@id/nav_graph"
+            app:popUpTo="@id/WelcomeFragment"
             app:popUpToInclusive="true" />
         <action
             android:id="@+id/action_FirstFragment_to_ExploreActivitiesFragment"
@@ -174,7 +174,7 @@
         <action
             android:id="@+id/action_OtpFragment_to_FirstFragment"
             app:destination="@id/FirstFragment"
-            app:popUpTo="@id/nav_graph"
+            app:popUpTo="@id/WelcomeFragment"
             app:popUpToInclusive="true" />
     </fragment>
 
