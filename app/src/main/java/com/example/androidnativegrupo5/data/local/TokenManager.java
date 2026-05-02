@@ -19,6 +19,7 @@ public class TokenManager {
     private static final String PREF_NAME = "auth";
     private static final String KEY_TOKEN = "token";
     private static final String KEY_USER_PROFILE = "user_profile";
+    private static final String KEY_PROFILE_IMAGE_URI = "profile_image_uri";
 
     @Inject
     public TokenManager(@ApplicationContext Context context) {
@@ -38,7 +39,7 @@ public class TokenManager {
     }
 
     public void clearToken() {
-        prefs.edit().remove(KEY_TOKEN).remove(KEY_USER_PROFILE).apply();
+        prefs.edit().remove(KEY_TOKEN).remove(KEY_USER_PROFILE).remove(KEY_PROFILE_IMAGE_URI).apply();
     }
 
     public void saveUserProfile(UserResponse user) {
@@ -58,5 +59,13 @@ public class TokenManager {
 
     public boolean isBiometricEnabled() {
         return prefs.getBoolean("biometric_enabled", false);
+    }
+
+    public void saveProfileImageUri(String uri) {
+        prefs.edit().putString(KEY_PROFILE_IMAGE_URI, uri).apply();
+    }
+
+    public String getProfileImageUri() {
+        return prefs.getString(KEY_PROFILE_IMAGE_URI, null);
     }
 }

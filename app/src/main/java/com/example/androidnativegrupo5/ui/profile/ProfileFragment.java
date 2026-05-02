@@ -66,6 +66,20 @@ public class ProfileFragment extends Fragment {
     private TextView userNameDisplay;
     private Uri selectedImageUri;
 
+    private ActivityResultLauncher<String> imagePickerLauncher =
+            registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
+                if (uri != null) {
+                    selectedImageUri = uri;
+
+                    requireContext().getContentResolver()
+                            .takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+                    tokenManager.saveProfileImageUri(uri.toString());
+
+                    Glide.with(this).load(uri).circleCrop().into(profileImageView);
+                }
+            });
+
     private final List<String> categories = Arrays.asList("Aventura", "Cultura", "Gastronomía", "Bienestar", "Naturaleza");
     private final List<String> destinations = Arrays.asList("Bariloche", "Buenos Aires", "Mendoza", "Salta", "Iguazú");
     private final List<String> durations = Arrays.asList("1-2 horas", "Media jornada", "Día completo");
@@ -99,11 +113,9 @@ public class ProfileFragment extends Fragment {
         budgetSlider = view.findViewById(R.id.budgetSlider);
 
         setupSpinners();
-        
-        // Estrategia: Cargar primero lo que hay en cache (Offline)
+
         loadOfflineProfile();
-        
-        // Intentar actualizar desde el servidor si hay internet
+
         if (NetworkUtils.isOnline(requireContext())) {
             loadProfile();
         } else {
@@ -130,6 +142,10 @@ public class ProfileFragment extends Fragment {
             btnFavorites.setOnClickListener(v ->
                 NavHostFragment.findNavController(this).navigate(R.id.action_ProfileFragment_to_FavoritesFragment));
         }
+
+        profileImageView.setOnClickListener(v -> {
+            imagePickerLauncher.launch("image/*");
+        });
     }
 
     private void loadOfflineProfile() {
@@ -178,6 +194,13 @@ public class ProfileFragment extends Fragment {
             if (prefs.getPreferredCategory() != null) categorySpinner.setText(prefs.getPreferredCategory(), false);
             if (prefs.getPreferredDestination() != null) destinationSpinner.setText(prefs.getPreferredDestination(), false);
             if (prefs.getMaxPrice() != null) budgetSlider.setValue(prefs.getMaxPrice().floatValue());
+        }
+
+        String localUri = tokenManager.getProfileImageUri();
+        if (localUri != null && isAdded()) {
+            Glide.with(this).load(Uri.parse(localUri)).circleCrop().into(profileImageView);
+        } else if (user.getProfileImageUrl() != null && isAdded()) {
+            Glide.with(this).load(user.getProfileImageUrl()).circleCrop().into(profileImageView);
         }
     }
 
