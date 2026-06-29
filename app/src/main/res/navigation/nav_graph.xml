@@ -113,6 +113,36 @@
         <argument
             android:name="activityPrice"
             app:argType="float" />
+        <action
+            android:id="@+id/action_ReservationFragment_to_OrderSummaryFragment"
+            app:destination="@id/OrderSummaryFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/OrderSummaryFragment"
+        android:name="com.example.androidnativegrupo5.ui.reservations.OrderSummaryFragment"
+        android:label="Resumen de Pago"
+        tools:layout="@layout/fragment_order_summary">
+        <argument android:name="activityId" app:argType="long" />
+        <argument android:name="activityName" app:argType="string" />
+        <argument android:name="activityPrice" app:argType="float" />
+        <argument android:name="slots" app:argType="integer" />
+        <argument android:name="date" app:argType="string" />
+        <argument android:name="time" app:argType="string" />
+        <action
+            android:id="@+id/action_OrderSummaryFragment_to_MyReservationsFragment"
+            app:destination="@id/MyReservationsFragment"
+            app:popUpTo="@id/FirstFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/TransactionsFragment"
+        android:name="com.example.androidnativegrupo5.ui.profile.TransactionsFragment"
+        android:label="Transacciones"
+        tools:layout="@layout/fragment_transactions">
+        <action
+            android:id="@+id/action_TransactionsFragment_to_ManageReservationFragment"
+            app:destination="@id/ManageReservationFragment" />
     </fragment>
 
     <fragment
@@ -165,6 +195,9 @@
         <action
             android:id="@+id/action_ProfileFragment_to_FavoritesFragment"
             app:destination="@id/FavoritesFragment" />
+        <action
+            android:id="@+id/action_ProfileFragment_to_TransactionsFragment"
+            app:destination="@id/TransactionsFragment" />
     </fragment>
 
     <fragment
@@ -211,6 +244,9 @@
         <action
             android:id="@+id/action_ManageReservationFragment_to_RatingFragment"
             app:destination="@id/RatingFragment" />
+        <action
+            android:id="@+id/action_ManageReservationFragment_to_TransactionsFragment"
+            app:destination="@id/TransactionsFragment" />
     </fragment>
 
 </navigation>

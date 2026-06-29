@@ -18,6 +18,8 @@ import com.example.androidnativegrupo5.data.model.CreateReservationRequest;
 import com.example.androidnativegrupo5.data.model.RescheduleReservationRequest;
 import com.example.androidnativegrupo5.data.model.ReservationResponse;
 
+import com.example.androidnativegrupo5.data.model.PaymentRequest;
+import com.example.androidnativegrupo5.data.model.Transaction;
 import com.example.androidnativegrupo5.data.model.UserResponse;
 
 import java.util.List;
@@ -69,25 +71,26 @@ public interface ApiService {
     Call<Activity> getActivityById(@Path("id") Long id);
 
     @POST("/api/v1/reservations")
-    Call<ReservationResponse> createReservation(@Body CreateReservationRequest request);
+    Call<ReservationResponse> createReservation(@Header("Authorization") String token, @Body CreateReservationRequest request);
 
     @GET("/api/v1/activities/{id}/availability")
     Call<List<AvailabilitySlotResponse>> getAvailability(@Path("id") Long id);
 
     @GET("api/v1/reservations/me")
-    Call<List<ReservationResponse>> getMyReservations();
+    Call<List<ReservationResponse>> getMyReservations(@Header("Authorization") String token);
 
     @PATCH("/api/v1/reservations/{id}/cancel")
     Call<Void> cancelReservation(@Path("id") Long id);
 
     @GET("/api/v1/users/me")
-    Call<UserResponse> getMyProfile();
+    Call<UserResponse> getMyProfile(@Header("Authorization") String token);
 
     @PUT("/api/v1/users/me")
-    Call<UserResponse> updateProfile(@Body UserResponse user);
+    Call<UserResponse> updateProfile(@Header("Authorization") String token, @Body UserResponse user);
 
     @GET("api/v1/history")
     Call<List<ActivityHistoryItem>> getHistory(
+            @Header("Authorization") String token,
             @Query("fromDate") String fromDate,
             @Query("toDate") String toDate,
             @Query("destination") String destination
@@ -95,6 +98,7 @@ public interface ApiService {
 
     @POST("/api/v1/ratings/activity/{activityId}")
     Call<Rating> createRating(
+            @Header("Authorization") String token,
             @Path("activityId") Long activityId,
             @Body CreateRatingRequest request
     );
@@ -106,10 +110,10 @@ public interface ApiService {
     Call<RatingStatsResponse> getRatingStats(@Path("activityId") Long activityId);
 
     @GET("/api/v1/ratings/my-ratings")
-    Call<List<Rating>> getMyRatings();
+    Call<List<Rating>> getMyRatings(@Header("Authorization") String token);
 
     @DELETE("/api/v1/ratings/{id}")
-    Call<Void> deleteRating(@Path("id") Long id);
+    Call<Void> deleteRating(@Header("Authorization") String token, @Path("id") Long id);
 
     @PUT("/api/v1/reservations/{id}/reschedule")
     Call<ReservationResponse> rescheduleReservation(
@@ -121,5 +125,11 @@ public interface ApiService {
     Call<List<NewsItem>> getNews();
 
     @GET("/api/v1/activities/favorites")
-    Call<List<Activity>> getFavoriteActivities();
+    Call<List<Activity>> getFavoriteActivities(@Header("Authorization") String token);
+
+    @POST("/api/v1/payments")
+    Call<ReservationResponse> processPayment(@Header("Authorization") String token, @Body PaymentRequest request);
+
+    @GET("/api/v1/transactions/me")
+    Call<List<Transaction>> getMyTransactions(@Header("Authorization") String token);
 }

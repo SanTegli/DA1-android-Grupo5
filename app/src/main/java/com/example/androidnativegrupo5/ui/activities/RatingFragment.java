@@ -99,7 +99,8 @@ public class RatingFragment extends Fragment {
                 comment
         );
 
-        apiService.createRating(activityId, request).enqueue(new Callback<Rating>() {
+        String token = "Bearer " + tokenManager.getToken();
+        apiService.createRating(token, activityId, request).enqueue(new Callback<Rating>() {
             @Override
             public void onResponse(@NonNull Call<Rating> call,
                                    @NonNull Response<Rating> response) {

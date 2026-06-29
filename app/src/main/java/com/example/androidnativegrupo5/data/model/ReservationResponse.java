@@ -4,21 +4,34 @@ import com.google.gson.annotations.SerializedName;
 
 public class ReservationResponse {
 
+    @SerializedName("id")
     private Long id;
 
     @SerializedName(value = "activityId", alternate = {"activity_id"})
     private Long activityId;
 
+    @SerializedName("activityName")
     private String activityName;
+
+    @SerializedName("destination")
     private String destination;
 
     @SerializedName(value = "imageUrl", alternate = {"image_url"})
     private String imageUrl;
 
+    @SerializedName("participants")
     private Integer participants;
+
+    @SerializedName("date")
     private String date;
+
+    @SerializedName("time")
     private String time;
+
+    @SerializedName("status")
     private String status;
+
+    @SerializedName("totalPrice")
     private double totalPrice;
 
     @SerializedName("meetingPointAddress")
@@ -27,7 +40,6 @@ public class ReservationResponse {
     @SerializedName("guideName")
     private String guideName;
 
-    // 🔥 NUEVO: CALIFICACIÓN
     @SerializedName("activityScore")
     private Integer activityScore;
 
@@ -37,7 +49,6 @@ public class ReservationResponse {
     @SerializedName(value = "ratingComment", alternate = {"comment"})
     private String ratingComment;
 
-    // UI helper for offline sync status
     private boolean pendingSync;
 
     // ===== GETTERS / SETTERS =====
@@ -77,8 +88,6 @@ public class ReservationResponse {
 
     public String getGuideName() { return guideName; }
     public void setGuideName(String guideName) { this.guideName = guideName; }
-
-    // 🔥 GETTERS NUEVOS
 
     public Integer getActivityScore() { return activityScore; }
     public void setActivityScore(Integer activityScore) { this.activityScore = activityScore; }

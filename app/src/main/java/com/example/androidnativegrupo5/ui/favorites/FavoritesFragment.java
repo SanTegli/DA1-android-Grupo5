@@ -13,6 +13,7 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.androidnativegrupo5.R;
+import com.example.androidnativegrupo5.data.local.TokenManager;
 import com.example.androidnativegrupo5.data.local.db.FavoriteActivity;
 import com.example.androidnativegrupo5.data.local.db.FavoriteDao;
 import com.example.androidnativegrupo5.data.model.Activity;
@@ -43,6 +44,9 @@ public class FavoritesFragment extends Fragment {
 
     @Inject
     ApiService apiService;
+
+    @Inject
+    TokenManager tokenManager;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -86,7 +90,8 @@ public class FavoritesFragment extends Fragment {
      * Paso 1: Intentar sincronizar con el servidor
      */
     private void syncFavoritesWithServer() {
-        apiService.getFavoriteActivities().enqueue(new Callback<List<Activity>>() {
+        String token = "Bearer " + tokenManager.getToken();
+        apiService.getFavoriteActivities(token).enqueue(new Callback<List<Activity>>() {
             @Override
             public void onResponse(Call<List<Activity>> call, Response<List<Activity>> response) {
                 if (response.isSuccessful() && response.body() != null) {

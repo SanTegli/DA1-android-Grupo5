@@ -104,6 +104,7 @@ public class ProfileFragment extends Fragment {
         Button btnMyReservations = view.findViewById(R.id.btnMyReservations);
         Button btnHistory = view.findViewById(R.id.btnMyHistory);
         Button btnFavorites = view.findViewById(R.id.btnFavorites);
+        Button btnTransactions = view.findViewById(R.id.btnTransactions);
         logoutButton = view.findViewById(R.id.logoutButton);
         saveButton = view.findViewById(R.id.saveButton);
         progressBar = view.findViewById(R.id.progressBar);
@@ -143,6 +144,11 @@ public class ProfileFragment extends Fragment {
                 NavHostFragment.findNavController(this).navigate(R.id.action_ProfileFragment_to_FavoritesFragment));
         }
 
+        if (btnTransactions != null) {
+            btnTransactions.setOnClickListener(v ->
+                    NavHostFragment.findNavController(this).navigate(R.id.action_ProfileFragment_to_TransactionsFragment));
+        }
+
         profileImageView.setOnClickListener(v -> {
             imagePickerLauncher.launch("image/*");
         });
@@ -159,7 +165,8 @@ public class ProfileFragment extends Fragment {
     private void loadProfile() {
         Log.d(TAG, "Solicitando perfil al servidor...");
         setLoading(true);
-        apiService.getMyProfile().enqueue(new Callback<UserResponse>() {
+        String token = "Bearer " + tokenManager.getToken();
+        apiService.getMyProfile(token).enqueue(new Callback<UserResponse>() {
             @Override
             public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
                 setLoading(false);
@@ -219,7 +226,8 @@ public class ProfileFragment extends Fragment {
         req.setPreferences(prefs);
         
         setLoading(true);
-        apiService.updateProfile(req).enqueue(new Callback<UserResponse>() {
+        String token = "Bearer " + tokenManager.getToken();
+        apiService.updateProfile(token, req).enqueue(new Callback<UserResponse>() {
             @Override
             public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
                 setLoading(false);
