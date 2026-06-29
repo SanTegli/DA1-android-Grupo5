@@ -13,6 +13,7 @@ import androidx.core.content.ContextCompat;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
 
 import com.example.androidnativegrupo5.R;
 import com.example.androidnativegrupo5.data.local.db.Reserva;
@@ -117,44 +118,30 @@ public class ReservationFragment extends Fragment {
     private void confirmReservation() {
         if (!validateFields()) return;
 
-        long activityId = getArguments().getLong("activityId");
-        int slotsRequested = Integer.parseInt(binding.editSlots.getText().toString());
-
-        Log.d(TAG, "Intentando confirmar reserva: " + slotsRequested + " personas");
-
-        CreateReservationRequest request = new CreateReservationRequest(
-                activityId,
-                slotsRequested,
-                selectedDateFormatted,
-                selectedTime
-        );
-
+        // CORRECCIÓN: Validamos sesión antes de avanzar en cualquiera de los dos flujos
         String token = tokenManager.getToken();
         if (token == null) {
             Toast.makeText(getContext(), "Inicie sesión para reservar", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        apiService.createReservation(request).enqueue(new Callback<ReservationResponse>() {
-            @Override
-            public void onResponse(Call<ReservationResponse> call, Response<ReservationResponse> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    Log.d(TAG, "Reserva exitosa en server. Guardando local...");
-                    Reserva reservaLocal = Reserva.fromResponse(response.body());
-                    executor.execute(() -> reservaDao.insert(reservaLocal));
-                    Toast.makeText(getContext(), "¡Reserva exitosa!", Toast.LENGTH_SHORT).show();
-                    if (getActivity() != null) getActivity().getOnBackPressedDispatcher().onBackPressed();
-                } else {
-                    Log.e(TAG, "Error en reserva server. Código: " + response.code());
-                    Toast.makeText(getContext(), "Error al realizar la reserva", Toast.LENGTH_SHORT).show();
-                }
-            }
-            @Override
-            public void onFailure(Call<ReservationResponse> call, Throwable t) {
-                Log.e(TAG, "Fallo de conexión al reservar: " + t.getMessage());
-                Toast.makeText(getContext(), "Error de red", Toast.LENGTH_SHORT).show();
-            }
-        });
+        long activityId = getArguments().getLong("activityId");
+        int slotsRequested = Integer.parseInt(binding.editSlots.getText().toString());
+
+        Log.d(TAG, "Redirigiendo orden al resumen de pantalla (Precio: " + activityPrice + ")");
+
+        // CORRECCIÓN: Mandamos TODOS los flujos (pago y gratis) al resumen de orden para mantener consistencia.
+        // El resumen ocultará la tarjeta si el precio es cero y enviará la estructura de datos limpia al backend.
+        Bundle bundle = new Bundle();
+        bundle.putLong("activityId", activityId);
+        bundle.putString("activityName", activityName);
+        bundle.putFloat("activityPrice", (float) activityPrice);
+        bundle.putInt("slots", slotsRequested);
+        bundle.putString("date", selectedDateFormatted);
+        bundle.putString("time", selectedTime);
+
+        Navigation.findNavController(requireView())
+                .navigate(R.id.action_ReservationFragment_to_OrderSummaryFragment, bundle);
     }
 
     private boolean validateFields() {
@@ -189,11 +176,10 @@ public class ReservationFragment extends Fragment {
                 if (response.isSuccessful() && response.body() != null) {
                     List<AvailabilitySlotResponse> rawList = response.body();
                     Log.d(TAG, "Horarios recibidos del server: " + rawList.size());
-                    
-                    // Filtrar pasados y duplicados (Punto solicitado)
+
                     allSlots = filterAvailability(rawList);
                     Log.d(TAG, "Horarios después de filtrar (pasados/duplicados): " + allSlots.size());
-                    
+
                     showDates();
                 }
             }
@@ -208,16 +194,14 @@ public class ReservationFragment extends Fragment {
         List<AvailabilitySlotResponse> filtered = new ArrayList<>();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US);
         String currentDateTimeStr = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US).format(new Date());
-        
+
         Set<String> seen = new LinkedHashSet<>();
-        
+
         for (AvailabilitySlotResponse slot : list) {
             String key = slot.getDate() + " " + (slot.getTime().length() > 5 ? slot.getTime().substring(0, 5) : slot.getTime());
-            
-            // Filtro duplicados
+
             if (seen.contains(key)) continue;
-            
-            // Filtro pasados
+
             if (key.compareTo(currentDateTimeStr) >= 0) {
                 filtered.add(slot);
                 seen.add(key);
@@ -236,7 +220,7 @@ public class ReservationFragment extends Fragment {
             Chip chip = new Chip(requireContext());
             chip.setText(date);
             chip.setCheckable(true);
-            chip.setCheckedIconVisible(false); // RESTORE: Sacar tilde (Punto solicitado)
+            chip.setCheckedIconVisible(false);
             chip.setChipBackgroundColorResource(R.color.chip_selector_bg);
             chip.setTextColor(ContextCompat.getColorStateList(requireContext(), R.color.chip_selector));
             chip.setOnClickListener(v -> {
@@ -259,12 +243,12 @@ public class ReservationFragment extends Fragment {
                 String time = slot.getTime().length() >= 5 ? slot.getTime().substring(0, 5) : slot.getTime();
                 chip.setText(time);
                 chip.setCheckable(true);
-                chip.setCheckedIconVisible(false); // RESTORE: Sacar tilde (Punto solicitado)
+                chip.setCheckedIconVisible(false);
                 chip.setChipBackgroundColorResource(R.color.chip_selector_bg);
                 chip.setTextColor(ContextCompat.getColorStateList(requireContext(), R.color.chip_selector));
-                
+
                 if (slot.getAvailableSlots() == 0) chip.setEnabled(false);
-                
+
                 chip.setOnClickListener(v -> {
                     selectedTime = time;
                     availableSlots = slot.getAvailableSlots();

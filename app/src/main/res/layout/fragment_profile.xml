@@ -266,6 +266,18 @@
                 app:cornerRadius="16dp" />
 
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnTransactions"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="12dp"
+                android:fontFamily="@font/plus_jakarta_sans_bold"
+                android:text="Mis Transacciones"
+                android:textColor="#7F0303"
+                app:strokeColor="#7F0303"
+                app:cornerRadius="16dp" />
+
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/logoutButton"
                 style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="match_parent"

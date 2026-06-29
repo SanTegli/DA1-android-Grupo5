@@ -163,8 +163,9 @@ public class HistoryFragment extends Fragment {
     private void loadHistory() {
         if (binding == null) return;
 
-        String token = tokenManager.getToken();
-        if (token == null) return;
+        String tokenRaw = tokenManager.getToken();
+        if (tokenRaw == null) return;
+        String token = "Bearer " + tokenRaw;
 
         binding.progressBarHistory.setVisibility(View.VISIBLE);
 
@@ -178,7 +179,7 @@ public class HistoryFragment extends Fragment {
 
         Log.d(TAG, "loadHistory: Cargando historial con filtros.");
 
-        apiService.getHistory(fromDate, toDate, destination).enqueue(new Callback<List<ActivityHistoryItem>>() {
+        apiService.getHistory(token, fromDate, toDate, destination).enqueue(new Callback<List<ActivityHistoryItem>>() {
             @Override
             public void onResponse(@NonNull Call<List<ActivityHistoryItem>> call,
                                    @NonNull Response<List<ActivityHistoryItem>> response) {

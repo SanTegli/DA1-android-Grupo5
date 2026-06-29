@@ -124,6 +124,11 @@ public class DetailReservationFragment extends Fragment implements OnMapReadyCal
         });
 
         binding.btnGetDirections.setOnClickListener(v -> openMapsNavigation());
+
+        binding.btnViewTransaction.setOnClickListener(v -> {
+            NavHostFragment.findNavController(this)
+                    .navigate(R.id.action_ManageReservationFragment_to_TransactionsFragment);
+        });
     }
 
     private void loadData() {
@@ -135,7 +140,11 @@ public class DetailReservationFragment extends Fragment implements OnMapReadyCal
     }
 
     private void loadReservation() {
-        apiService.getMyReservations().enqueue(new Callback<List<ReservationResponse>>() {
+        // Obtenemos el token desde el TokenManager
+        String token = "Bearer " + tokenManager.getToken();
+
+        // Ahora pasamos el token como argumento
+        apiService.getMyReservations(token).enqueue(new Callback<List<ReservationResponse>>() {
             @Override
             public void onResponse(@NonNull Call<List<ReservationResponse>> call,
                                    @NonNull Response<List<ReservationResponse>> response) {
@@ -227,6 +236,7 @@ public class DetailReservationFragment extends Fragment implements OnMapReadyCal
 
         binding.btnCancelReservation.setVisibility((isCancelled || isFinished) ? View.GONE : View.VISIBLE);
         binding.btnRescheduleReservation.setVisibility((isCancelled || isFinished) ? View.GONE : View.VISIBLE);
+        binding.btnViewTransaction.setVisibility(reservation.getTotalPrice() > 0 ? View.VISIBLE : View.GONE);
 
         // 🔥 DEBUG (CLAVE)
         Log.d(TAG, "Rating DEBUG -> activityScore: "
@@ -603,6 +613,7 @@ public class DetailReservationFragment extends Fragment implements OnMapReadyCal
             return;
         }
 
+        String token = "Bearer " + tokenManager.getToken();
         RescheduleReservationRequest req =
                 new RescheduleReservationRequest(d, time, slotsVal);
 
@@ -663,6 +674,7 @@ public class DetailReservationFragment extends Fragment implements OnMapReadyCal
             return;
         }
 
+        String token = "Bearer " + tokenManager.getToken();
         apiService.cancelReservation(reservationId).enqueue(new Callback<Void>() {
             @Override
             public void onResponse(@NonNull Call<Void> c, @NonNull Response<Void> r) {

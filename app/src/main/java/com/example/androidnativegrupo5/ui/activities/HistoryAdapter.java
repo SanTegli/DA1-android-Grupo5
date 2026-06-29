@@ -88,8 +88,8 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
         }
 
         public void bind(ActivityHistoryItem item, OnHistoryClickListener listener) {
-            textDate.setText(item.getDate());
-            textName.setText(item.getActivityName());
+            textDate.setText(item.getDate() + " (" + (item.getDuration() != null ? item.getDuration() : "-") + ")");
+            textName.setText(item.getActivityName() + " (Reserva #" + item.getReservationId() + ")");
             textDestination.setText(safe(item.getDestination()));
             textGuide.setText("Guía: " + safe(item.getGuideName()));
 
